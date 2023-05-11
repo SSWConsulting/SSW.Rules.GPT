@@ -1,0 +1,44 @@
+{
+	"labels": [
+		{
+			"name": "Type: Feature",
+			"description": "A suggested idea for this project",
+			"color": "6DFF6D"
+		},
+		{
+			"name": "Type: Bug",
+			"description": "A problem with existing functionality",
+			"color": "FF2222"
+		},
+		{
+			"name": "Type: DevOps",
+			"description": "Setting up of DevOps processes e.g. GitHub Actions, Azure DevOps Pipelines etc",
+			"color": "1D76DB"
+		},
+		{
+			"name": "Type: Refactor",
+			"description": "A code quality improvement e.g. Tech debt",
+			"color": "0E8A16"
+		},
+		{
+			"name": "Type: Documentation",
+			"description": "Updating documentation (e.g. README, Wiki, Guides etc.)",
+			"color": "BABABA"
+		},
+		{
+			"name": "Area: Backend",
+			"description": "Relates to backend development e.g. API, Database etc",
+			"color": "5319E7"
+		},
+		{
+			"name": "Area: Frontend",
+			"description": "Relates to frontend development e.g. Angular, React, XAML etc",
+			"color": "AC97F2"
+		},
+		{
+			"name": "Good First Issue",
+			"description": "Great for a developer just starting out on this project",
+			"color": "7057ff"
+		}
+	]
+}
