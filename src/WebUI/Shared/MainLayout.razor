@@ -1,0 +1,68 @@
+﻿@inherits LayoutComponentBase
+
+@inject StatusAppClient StatusAppClient
+@inject StatusAppDialogService StatusAppDialogService
+@inject DataState DataState
+@inject AuthService AuthService
+@inject SignalRClient SignalRClient
+
+
+<MudThemeProvider Theme="_theme" @bind-IsDarkMode="@_isDarkMode"/>
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="0">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudSpacer />
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" >Login</MudButton>
+        <MudTooltip Duration="1000" Text="@( _isDarkMode ? "Switch to Light Theme" : "Switch to Dark Theme")">
+            <MudIconButton Icon="@( _isDarkMode ? @Icons.Material.Rounded.LightMode : @Icons.Material.Outlined.DarkMode)" Color="Color.Inherit" OnClick="@ToggleDarkMode"/>
+        </MudTooltip>
+        <MudIconButton Icon="@Icons.Custom.Brands.MudBlazor" Color="Color.Inherit" Href="https://mudblazor.com/" Target="_blank" />
+        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Href="https://github.com/MudBlazor/MudBlazor/" Target="_blank" />
+    </MudAppBar>
+    <MudDrawer @bind-Open="_drawerOpen" Elevation="1">
+        <MudDrawerHeader>
+            <MudStack Style="width: 100%" Justify="Justify.Center">
+                <MudImage Src="images/SSWlogo.svg" Height="40" ObjectFit="ObjectFit.ScaleDown"></MudImage>
+            </MudStack>
+            @* <MudText Typo="Typo.h6">SSW Rules Bot</MudText> *@
+        </MudDrawerHeader>
+        <NavMenu />
+    </MudDrawer>
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.Large" Class="my-16 pt-16">
+                @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    bool _drawerOpen = true;
+    bool _isDarkMode = false;
+
+    private MudTheme _theme = new MudTheme
+    {
+        Palette = new PaletteLight()
+        {
+            Primary = "#cc4141",
+            AppbarBackground = "#cc4141",
+        }
+    };
+    
+    private void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+    
+    private void ToggleDarkMode()
+    {
+        _isDarkMode = !_isDarkMode;
+    }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await SignalRClient.StartAsync();
+    }
+}

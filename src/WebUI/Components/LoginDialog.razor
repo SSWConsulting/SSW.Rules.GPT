@@ -1,0 +1,144 @@
+﻿@inject StatusAppClient HttpClient
+@inject DataState DataState
+
+<MudDialog>
+    <DialogContent>
+        <MudButtonGroup Class="pt-5" Style="width: 100%" Color="Color.Primary" Variant="Variant.Outlined" OverrideStyles="false">
+            <MudButton Color="Color.Primary" FullWidth="true" Variant="!RegisterPageSelected ? Variant.Filled : Variant.Outlined" OnClick="SelectLoginPage">Login</MudButton>
+            <MudButton Color="Color.Primary" FullWidth="true" Variant="RegisterPageSelected ? Variant.Filled : Variant.Outlined" OnClick="SelectRegisterPage">Register</MudButton>
+        </MudButtonGroup>
+        @if (RegisterPageSelected == false)
+        {
+            <MudTextField @bind-Value="LoginUserName" Label="Username" Variant="Variant.Text"></MudTextField>
+            <MudTextField @bind-Value="LoginPassword" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" Label="Password" OnAdornmentClick="ToggleShowPassword" Variant="Variant.Text"></MudTextField>
+            @if (loginState == LoginState.Error)
+            {
+                <MudAlert Severity="Severity.Error" Dense="true" Class="my-2">@LoginErrorMessage</MudAlert>
+            }
+        }
+        else
+        {
+            @if (registerState == RegisterState.Error)
+            {
+                <MudAlert Severity="Severity.Error" Dense="true" Class="my-2">@RegisterErrorMessage</MudAlert>
+            }
+        }
+    </DialogContent>
+    <DialogActions>
+        @if (RegisterPageSelected == false)
+        {
+            <MudButton Color="Color.Primary" OnClick="SignInAsync">Login</MudButton>
+        }
+        else
+        {
+            <MudButton Color="Color.Primary" >Register</MudButton>
+        }
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; } = default!;
+
+    public enum LoginState
+    {
+        Initial,
+        Sending,
+        Error
+    }
+    public enum RegisterState
+    {
+        Initial,
+        Sending,
+        Error
+    }
+
+    private bool ShowPassword { get; set; } = false;
+    private InputType PasswordInput = InputType.Password;
+    private string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+    public string LoginUserName { get; set; } = string.Empty;
+    public string LoginPassword { get; set; } = string.Empty;
+
+    public string LoginErrorMessage { get; set; } = string.Empty;
+    public string RegisterErrorMessage { get; set; } = string.Empty;
+    public LoginState loginState { get; set; } = LoginState.Initial;
+    public RegisterState registerState { get; set; } = RegisterState.Initial;
+
+    private bool RegisterPageSelected { get; set; } = false;
+
+    private void ToggleShowPassword()
+    {
+        if (ShowPassword)
+        {
+            SetShowPasswordFalse();
+        }
+        else
+        {
+            SetShowPasswordTrue();
+        }
+    }
+
+    private void SetShowPasswordFalse()
+    {
+        ShowPassword = false;
+        PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+        PasswordInput = InputType.Password;
+    }
+    
+    private void SetShowPasswordTrue()
+    {
+        ShowPassword = true;
+        PasswordInputIcon = Icons.Material.Filled.Visibility;
+        PasswordInput = InputType.Text;
+    }
+
+    private void ClearLoginAndRegisterFields()
+    {
+        LoginUserName = string.Empty;
+        LoginPassword = string.Empty;
+        LoginErrorMessage = string.Empty;
+        RegisterErrorMessage = string.Empty;
+        loginState = LoginState.Initial;
+        registerState = RegisterState.Initial;
+    }
+
+    private void SelectRegisterPage()
+    {
+        if (RegisterPageSelected) return;
+        ClearLoginAndRegisterFields();
+        SetShowPasswordFalse();
+        RegisterPageSelected = true;
+    }
+
+    private void SelectLoginPage()
+    {
+        if (!RegisterPageSelected) return;
+        ClearLoginAndRegisterFields();
+        SetShowPasswordFalse();
+        RegisterPageSelected = false;
+    }
+    
+    private async Task SignInAsync()
+    {
+        try
+        {
+            loginState = LoginState.Sending;
+            //TODO: This may not be ideal behaviour
+        
+            MudDialog.Close(DialogResult.Ok(true));
+            
+        }
+        catch (ApiException e)
+        {
+            var statusCode = e.StatusCode;
+            LoginErrorMessage = statusCode switch 
+            {
+                401 => "Incorrect username or password",
+                _ => "An error occurred"
+            };
+            loginState = LoginState.Error;
+        }
+    }
+}
+

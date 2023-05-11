@@ -1,0 +1,101 @@
+@using OpenAI.GPT3.ObjectModels.RequestModels
+@inject StatusAppClient StatusAppClient
+@inject DataState DataState
+@inject NotifierService NotifierService
+@inject SignalRClient SignalR
+
+
+<MudPaper Elevation="2">
+    <MudContainer Class="pa-0" Style="max-height: 55vh; height: 55vh; overflow-y: auto">
+        <MudList Class="py-0" DisableGutters="true">
+            @foreach (var message in DataState.ChatMessages.Where(s => s.Role != "system"))
+            {
+                var backgroundColor = message.Role == "user" ? "white" : "lightgrey";
+                var mudListItemStyle = $"background: {backgroundColor};";
+                <MudListItem Style="@mudListItemStyle">
+                    <MudStack Class="mx-4" Row="true" >
+                        <MudAvatar>
+                            @if (message.Role == "user")
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.Person"></MudIcon>
+                            }
+                            else
+                            {
+                                <MudImage Src="images/chatgpt-icon.svg"></MudImage>
+                                @*<MudIcon Icon="@Icons.Material.Filled.Android"></MudIcon>*@
+                            }
+                        </MudAvatar>
+                        <MudText Style="white-space: pre-wrap">@(message.Content)</MudText>
+                    </MudStack>
+                </MudListItem>
+            }
+        </MudList>
+    </MudContainer>
+</MudPaper>
+@*<MudPaper Elevation="2" Class="mt-5">*@
+    <MudStack Row="true" Class="mt-3">
+        <MudTextField Style="height: 100%" Class="mt-0" @bind-Value="NewMessageString" OnKeyDown="MessageTextFieldHandleEnterKey" Immediate="true" Label="Send a message" Variant="Variant.Filled"></MudTextField>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SendMessage">
+            <MudIcon Icon="@Icons.Material.Filled.Send"></MudIcon>
+        </MudButton>
+    </MudStack>
+@*</MudPaper>*@
+    
+
+
+@code {
+    public string NewMessageString { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        NotifierService.Notify += OnNotify;
+        DataState.ChatMessages.Add(new ChatMessage("user", "Hello, I'm a user"));
+        DataState.ChatMessages.Add(new ChatMessage("assistant", "Hello, I'm an assistant"));
+    }
+    
+   
+    
+    public async Task SendMessage()
+    {
+        if (string.IsNullOrWhiteSpace(NewMessageString))
+        {
+            return;
+        }
+        
+        var newChatMessage = new ChatMessage("user",NewMessageString);
+        DataState.ChatMessages.Add(newChatMessage);
+        
+        var newAssistantMessage = new ChatMessage("assistant",string.Empty);
+        
+        DataState.ChatMessages.Add(newAssistantMessage);
+        var resultStream = SignalR.RequestNewCompletionMessage(DataState.ChatMessages);
+        await foreach (var result in resultStream)
+        {
+            newAssistantMessage.Content += result?.Content;
+            StateHasChanged();
+        }
+
+        NewMessageString = string.Empty;
+    }
+    
+    async Task MessageTextFieldHandleEnterKey(KeyboardEventArgs args)
+    {
+        if (args.Key=="Enter")
+        {
+            await SendMessage();
+        }
+    }
+    
+    public async Task OnNotify()
+    {
+        await InvokeAsync(() =>
+        {
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        NotifierService.Notify -= OnNotify;
+    }
+}

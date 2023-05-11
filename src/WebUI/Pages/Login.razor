@@ -1,0 +1,63 @@
+﻿@page "/Login"
+@inject AuthService AuthService
+@inject DataState DataState
+@inject StatusAppDialogService StatusAppDialogService
+
+<PageTitle>Login</PageTitle>
+
+
+<MudText Typo="Typo.h4" GutterBottom="true">Login</MudText>
+
+
+<MudText Typo="Typo.body1" GutterBottom="true">@DisplayText</MudText>
+<MudStack Row="true">
+    @if (DataState.Authorized is false)
+    {
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Style="width:90px" OnClick="OpenLoginDialog">Login</MudButton>
+    }
+    else
+    {
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Style="width:90px" OnClick="SignOutAsync">Logout</MudButton>
+    }
+    <MudButton Style="width:110px" OnClick="CheckAuthAsync">Check Auth</MudButton>
+</MudStack>
+
+@code {
+    public string DisplayText { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        DisplayText = DataState.Authorized ? "You are signed in!" : "You are unauthorized!";
+    }
+
+    private async Task CheckAuthAsync()
+    {
+        var success = await AuthService.CheckAuthAsync();
+        DisplayText = success ? "You are signed in!" : "You are unauthorized!";
+    }
+    
+    private async Task OpenLoginDialog()
+    {
+        var success = await StatusAppDialogService.LoginDialog();
+        if (success)
+        {
+            DisplayText = "You are signed in!";
+            DataState.Authorized = true;
+            StateHasChanged();
+        }
+    }
+
+    private async Task SignOutAsync()
+    {
+        var success = await AuthService.SignOutAsync();
+        if (success)
+        {
+            DisplayText = "Successfully logged out";
+            DataState.Authorized = false;
+        }
+        else
+        {
+            DisplayText = "An error occurred";
+        }
+    }
+}
