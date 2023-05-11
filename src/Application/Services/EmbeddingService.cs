@@ -24,7 +24,11 @@ public class EmbeddingService
     public async Task<List<Pgvector.Vector>> GetEmbedding(List<string> stringList)
     {
         var result = await _openAiService.Embeddings.CreateEmbedding(
-            new EmbeddingCreateRequest { InputAsList = stringList, Model = Models.TextEmbeddingAdaV2 }
+            new EmbeddingCreateRequest
+            {
+                InputAsList = stringList,
+                Model = Models.TextEmbeddingAdaV2
+            }
         );
 
         if (result.Successful)
@@ -58,7 +62,7 @@ public class EmbeddingService
         {
             return new List<RuleDto>();
         }
-        
+
         var aggregateList = new List<RuleDto>();
 
         foreach (var vector in vectorList)
@@ -66,7 +70,7 @@ public class EmbeddingService
             var nearestNeighbours = await _rulesContext.Rules
                 //TODO: Fix names
                 //TODO: Review <-> vs <=>
-                .FromSql($"SELECT * FROM rules ORDER BY embeddings <-> {vector} LIMIT 5")
+                .FromSql($"SELECT * FROM rules ORDER BY embeddings <=> {vector} LIMIT 5")
                 .Select(
                     s =>
                         new RuleDto
@@ -77,12 +81,15 @@ public class EmbeddingService
                         }
                 )
                 .ToListAsync();
-            
-            // only add distinct rules based on id to aggregateList
-            aggregateList.AddRange(nearestNeighbours.Where(s => !aggregateList.Any(a => a.Id == s.Id)));
 
+            // only add distinct rules based on id to aggregateList
+            aggregateList.AddRange(
+                nearestNeighbours.Where(s => !aggregateList.Any(a => a.Id == s.Id))
+            );
         }
 
+        // Uncomment to debug most similar rules
+        //aggregateList.ForEach(s => Console.WriteLine(s.Name));
         return aggregateList;
     }
 }

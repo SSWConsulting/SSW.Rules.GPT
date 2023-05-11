@@ -19,7 +19,12 @@ public class ChatCompletionsService
     )
     {
         var completionResult = _openAiService.ChatCompletion.CreateCompletionAsStream(
-            new ChatCompletionCreateRequest() { Messages = messageList, MaxTokens = 200 },
+            new ChatCompletionCreateRequest()
+            {
+                Messages = messageList,
+                //MaxTokens = 200,
+                Temperature = (float)0.5
+            },
             Models.ChatGpt3_5Turbo
         );
 

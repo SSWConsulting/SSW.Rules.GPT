@@ -86,11 +86,15 @@ public class RulesHub : Hub<IRulesClient>
         List<ChatMessage> messageList
     )
     {
-        var contentList = messageList.Where(s => s.Role == "user").TakeLast(3).Select(s => s.Content).ToList();
-        var embeddingVector = await _embeddingService.GetEmbedding(contentList);
+        var lastThreeUserMessagesContent = messageList
+            .Where(s => s.Role == "user")
+            .TakeLast(3)
+            .Select(s => s.Content)
+            .ToList();
+        var embeddingVector = await _embeddingService.GetEmbedding(lastThreeUserMessagesContent);
         var relevantRulesList = await _embeddingService.CalculateNearestNeighbours(embeddingVector);
         var relevantRulesString = JsonSerializer.Serialize(relevantRulesList);
-        
+
         var systemMessage = new ChatMessage(role: "system", content: string.Empty);
         systemMessage.Content = $"""
 You are SSWBot, a helpful, friendly and funny bot - with a 
@@ -115,11 +119,11 @@ Body: <body>
 You should use the phrase "As per https://ssw.com.au/rules/<ruleName>" at the start of the response 
 when you are referring to data sourced from a rule above (make sure it is a URL - only include this if it is a rule name in the provided reference data) 🤓. 
 Don't forget the emojis!!! Try to include at least 1 reference if relevant, but use as many as are required!
-Ask the user for more details if it would help inform the response.`
+Ask the user for more details if it would help inform the response.
 """;
-        
+
         messageList.Insert(0, systemMessage);
-        
+
         await foreach (
             var message in _chatCompletionsService.RequestNewCompletionMessage(messageList)
         )

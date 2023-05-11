@@ -49,8 +49,9 @@
     protected override async Task OnInitializedAsync()
     {
         NotifierService.Notify += OnNotify;
-        DataState.ChatMessages.Add(new ChatMessage("user", "Hello, I'm a user"));
-        DataState.ChatMessages.Add(new ChatMessage("assistant", "Hello, I'm an assistant"));
+        // Only for use when styling
+        //DataState.ChatMessages.Add(new ChatMessage("user", "Hello, I'm a user"));
+        //DataState.ChatMessages.Add(new ChatMessage("assistant", "Hello, I'm an assistant"));
     }
     
    
