@@ -1,5 +1,5 @@
 name: Azure Static Web Apps CI/CD
-
+# TODO: Not used, review and delete
 on:
   push:
     branches:
