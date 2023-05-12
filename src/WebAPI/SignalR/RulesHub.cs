@@ -1,12 +1,8 @@
 using System.Text.Json;
 using Application.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
-using Domain;
 using Infrastructure;
 using OpenAI.GPT3.ObjectModels.RequestModels;
-using System.Text.Json.Serialization;
 
 namespace WebAPI.SignalR;
 
@@ -27,63 +23,15 @@ public class RulesHub : Hub<IRulesClient>
         _embeddingService = embeddingService;
     }
 
-    // public override Task OnConnectedAsync()
-    // {
-    //     var userName = Context.UserIdentifier;
-    //     var identityUserName = Context.User?.Identity?.Name;
-    //     if (userName == null || identityUserName == null || userName != identityUserName)
-    //     {
-    //         Context.Abort();
-    //         return base.OnConnectedAsync();
-    //     }
-    //
-    //     var connectionPair = new Connection
-    //     {
-    //         UserName = userName,
-    //         ConnectionId = Context.ConnectionId
-    //     };
-    //
-    //     _db.Connections.Add(connectionPair);
-    //     _db.SaveChanges();
-    //
-    //     return base.OnConnectedAsync();
-    // }
-    //
-    // public override Task OnDisconnectedAsync(Exception? exception)
-    // {
-    //     var userName = Context.UserIdentifier;
-    //     var identityUserName = Context.User?.Identity?.Name;
-    //     if (userName == null || identityUserName == null || userName != identityUserName)
-    //     {
-    //         return base.OnDisconnectedAsync(exception);
-    //     }
-    //     var connectionId = Context.ConnectionId;
-    //     var connectionPair = _db.Connections.First(
-    //         s => s.ConnectionId == connectionId && s.UserName == userName
-    //     );
-    //     _db.Connections.Remove(connectionPair);
-    //     _db.SaveChanges();
-    //     return base.OnDisconnectedAsync(exception);
-    // }
-
     // Server methods that a client can invoke - connection.invoke(...)
     public async Task BroadcastMessage(string user, string message)
     {
         await Clients.All.ReceiveBroadcast(user, message);
     }
 
-    public string GetConnectionId()
-    {
-        return Context.ConnectionId;
-    }
-
-    public string GetConnectionUserName()
-    {
-        return Context.UserIdentifier!;
-    }
-
-    public async IAsyncEnumerable<ChatMessage?>? RequestNewCompletionMessage(
-        List<ChatMessage> messageList
+    public async IAsyncEnumerable<ChatMessage?> RequestNewCompletionMessage(
+        List<ChatMessage> messageList,
+        string apiKey
     )
     {
         var lastThreeUserMessagesContent = messageList
@@ -95,6 +43,23 @@ public class RulesHub : Hub<IRulesClient>
         var relevantRulesList = await _embeddingService.CalculateNearestNeighbours(embeddingVector);
         var relevantRulesString = JsonSerializer.Serialize(relevantRulesList);
 
+        var systemMessage = GenerateSystemMessage(relevantRulesString);
+
+        messageList.Insert(0, systemMessage);
+
+        await foreach (
+            var message in _chatCompletionsService.RequestNewCompletionMessage(
+                messageList,
+                apiKey: apiKey
+            )
+        )
+        {
+            yield return message;
+        }
+    }
+
+    private ChatMessage GenerateSystemMessage(string relevantRulesString)
+    {
         var systemMessage = new ChatMessage(role: "system", content: string.Empty);
         systemMessage.Content = $"""
 You are SSWBot, a helpful, friendly and funny bot - with a 
@@ -121,14 +86,6 @@ when you are referring to data sourced from a rule above (make sure it is a URL 
 Don't forget the emojis!!! Try to include at least 1 reference if relevant, but use as many as are required!
 Ask the user for more details if it would help inform the response.
 """;
-
-        messageList.Insert(0, systemMessage);
-
-        await foreach (
-            var message in _chatCompletionsService.RequestNewCompletionMessage(messageList)
-        )
-        {
-            yield return message;
-        }
+        return systemMessage;
     }
 }

@@ -1,0 +1,66 @@
+﻿@inject StatusAppClient HttpClient
+@inject DataState DataState
+@inject ApiKeyValidationService ApiKeyValidationService
+
+<MudDialog>
+    <DialogContent>
+        <MudTextField @bind-Value="ApiKeyString" Label="Enter your key" Variant="Variant.Text"></MudTextField>
+        @if (validationState == ValidationState.Invalid)
+        {
+            <MudAlert Severity="Severity.Error" Dense="true" Class="my-2">@KeyValidationErrorMessage</MudAlert>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton Disabled="@Validating" Color="Color.Primary" OnClick="ValidateAndSaveKeyAsync">
+            @if (Validating)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+            }
+            else
+            {
+                <MudText Typo="Typo.button" >Save</MudText>
+            }
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; } = default!;
+
+    public enum ValidationState
+    {
+        Initial,
+        Testing,
+        Valid,
+        Invalid
+    }
+
+    private bool Validating { get; set; } = false;
+    private string ApiKeyString { get; set; } = string.Empty;
+
+    public string KeyValidationErrorMessage { get; set; } = string.Empty;
+    public ValidationState validationState { get; set; } = ValidationState.Initial;
+
+    private async Task ValidateAndSaveKeyAsync()
+    {
+        Validating = true;
+        validationState = ValidationState.Testing;
+        var success = await ApiKeyValidationService.ValidateApiKey(ApiKeyString);
+
+        if (success is true)
+        {
+            validationState = ValidationState.Valid;
+            DataState.OpenAiApiKey = ApiKeyString;
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        else
+        {
+            Validating = false;
+            KeyValidationErrorMessage = "Invalid API Key";
+            validationState = ValidationState.Invalid;   
+        }
+    }
+}
+

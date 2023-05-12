@@ -4,7 +4,6 @@ namespace WebUI.Models;
 
 public class DataState
 {
-    public bool Authorized { get; set; }
-
+    public string? OpenAiApiKey { get; set; }
     public List<ChatMessage> ChatMessages { get; set; } = new();
 }
