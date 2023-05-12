@@ -81,13 +81,15 @@ public class SignalRClient
     }
 
     public async IAsyncEnumerable<ChatMessage?> RequestNewCompletionMessage(
-        List<ChatMessage> messageList
+        List<ChatMessage> messageList,
+        string? apiKey
     )
     {
         //await _connection.StartAsync();
         var completionResult = _connection.StreamAsync<ChatMessage?>(
             "RequestNewCompletionMessage",
-            messageList
+            messageList,
+            apiKey
         );
         await foreach (var message in completionResult)
         {
