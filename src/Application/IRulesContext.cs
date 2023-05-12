@@ -1,6 +1,6 @@
-﻿using Domain;
-using Domain.Entities;
+﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Application;
 
@@ -8,4 +8,5 @@ public interface IRulesContext
 {
     DbSet<Rule> Rules { get; set; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+    public DatabaseFacade Database { get; }
 }

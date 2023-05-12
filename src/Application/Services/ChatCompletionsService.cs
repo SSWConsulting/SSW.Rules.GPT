@@ -1,4 +1,6 @@
-﻿using OpenAI.GPT3.Interfaces;
+﻿using OpenAI.GPT3;
+using OpenAI.GPT3.Interfaces;
+using OpenAI.GPT3.Managers;
 using OpenAI.GPT3.ObjectModels;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 using OpenAI.GPT3.ObjectModels.ResponseModels;
@@ -16,10 +18,12 @@ public class ChatCompletionsService
         _tokenService = tokenService;
     }
 
-    public async IAsyncEnumerable<ChatMessage?>? RequestNewCompletionMessage(
-        List<ChatMessage> messageList
+    public async IAsyncEnumerable<ChatMessage?> RequestNewCompletionMessage(
+        List<ChatMessage> messageList,
+        string? apiKey
     )
     {
+
         var tokenCount = _tokenService.GetTokenCount(messageList);
 
         if (tokenCount.RemainingCount <= 0)
@@ -29,7 +33,10 @@ public class ChatCompletionsService
             yield break;
         }
 
-        var completionResult = _openAiService.ChatCompletion.CreateCompletionAsStream(
+        var openAiService = GetOpenAiService(apiKey);
+
+        var completionResult = openAiService.ChatCompletion.CreateCompletionAsStream(
+
             new ChatCompletionCreateRequest()
             {
                 Messages = messageList,
@@ -43,19 +50,35 @@ public class ChatCompletionsService
         {
             if (completion.Successful)
             {
-                Console.Write(completion.Choices.FirstOrDefault()?.Message.Content);
+                //Console.Write(completion.Choices.FirstOrDefault()?.Message.Content);
+                var finishReason = completion.Choices.FirstOrDefault()?.FinishReason;
+                if (finishReason != null)
+                {
+                    Console.WriteLine($"Finish Reason: {finishReason}");
+                }
                 yield return completion.Choices.FirstOrDefault()?.Message;
             }
             else
             {
                 if (completion.Error == null)
                 {
+                    // TODO: use a specific exception
                     throw new Exception("Unknown Error");
                 }
 
                 Console.WriteLine($"{completion.Error.Code}: {completion.Error.Message}");
             }
         }
-        Console.WriteLine("Complete");
+    }
+
+    private IOpenAIService GetOpenAiService(string? apiKey)
+    {
+        if (apiKey is null)
+        {
+            // TODO: Check Auth once implemented
+            return _openAiService;
+        }
+
+        return new OpenAIService(new OpenAiOptions() { ApiKey = apiKey });
     }
 }
