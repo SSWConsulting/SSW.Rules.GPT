@@ -10,10 +10,12 @@ namespace Application.Services;
 public class ChatCompletionsService
 {
     private readonly IOpenAIService _openAiService;
+    private readonly TokenService _tokenService;
 
-    public ChatCompletionsService(IOpenAIService openAiService)
+    public ChatCompletionsService(IOpenAIService openAiService, TokenService tokenService)
     {
         _openAiService = openAiService;
+        _tokenService = tokenService;
     }
 
     public async IAsyncEnumerable<ChatMessage?> RequestNewCompletionMessage(
@@ -21,13 +23,24 @@ public class ChatCompletionsService
         string? apiKey
     )
     {
+
+        var tokenCount = _tokenService.GetTokenCount(messageList);
+
+        if (tokenCount.RemainingCount <= 0)
+        {
+            Console.WriteLine("Too many tokens.");
+            yield return new ChatMessage("assistant", "⚠️ Message too long! Please shorten your message and try again.");
+            yield break;
+        }
+
         var openAiService = GetOpenAiService(apiKey);
 
         var completionResult = openAiService.ChatCompletion.CreateCompletionAsStream(
+
             new ChatCompletionCreateRequest()
             {
                 Messages = messageList,
-                //MaxTokens = 200,
+                MaxTokens = tokenCount.RemainingCount,
                 Temperature = (float)0.5
             },
             Models.ChatGpt3_5Turbo
