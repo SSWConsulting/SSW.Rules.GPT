@@ -23,10 +23,9 @@ public class ChatCompletionsService
         string? apiKey
     )
     {
+        var trimResult = _tokenService.PruneMessageHistory(messageList);
 
-        var tokenCount = _tokenService.GetTokenCount(messageList);
-
-        if (tokenCount.RemainingCount <= 0)
+        if (trimResult.InputTooLong)
         {
             Console.WriteLine("Too many tokens.");
             yield return new ChatMessage("assistant", "⚠️ Message too long! Please shorten your message and try again.");
@@ -39,8 +38,8 @@ public class ChatCompletionsService
 
             new ChatCompletionCreateRequest()
             {
-                Messages = messageList,
-                MaxTokens = tokenCount.RemainingCount,
+                Messages = trimResult.Messages,
+                MaxTokens = trimResult.RemainingTokens,
                 Temperature = (float)0.5
             },
             Models.ChatGpt3_5Turbo
