@@ -10,12 +10,12 @@ namespace Application.Services;
 public class ChatCompletionsService
 {
     private readonly IOpenAIService _openAiService;
-    private readonly TokenService _tokenService;
+    private readonly PruningService _pruningService;
 
-    public ChatCompletionsService(IOpenAIService openAiService, TokenService tokenService)
+    public ChatCompletionsService(IOpenAIService openAiService, PruningService pruningService)
     {
         _openAiService = openAiService;
-        _tokenService = tokenService;
+        _pruningService = pruningService;
     }
 
     public async IAsyncEnumerable<ChatMessage?> RequestNewCompletionMessage(
@@ -23,7 +23,7 @@ public class ChatCompletionsService
         string? apiKey
     )
     {
-        var trimResult = _tokenService.PruneMessageHistory(messageList);
+        var trimResult = _pruningService.PruneMessageHistory(messageList);
 
         if (trimResult.InputTooLong)
         {

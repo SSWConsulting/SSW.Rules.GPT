@@ -11,19 +11,19 @@ public class RulesHub : Hub<IRulesClient>
     private readonly RulesContext _db;
     private readonly ChatCompletionsService _chatCompletionsService;
     private readonly EmbeddingService _embeddingService;
-    private readonly TokenService _tokenService;
+    private readonly PruningService _pruningService;
 
     public RulesHub(
         RulesContext db,
         ChatCompletionsService chatCompletionsService,
         EmbeddingService embeddingService,
-        TokenService tokenService
+        PruningService pruningService
     )
     {
         _db = db;
         _chatCompletionsService = chatCompletionsService;
         _embeddingService = embeddingService;
-        _tokenService = tokenService;
+        _pruningService = pruningService;
     }
 
     // Server methods that a client can invoke - connection.invoke(...)
@@ -41,14 +41,12 @@ public class RulesHub : Hub<IRulesClient>
             .Where(s => s.Role == "user")
             .TakeLast(3)
             .Select(s => s.Content)
-            //Reverse to ensure most recent message at top of list so that rules from this message are pruned last
-            .Reverse() 
             .ToList();
 
         var embeddingVector = await _embeddingService.GetEmbedding(lastThreeUserMessagesContent);
         var relevantRulesList = await _embeddingService.CalculateNearestNeighbours(embeddingVector);
 
-        relevantRulesList = _tokenService.PruneRelevantRules(relevantRulesList);
+        relevantRulesList = _pruningService.PruneRelevantRules(relevantRulesList);
         var relevantRulesString = JsonSerializer.Serialize(relevantRulesList);
 
         var systemMessage = GenerateSystemMessage(relevantRulesString);
