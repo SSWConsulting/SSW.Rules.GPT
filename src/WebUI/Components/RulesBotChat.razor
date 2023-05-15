@@ -45,7 +45,20 @@
                                 <MudStack Spacing="1" Style="max-width: 70%">
                                     <MudText Typo="Typo.body1"><b>RulesGPT</b></MudText>
                                     <MudPaper Elevation="1" Class="px-4 py-2" Style="background: white; color: black">
-                                        <MudText Typo="Typo.body1" Class="" Style="white-space: pre-wrap">@(message.Content)</MudText>
+                                        @if (IsAwaitingResponse && string.IsNullOrWhiteSpace(message.Content))
+                                        {
+                                            <MudProgressCircular Size="Size.Small" Color="Color.Secondary" Indeterminate="true" />
+                                        }
+                                        else
+                                        {
+                                            <MudMarkdown Value="@message.Content" />
+                                            <style>
+                                                .mud-markdown-body p {
+                                                    margin-bottom: 0 !important;
+                                                }
+                                            </style>
+                                        }
+                                        
                                     </MudPaper>
                                 </MudStack>
                             </MudStack>
@@ -69,6 +82,7 @@
 
 @code {
     public string NewMessageString { get; set; } = string.Empty;
+    public bool IsAwaitingResponse { get; set; } = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -93,13 +107,16 @@
 
         DataState.ChatMessages.Add(newAssistantMessage);
 
+        IsAwaitingResponse = true;
+        StateHasChanged();
         var resultStream = SignalR.RequestNewCompletionMessage(DataState.ChatMessages, DataState.OpenAiApiKey);
-
         await foreach (var result in resultStream)
         {
+            IsAwaitingResponse = false;
             newAssistantMessage.Content += result?.Content;
             StateHasChanged();
         }
+        IsAwaitingResponse = false;
     }
 
     async Task MessageTextFieldHandleEnterKey(KeyboardEventArgs args)
