@@ -1,12 +1,9 @@
-﻿using System.Numerics;
-using Domain;
+﻿using Domain;
 using Microsoft.EntityFrameworkCore;
-using NpgsqlTypes;
 using Pgvector;
 using OpenAI.GPT3.Interfaces;
 using OpenAI.GPT3.ObjectModels;
 using OpenAI.GPT3.ObjectModels.RequestModels;
-using OpenAI.GPT3.ObjectModels.ResponseModels;
 
 namespace Application.Services;
 
@@ -21,7 +18,7 @@ public class EmbeddingService
         _rulesContext = rulesContext;
     }
 
-    public async Task<List<Pgvector.Vector>> GetEmbedding(List<string> stringList)
+    public async Task<List<Vector>> GetEmbeddingList(List<string> stringList)
     {
         var result = await _openAiService.Embeddings.CreateEmbedding(
             new EmbeddingCreateRequest
@@ -33,12 +30,12 @@ public class EmbeddingService
 
         if (result.Successful)
         {
-            var vectorList = new List<Pgvector.Vector>();
+            var vectorList = new List<Vector>();
             foreach (var embedding in result.Data)
             {
                 var doubleArray = embedding.Embedding.ToArray();
                 var floatArray = doubleArray.Select(s => (float)s).ToArray();
-                var vector = new Pgvector.Vector(floatArray);
+                var vector = new Vector(floatArray);
                 vectorList.Add(vector);
             }
 
@@ -56,7 +53,34 @@ public class EmbeddingService
         }
     }
 
-    public async Task<List<RuleDto>> CalculateNearestNeighbours(List<Pgvector.Vector> vectorList)
+    public async Task<Vector> GetEmbedding(string inputString)
+    {
+        var result = await _openAiService.Embeddings.CreateEmbedding(
+            new EmbeddingCreateRequest { Input = inputString, Model = Models.TextEmbeddingAdaV2 }
+        );
+
+        if (result.Successful)
+        {
+            var embeddingResponse = result.Data.FirstOrDefault();
+            var vector = new Vector(
+                embeddingResponse.Embedding.ToArray().Select(s => (float)s).ToArray()
+            );
+
+            return vector;
+        }
+        else
+        {
+            if (result.Error == null)
+            {
+                throw new Exception("Unknown Error");
+            }
+
+            Console.WriteLine($"{result.Error.Code}: {result.Error.Message}");
+            return null;
+        }
+    }
+
+    public async Task<List<RuleDto>> CalculateNearestNeighbours(List<Vector> vectorList)
     {
         if (vectorList is null)
         {
@@ -72,12 +96,14 @@ public class EmbeddingService
                 //TODO: Fix names
                 // .FromSql(@$"
                 //     SELECT * FROM rules ORDER BY embeddings <=> {vector} LIMIT 5")
-                .FromSql(@$"
+                .FromSql(
+                    @$"
                     select
                     *
                     from rules
                     order by (1 - (rules.embeddings <=> {vector})) DESC
-                    limit 5")
+                    limit 5"
+                )
                 .Select(
                     s =>
                         new RuleDto
