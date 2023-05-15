@@ -6,17 +6,12 @@
 @inject NotifierService NotifierService
 @inject SignalRClient SignalR
 
-<MudStack Row="true">
-    <MudText Typo="Typo.h4" GutterBottom="true">SSW Rules Bot</MudText>
-    <MudButton Color="Color.Primary" Style="height: 30px" Variant="Variant.Filled" OnClick="OpenApiKeyDialog">Add OpenAI Key</MudButton>
-</MudStack>
-
 @* <MudText> *@
 @*     Using Client Side Chat Completion Api *@
 @*     @DataState.UseClientSideChatCompletionApi *@
 @* </MudText> *@
-<MudPaper Elevation="2">
-    <MudContainer Class="pa-0" Style="max-height: 55vh; height: 55vh; overflow-y: auto">
+<MudPaper Elevation="2" Style="">
+    <MudContainer Class="pa-0" Style=" overflow-y: auto">
         <MudList Class="py-0" DisableGutters="true">
             @foreach (var message in DataState.ChatMessages.Where(s => s.Role != "system"))
             {
@@ -60,15 +55,10 @@
     {
         NotifierService.Notify += OnNotify;
         // Only for use when styling
-        //DataState.ChatMessages.Add(new ChatMessage("user", "Hello, I'm a user"));
-        //DataState.ChatMessages.Add(new ChatMessage("assistant", "Hello, I'm an assistant"));
+        DataState.ChatMessages.Add(new ChatMessage("user", "Hello, I'm a user"));
+        DataState.ChatMessages.Add(new ChatMessage("assistant", "Hello, I'm an assistant"));
     }
 
-    public async Task OpenApiKeyDialog()
-    {
-        var success = await SswRulesGptDialogService.ApiKeyDialog();
-    }
-    
     public async Task SendMessage()
     {
         if (string.IsNullOrWhiteSpace(NewMessageString))
