@@ -67,7 +67,8 @@ builder.Services.AddAuthentication();
 builder.Services.AddSignalR();
 
 builder.Services.AddSingleton<IUserIdProvider, SignalRUserIdProvider>();
-builder.Services.AddSingleton<TokenService>();
+builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<PruningService>();
 
 builder.Services.AddScoped<ChatCompletionsService>();
 builder.Services.AddScoped<EmbeddingService>();
