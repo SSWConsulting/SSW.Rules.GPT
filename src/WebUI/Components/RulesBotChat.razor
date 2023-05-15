@@ -12,15 +12,26 @@
 @* </MudText> *@
 
 <div style="display: grid; grid-template-rows: 1fr auto; height: 100%; padding: 24px 0;">
-    <MudPaper Elevation="0" Style="background: #f9fbfc; border: 1px solid #e6e6e6; overflow-y: auto">
-        <MudContainer Class="pa-0">
-            <MudList Class="py-0" DisableGutters="true">
+    <MudPaper Elevation="0" Style="background: #f9fbfc; border: 1px solid #e6e6e6; overflow-y: auto; height: 100%">
+        <MudContainer Class="pa-0" Style="height: 100%">
+            @if (DataState.ChatMessages.Count == 0)
+            {
+                <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center" Style="height: 60%">
+                    <MudText Typo="Typo.h3">
+                        RulesGPT
+                    </MudText>
+                    <MudText Typo="Typo.body1" Style="font-style: italic">
+                        Ask a question to get started!
+                    </MudText>
+                </MudStack>
+            }
+            else
+            {
+                <MudList Class="py-0" DisableGutters="true">
                 @foreach (var message in DataState.ChatMessages.Where(s => s.Role != "system"))
                 {
                     var isUser = message.Role == "user";
-                    
                     <MudListItem>
-
                         @if (isUser)
                         {
                             <MudStack Class="mx-4" Row="true">
@@ -47,18 +58,17 @@
                                     <MudPaper Elevation="1" Class="px-4 py-2" Style="background: white; color: black">
                                         @if (IsAwaitingResponse && string.IsNullOrWhiteSpace(message.Content))
                                         {
-                                            <MudProgressCircular Size="Size.Small" Color="Color.Secondary" Indeterminate="true" />
+                                            <MudProgressCircular Size="Size.Small" Color="Color.Secondary" Indeterminate="true"/>
                                         }
                                         else
                                         {
-                                            <MudMarkdown Value="@message.Content" />
+                                            <MudMarkdown  Value="@message.Content"/>
                                             <style>
                                                 .mud-markdown-body p {
                                                     margin-bottom: 0 !important;
                                                 }
                                             </style>
                                         }
-                                        
                                     </MudPaper>
                                 </MudStack>
                             </MudStack>
@@ -66,12 +76,13 @@
                     </MudListItem>
                 }
             </MudList>
+            }
         </MudContainer>
     </MudPaper>
     @*<MudPaper Elevation="2" Class="mt-5">*@
 
     <MudStack Row="true" Class="mt-3">
-        <MudTextField Style="height: 100%" Class="mt-0" @bind-Value="NewMessageString" OnKeyDown="MessageTextFieldHandleEnterKey" Immediate="true" Label="Ask SSW Rules GPT a question!" Variant="Variant.Filled"></MudTextField>
+        <MudTextField Style="height: 100%" Class="mt-0" @bind-Value="NewMessageString" OnKeyDown="MessageTextFieldHandleEnterKey" Immediate="true" Label="Ask a question!" Variant="Variant.Filled"></MudTextField>
         <MudButton Color="Color.Secondary" Variant="Variant.Filled" OnClick="SendMessage">
             <MudIcon Icon="@Icons.Material.Filled.Send"></MudIcon>
         </MudButton>
@@ -121,7 +132,7 @@
 
     async Task MessageTextFieldHandleEnterKey(KeyboardEventArgs args)
     {
-        if (args.Key == "Enter")
+        if (args is { Key: "Enter", ShiftKey: false })
         {
             await SendMessage();
         }
