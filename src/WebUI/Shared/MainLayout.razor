@@ -62,6 +62,7 @@
             Palette = new PaletteLight()
             {
                 Primary = "#323332",
+                Secondary = "#CC4141",
                 AppbarBackground = "#323332",
             }
         };
@@ -80,7 +81,7 @@
     {
         await SignalRClient.StartAsync();
     }
-    
+
     public async Task OpenApiKeyDialog()
     {
         var success = await SswRulesGptDialogService.ApiKeyDialog();
