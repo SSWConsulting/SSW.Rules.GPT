@@ -10,6 +10,7 @@
 @*     Using Client Side Chat Completion Api *@
 @*     @DataState.UseClientSideChatCompletionApi *@
 @* </MudText> *@
+
 <div style="display: grid; grid-template-rows: 1fr auto; height: 100%; padding: 24px 0;">
     <MudPaper Elevation="0" Style="background: #f9fbfc">
         <MudContainer Class="pa-0" Style="overflow-y: auto">
@@ -49,13 +50,13 @@
                                 </MudStack>
                             </MudStack>
                         }
-
                     </MudListItem>
                 }
             </MudList>
         </MudContainer>
     </MudPaper>
     @*<MudPaper Elevation="2" Class="mt-5">*@
+
     <MudStack Row="true" Class="mt-3">
         <MudTextField Style="height: 100%" Class="mt-0" @bind-Value="NewMessageString" OnKeyDown="MessageTextFieldHandleEnterKey" Immediate="true" Label="Ask SSW Rules GPT a question!" Variant="Variant.Filled"></MudTextField>
         <MudButton Color="Color.Secondary" Variant="Variant.Filled" OnClick="SendMessage">
@@ -64,7 +65,6 @@
     </MudStack>
     @*</MudPaper>*@
 </div>
-
 
 
 @code {
