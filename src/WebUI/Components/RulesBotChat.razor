@@ -12,7 +12,7 @@
 @* </MudText> *@
 
 <div style="display: grid; grid-template-rows: 1fr auto; height: 100%; padding: 24px 0;">
-    <MudPaper Elevation="0" Style="background: #f9fbfc">
+    <MudPaper Elevation="0" Style="background: #f9fbfc; border: 1px solid #e6e6e6">
         <MudContainer Class="pa-0" Style="overflow-y: auto">
             <MudList Class="py-0" DisableGutters="true">
                 @foreach (var message in DataState.ChatMessages.Where(s => s.Role != "system"))
@@ -25,7 +25,7 @@
                         {
                             <MudStack Class="mx-4" Row="true">
                                 <MudSpacer/>
-                                <MudStack Spacing="1">
+                                <MudStack Spacing="1" Style="max-width: 70%">
                                     <MudText Typo="Typo.body1" Align="Align.Right"><b>You</b></MudText>
                                     <MudPaper Elevation="1" Class="px-4 py-2" Style="background: #323332; color: white">
                                         <MudText Typo="Typo.body1" Class="" Style="white-space: pre-wrap">@(message.Content)</MudText>
@@ -42,7 +42,7 @@
                                 <MudAvatar>
                                     <MudImage Src="images/chatgpt-icon.svg"></MudImage>
                                 </MudAvatar>
-                                <MudStack Spacing="1">
+                                <MudStack Spacing="1" Style="max-width: 70%">
                                     <MudText Typo="Typo.body1"><b>RulesGPT</b></MudText>
                                     <MudPaper Elevation="1" Class="px-4 py-2" Style="background: white; color: black">
                                         <MudText Typo="Typo.body1" Class="" Style="white-space: pre-wrap">@(message.Content)</MudText>
