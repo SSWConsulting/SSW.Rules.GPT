@@ -7,33 +7,47 @@
 @inject SignalRClient SignalRClient
 
 
-<MudThemeProvider Theme="_theme" @bind-IsDarkMode="@_isDarkMode"/>
+<MudThemeProvider Theme="_theme" @bind-IsDarkMode="@_isDarkMode" />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
 <MudLayout>
     <MudAppBar Elevation="0">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        @*<MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />*@
+        <MudStack Justify="Justify.Center" Class="pr-2">
+            <MudImage Src="images/SSWlogo-DarkMode.svg" Height="40" ObjectFit="ObjectFit.ScaleDown"></MudImage>
+        </MudStack>
+        <MudStack Justify="Justify.Center" Class="pl-2 border-l-2">
+            <MudText Typo="Typo.h5">RulesGPT</MudText>
+        </MudStack>
         <MudSpacer />
+        @*
         <MudButton Color="Color.Primary" Variant="Variant.Filled" >Login</MudButton>
         <MudTooltip Duration="1000" Text="@( _isDarkMode ? "Switch to Light Theme" : "Switch to Dark Theme")">
-            <MudIconButton Icon="@( _isDarkMode ? @Icons.Material.Rounded.LightMode : @Icons.Material.Outlined.DarkMode)" Color="Color.Inherit" OnClick="@ToggleDarkMode"/>
+        <MudIconButton Icon="@( _isDarkMode ? @Icons.Material.Rounded.LightMode : @Icons.Material.Outlined.DarkMode)" Color="Color.Inherit" OnClick="@ToggleDarkMode"/>
         </MudTooltip>
         <MudIconButton Icon="@Icons.Custom.Brands.MudBlazor" Color="Color.Inherit" Href="https://mudblazor.com/" Target="_blank" />
         <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Href="https://github.com/MudBlazor/MudBlazor/" Target="_blank" />
+        *@
+        <MudMenu Icon="@Icons.Material.Filled.MoreHoriz" Dense="true" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+            <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Delete" OnClick="DataState.ChatMessages.Clear">Clear History</MudMenuItem>
+            <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Edit" OnClick="OpenApiKeyDialog">Input API Key</MudMenuItem>
+        </MudMenu>
     </MudAppBar>
+    @*
     <MudDrawer @bind-Open="_drawerOpen" Elevation="1">
-        <MudDrawerHeader>
-            <MudStack Style="width: 100%" Justify="Justify.Center">
-                <MudImage Src="images/SSWlogo.svg" Height="40" ObjectFit="ObjectFit.ScaleDown"></MudImage>
-            </MudStack>
-            @* <MudText Typo="Typo.h6">SSW Rules Bot</MudText> *@
-        </MudDrawerHeader>
-        <NavMenu />
+    <MudDrawerHeader>
+    <MudStack Style="width: 100%" Justify="Justify.Center">
+    <MudImage Src="images/SSWlogo-DarkMode.svg" Height="40" ObjectFit="ObjectFit.ScaleDown"></MudImage>
+    </MudStack>
+    <MudText Typo="Typo.h6">SSW Rules Bot</MudText>
+    </MudDrawerHeader>
+    <NavMenu />
     </MudDrawer>
-    <MudMainContent>
-        <MudContainer MaxWidth="MaxWidth.Large" Class="my-16 pt-16">
-                @Body
+    *@
+    <MudMainContent Style="height: 100vh">
+        <MudContainer MaxWidth="MaxWidth.Large" Style="height: 100%">
+            @Body
         </MudContainer>
     </MudMainContent>
 </MudLayout>
@@ -41,28 +55,35 @@
 @code {
     bool _drawerOpen = true;
     bool _isDarkMode = false;
+    bool _isOptionMenuOpen = false;
 
     private MudTheme _theme = new MudTheme
-    {
-        Palette = new PaletteLight()
         {
-            Primary = "#cc4141",
-            AppbarBackground = "#cc4141",
-        }
-    };
-    
+            Palette = new PaletteLight()
+            {
+                Primary = "#323332",
+                Secondary = "#CC4141",
+                AppbarBackground = "#323332",
+            }
+        };
+
     private void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
     }
-    
+
     private void ToggleDarkMode()
     {
         _isDarkMode = !_isDarkMode;
     }
-    
+
     protected override async Task OnInitializedAsync()
     {
         await SignalRClient.StartAsync();
+    }
+
+    public async Task OpenApiKeyDialog()
+    {
+        var success = await SswRulesGptDialogService.ApiKeyDialog();
     }
 }
