@@ -35,7 +35,7 @@
                                 @*<MudIcon Icon="@Icons.Material.Filled.Android"></MudIcon>*@
                             }
                         </MudAvatar>
-                        <MudText Style="white-space: pre-wrap">@(message.Content)</MudText>
+                        <MudMarkdown Value="@message.Content" />
                     </MudStack>
                 </MudListItem>
             }
