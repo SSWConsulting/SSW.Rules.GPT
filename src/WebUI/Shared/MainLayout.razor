@@ -1,9 +1,8 @@
 ﻿@inherits LayoutComponentBase
 
-@inject StatusAppClient StatusAppClient
 @inject SswRulesGptDialogService SswRulesGptDialogService
 @inject DataState DataState
-@inject AuthService AuthService
+@inject NotifierService NotifierService
 @inject SignalRClient SignalRClient
 
 
@@ -36,7 +35,7 @@
         <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Href="https://github.com/MudBlazor/MudBlazor/" Target="_blank" />
         *@
         <MudMenu Icon="@Icons.Material.Filled.MoreHoriz" Dense="true" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
-            <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Delete" OnClick="DataState.ChatMessages.Clear">Clear History</MudMenuItem>
+            <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Delete" OnClick="ClearMessageHistory">Clear History</MudMenuItem>
             <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Edit" OnClick="OpenApiKeyDialog">Input API Key</MudMenuItem>
         </MudMenu>
     </MudAppBar>
@@ -91,5 +90,10 @@
     public async Task OpenApiKeyDialog()
     {
         var success = await SswRulesGptDialogService.ApiKeyDialog();
+    }
+    public async Task ClearMessageHistory()
+    {
+        DataState.ChatMessages.Clear();
+        await NotifierService.Update();
     }
 }
