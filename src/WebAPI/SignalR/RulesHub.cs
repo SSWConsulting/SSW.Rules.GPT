@@ -3,6 +3,7 @@ using Application.Services;
 using Microsoft.AspNetCore.SignalR;
 using Infrastructure;
 using OpenAI.GPT3.ObjectModels.RequestModels;
+using Pgvector;
 
 namespace WebAPI.SignalR;
 
@@ -43,10 +44,20 @@ public class RulesHub : Hub<IRulesClient>
             .Select(s => s.Content)
             .ToList();
 
-        var embeddingVector = await _embeddingService.GetEmbedding(lastThreeUserMessagesContent);
-        var relevantRulesList = await _embeddingService.CalculateNearestNeighbours(embeddingVector);
+        // Replicate NextJS behaviour, whether intended or not
+        if (lastThreeUserMessagesContent.Count == 1)
+        {
+            lastThreeUserMessagesContent.Add(lastThreeUserMessagesContent.FirstOrDefault());
+        }
+        var concatenatedUserMessages = string.Join("\n", lastThreeUserMessagesContent);
 
+        var embeddingVector = await _embeddingService.GetEmbedding(concatenatedUserMessages);
+        //var embeddingVectorList = await _embeddingService.GetEmbeddingList(lastThreeUserMessagesContent);
+        var relevantRulesList = await _embeddingService.CalculateNearestNeighbours(
+            new List<Vector> { embeddingVector }
+        );
         relevantRulesList = _pruningService.PruneRelevantRules(relevantRulesList);
+
         var relevantRulesString = JsonSerializer.Serialize(relevantRulesList);
 
         var systemMessage = GenerateSystemMessage(relevantRulesString);
