@@ -12,8 +12,8 @@
 @* </MudText> *@
 
 <div style="display: grid; grid-template-rows: 1fr auto; height: 100%; padding: 24px 0;">
-    <MudPaper Elevation="0" Style="background: #f9fbfc; border: 1px solid #e6e6e6">
-        <MudContainer Class="pa-0" Style="overflow-y: auto">
+    <MudPaper Elevation="0" Style="background: #f9fbfc; border: 1px solid #e6e6e6; overflow-y: auto">
+        <MudContainer Class="pa-0">
             <MudList Class="py-0" DisableGutters="true">
                 @foreach (var message in DataState.ChatMessages.Where(s => s.Role != "system"))
                 {
