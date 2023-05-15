@@ -11,7 +11,7 @@
 <MudDialogProvider />
 <MudSnackbarProvider />
 
-<MudLayout Style="height: 100vh; display: grid; grid-template-rows: auto 1fr;">
+<MudLayout>
     <MudAppBar Elevation="0">
         @*<MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />*@
         <MudStack Justify="Justify.Center" Class="pr-2">
@@ -45,8 +45,8 @@
     <NavMenu />
     </MudDrawer>
     *@
-    <MudMainContent Style="">
-        <MudContainer MaxWidth="MaxWidth.Large" Class="" Style="">
+    <MudMainContent Style="height: 100vh">
+        <MudContainer MaxWidth="MaxWidth.Large" Style="height: 100%">
             @Body
         </MudContainer>
     </MudMainContent>

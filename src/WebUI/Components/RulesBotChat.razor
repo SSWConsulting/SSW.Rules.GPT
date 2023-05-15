@@ -10,7 +10,9 @@
 @*     Using Client Side Chat Completion Api *@
 @*     @DataState.UseClientSideChatCompletionApi *@
 @* </MudText> *@
-<MudPaper Elevation="2" Style="">
+<div style="display: grid; grid-template-rows: 1fr auto; height: 100%; padding: 24px 0">
+
+<MudPaper Elevation="2">
     <MudContainer Class="pa-0" Style=" overflow-y: auto">
         <MudList Class="py-0" DisableGutters="true">
             @foreach (var message in DataState.ChatMessages.Where(s => s.Role != "system"))
@@ -45,6 +47,7 @@
         </MudButton>
     </MudStack>
 @*</MudPaper>*@
+</div>
     
 
 
