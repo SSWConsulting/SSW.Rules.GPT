@@ -10,6 +10,12 @@
 <MudThemeProvider Theme="_theme" @bind-IsDarkMode="@_isDarkMode" />
 <MudDialogProvider />
 <MudSnackbarProvider />
+    
+<style>
+    html,body, #app {
+       height: 100%;
+    }
+</style>
 
 <MudLayout>
     <MudAppBar Elevation="0">
@@ -45,7 +51,7 @@
     <NavMenu />
     </MudDrawer>
     *@
-    <MudMainContent Style="height: 100vh; height: -webkit-fill-available">
+    <MudMainContent Style="height: 100%;">
         <MudContainer MaxWidth="MaxWidth.Large" Style="height: 100%">
             @Body
         </MudContainer>
