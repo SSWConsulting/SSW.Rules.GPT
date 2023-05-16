@@ -18,11 +18,19 @@
             {
                 <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center" Style="height: 60%">
                     <MudText Typo="Typo.h3">
-                        RulesGPT
+                        <b>RulesGPT</b>
                     </MudText>
-                    <MudText Typo="Typo.body1" Style="font-style: italic">
-                        Ask a question to get started!
-                    </MudText>
+                    <MudStack Class="pt-4">
+                        <MudButton Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => OnExampleClicked("What is a v2 email?"))">
+                            What is a v2 email?
+                        </MudButton>
+                        <MudButton Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => OnExampleClicked("How can I get better at presenting?"))">
+                            How can I get better at presenting?
+                        </MudButton>
+                        <MudButton Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => OnExampleClicked("Give me some rules to better GPT"))">
+                            Give me some rules to better GPT
+                        </MudButton>
+                    </MudStack>
                 </MudStack>
             }
             else
@@ -38,7 +46,7 @@
                                 <MudSpacer/>
                                 <MudStack Spacing="1" Style="max-width: 70%">
                                     <MudText Typo="Typo.body1" Align="Align.Right"><b>You</b></MudText>
-                                    <MudPaper Elevation="1" Class="px-4 py-2" Style="background: #323332; color: white">
+                                    <MudPaper Elevation="1" Class="px-4 py-3" Style="background: #323332; color: white">
                                         <MudText Typo="Typo.body1" Class="" Style="white-space: pre-wrap">@(message.Content)</MudText>
                                     </MudPaper>
                                 </MudStack>
@@ -55,21 +63,25 @@
                                 </MudAvatar>
                                 <MudStack Spacing="1" Style="max-width: 70%">
                                     <MudText Typo="Typo.body1"><b>RulesGPT</b></MudText>
-                                    <MudPaper Elevation="1" Class="px-4 py-2" Style="background: white; color: black">
                                         @if (IsAwaitingResponse && string.IsNullOrWhiteSpace(message.Content))
                                         {
-                                            <MudProgressCircular Size="Size.Small" Color="Color.Secondary" Indeterminate="true"/>
+                                            <MudPaper Elevation="1" Class="px-4 py-3" Style="background: white; color: black; text-align: center;">
+                                                <MudProgressCircular Size="Size.Small" Color="Color.Secondary" Indeterminate="true" Style="vertical-align: bottom;"/>
+                                            </MudPaper>
                                         }
                                         else
                                         {
-                                            <MudMarkdown  Value="@message.Content"/>
-                                            <style>
-                                                .mud-markdown-body p {
-                                                    margin-bottom: 0 !important;
-                                                }
-                                            </style>
+                                            <MudPaper Elevation="1" Class="px-4 py-3" Style="background: white; color: black;">
+                                                <MudMarkdown  Value="@message.Content"/>
+                                                <style>
+                                                    .mud-markdown-body p:last-child,
+                                                    .mud-markdown-body ol:last-child, 
+                                                    .mud-markdown-body ol:last-child {
+                                                        margin-bottom: 0 !important;
+                                                    }
+                                                </style>
+                                            </MudPaper>
                                         }
-                                    </MudPaper>
                                 </MudStack>
                             </MudStack>
                         }
@@ -101,6 +113,12 @@
         // Only for use when styling
         //DataState.ChatMessages.Add(new ChatMessage("user", "Hello, I'm a user"));
         //DataState.ChatMessages.Add(new ChatMessage("assistant", "Hello, I'm an assistant"));
+    }
+
+    private async Task OnExampleClicked(string message)
+    {
+        NewMessageString = message;
+        await SendMessage();
     }
 
     public async Task SendMessage()
