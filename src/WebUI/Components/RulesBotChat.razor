@@ -87,7 +87,7 @@
                                 </MudAvatar>
                                 <MudStack Spacing="1" Class="chat-box">
                                     <MudText Typo="Typo.body1"><b>RulesGPT</b></MudText>
-                                        @if (IsAwaitingResponse && string.IsNullOrWhiteSpace(message.Content))
+                                        @if (IsAwaitingResponseStream && string.IsNullOrWhiteSpace(message.Content))
                                         {
                                             <MudPaper Elevation="1" Class="px-4 py-3" Style="background: white; color: black; text-align: center;">
                                                 <MudProgressCircular Size="Size.Small" Color="Color.Secondary" Indeterminate="true" Style="vertical-align: bottom;"/>
@@ -99,19 +99,22 @@
                                                 <MudMarkdown Value="@message.Content"/>
                                             </MudPaper>
                                         }
+                                    </MudStack>
                                 </MudStack>
-                            </MudStack>
-                        }
-                    </MudListItem>
-                }
-            </MudList>
+                            }
+                        </MudListItem>
+                    }
+                </MudList>
             }
         </MudContainer>
+        <MudPopover Open="IsAwaitingResponse" OverflowBehavior="OverflowBehavior.FlipNever" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.BottomCenter" Paper="false">
+                <MudButton Class="mb-3" OnClick="CancelStreamingResponse" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Primary">Cancel Request</MudButton>
+        	</MudPopover>
     </MudPaper>
     @*<MudPaper Elevation="2" Class="mt-5">*@
 
     <MudStack Row="true" Class="mt-3">
-        <MudTextField Style="height: 100%;" Clearable="true" Class="mt-0" @bind-Value="NewMessageString" OnKeyDown="MessageTextFieldHandleEnterKey" Immediate="true" Label="Ask a question!" Variant="Variant.Outlined"></MudTextField>
+        <MudTextField Style="height: 100%;" Clearable="true" Disabled="IsAwaitingResponse" Class="mt-0" @bind-Value="NewMessageString" OnKeyDown="MessageTextFieldHandleEnterKey" Immediate="true" Label="Ask a question!" Variant="Variant.Filled"></MudTextField>
         <MudButton Color="Color.Secondary" Variant="Variant.Filled" OnClick="SendMessage">
             <MudIcon Icon="@Icons.Material.Filled.Send"></MudIcon>
         </MudButton>
@@ -122,7 +125,9 @@
 
 @code {
     public string NewMessageString { get; set; } = string.Empty;
-    public bool IsAwaitingResponse { get; set; } = false;
+    public bool IsAwaitingResponseStream { get; set; } = false;
+    private bool IsAwaitingResponse { get; set; } = false;
+    
 
     protected override async Task OnInitializedAsync()
     {
@@ -144,12 +149,12 @@
         {
             return;
         }
-
+        
         if (SignalR.GetConnectionState() == SignalRClient.StatusHubConnectionState.Disconnected)
         {
             try
             {
-                await SignalR.StartAsync();
+                await SignalR.StartAsync(DataState.CancellationTokenSource.Token);
             }
             catch (HttpRequestException e)
             {
@@ -164,21 +169,30 @@
         var newAssistantMessage = new ChatMessage("assistant", string.Empty);
 
         DataState.ChatMessages.Add(newAssistantMessage);
+        IsAwaitingResponseStream = true;
         IsAwaitingResponse = true;
         StateHasChanged();
 
         
         await JsScrollMessageListToBottom();
-        var resultStream = SignalR.RequestNewCompletionMessage(DataState.ChatMessages, DataState.OpenAiApiKey);
+        
+        var resultStream = SignalR.RequestNewCompletionMessage(
+            DataState.ChatMessages,
+            DataState.OpenAiApiKey,
+            DataState.CancellationTokenSource.Token );
+        
         await JsScrollMessageListToBottom();
-        await foreach (var result in resultStream)
+        await foreach (var result in resultStream.WithCancellation(DataState.CancellationTokenSource.Token))
         {
-            IsAwaitingResponse = false;
+            IsAwaitingResponseStream = false;
             newAssistantMessage.Content += result?.Content;
             StateHasChanged();
             await JsScrollMessageListToBottom();
         }
+        IsAwaitingResponseStream = false;
         IsAwaitingResponse = false;
+        DataState.CancellationTokenSource.Dispose();
+        DataState.CancellationTokenSource = new CancellationTokenSource();
     }
 
     async Task MessageTextFieldHandleEnterKey(KeyboardEventArgs args)
@@ -205,5 +219,19 @@
     private async Task JsScrollMessageListToBottom()
     {
         await Js.InvokeVoidAsync("scrollLatestMessageIntoView");
+    }
+    
+    private async Task CancelStreamingResponse()
+    {
+        DataState.CancellationTokenSource.Cancel();
+        DataState.CancellationTokenSource.Dispose();
+        var lastAssistantMessage = DataState.ChatMessages.Last(s => s.Role == "assistant");
+        if (string.IsNullOrWhiteSpace(lastAssistantMessage.Content))
+        {
+            DataState.ChatMessages.Remove(lastAssistantMessage);
+        }
+        IsAwaitingResponse = false;
+        IsAwaitingResponseStream = false;
+        DataState.CancellationTokenSource = new CancellationTokenSource();
     }
 }

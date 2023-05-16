@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Application.Services;
 using Microsoft.AspNetCore.SignalR;
@@ -35,7 +36,8 @@ public class RulesHub : Hub<IRulesClient>
 
     public async IAsyncEnumerable<ChatMessage?> RequestNewCompletionMessage(
         List<ChatMessage> messageList,
-        string apiKey
+        string apiKey,
+        [EnumeratorCancellation] CancellationToken cancellationToken
     )
     {
         var lastThreeUserMessagesContent = messageList
@@ -65,10 +67,9 @@ public class RulesHub : Hub<IRulesClient>
         messageList.Insert(0, systemMessage);
 
         await foreach (
-            var message in _chatCompletionsService.RequestNewCompletionMessage(
-                messageList,
-                apiKey: apiKey
-            )
+            var message in _chatCompletionsService
+                .RequestNewCompletionMessage(messageList, apiKey: apiKey, cancellationToken)
+                .WithCancellation(cancellationToken)
         )
         {
             yield return message;
