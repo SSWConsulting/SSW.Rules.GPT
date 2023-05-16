@@ -111,7 +111,7 @@ builder.Services.AddCors(
                         Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
                         == "Development"
                             ? "https://localhost:5001"
-                            : "https://jolly-meadow-0638e9c00.3.azurestaticapps.net"
+                            : "https://white-desert-00e3fb600.3.azurestaticapps.net"
                     )
                     .AllowAnyMethod()
                     .AllowAnyHeader()

@@ -23,7 +23,7 @@ public class SignalRClient
         _notifierService = notifierService;
         var hubeBaseUrl = hostEnvironment.IsDevelopment()
             ? "https://localhost:7104"
-            : "https://ssw-rules-gpt-api.azurewebsites.net";
+            : "https://ssw-rulesgpt-api.azurewebsites.net";
         var hubUrl = $"{hubeBaseUrl}/ruleshub";
         _connection = new HubConnectionBuilder().WithUrl(hubUrl).WithAutomaticReconnect().Build();
         RegisterHandlers();
