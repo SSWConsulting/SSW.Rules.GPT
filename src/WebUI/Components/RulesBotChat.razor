@@ -5,6 +5,7 @@
 @inject ApiKeyValidationService ApiKeyValidationService
 @inject NotifierService NotifierService
 @inject SignalRClient SignalR
+@inject IJSRuntime Js
 
 @* <MudText> *@
 @*     Using Client Side Chat Completion Api *@
@@ -27,7 +28,7 @@
             }
             else
             {
-                <MudList Class="py-0" DisableGutters="true">
+                <MudList Class="py-0 chatContainer" DisableGutters="true">
                 @foreach (var message in DataState.ChatMessages.Where(s => s.Role != "system"))
                 {
                     var isUser = message.Role == "user";
@@ -62,7 +63,7 @@
                                         }
                                         else
                                         {
-                                            <MudMarkdown  Value="@message.Content"/>
+                                            <MudMarkdown Value="@message.Content"/>
                                             <style>
                                                 .mud-markdown-body p {
                                                     margin-bottom: 0 !important;
@@ -117,15 +118,17 @@
         var newAssistantMessage = new ChatMessage("assistant", string.Empty);
 
         DataState.ChatMessages.Add(newAssistantMessage);
-
         IsAwaitingResponse = true;
         StateHasChanged();
+        await Js.InvokeVoidAsync("scrollLatestMessageIntoView");
         var resultStream = SignalR.RequestNewCompletionMessage(DataState.ChatMessages, DataState.OpenAiApiKey);
+        await Js.InvokeVoidAsync("scrollLatestMessageIntoView");
         await foreach (var result in resultStream)
         {
             IsAwaitingResponse = false;
             newAssistantMessage.Content += result?.Content;
             StateHasChanged();
+            await Js.InvokeVoidAsync("scrollLatestMessageIntoView");
         }
         IsAwaitingResponse = false;
     }
