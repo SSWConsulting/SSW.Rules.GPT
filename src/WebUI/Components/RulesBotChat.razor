@@ -8,6 +8,28 @@
 @inject IJSRuntime Js
 @inject ISnackbar Snackbar
 
+<style>
+    .mud-markdown-body p:last-child,
+    .mud-markdown-body ol:last-child,
+    .mud-markdown-body ol:last-child {
+        margin-bottom: 0 !important;
+    }
+    
+    .mud-link {
+        color: #CC4141 !important;
+    }
+
+    .chat-box {
+        max-width: 70%;
+    }
+    
+    @@media screen and (max-width: 600px) {
+        .chat-box {
+            max-width: 85%;
+        }
+    }
+</style>
+
 @* <MudText> *@
 @*     Using Client Side Chat Completion Api *@
 @*     @DataState.UseClientSideChatCompletionApi *@
@@ -46,7 +68,7 @@
                         {
                             <MudStack Class="mx-4" Row="true">
                                 <MudSpacer/>
-                                <MudStack Spacing="1" Style="max-width: 70%">
+                                <MudStack Spacing="1" Class="chat-box">
                                     <MudText Typo="Typo.body1" Align="Align.Right"><b>You</b></MudText>
                                     <MudPaper Elevation="1" Class="px-4 py-3" Style="background: #323332; color: white">
                                         <MudText Typo="Typo.body1" Class="" Style="white-space: pre-wrap">@(message.Content)</MudText>
@@ -63,7 +85,7 @@
                                 <MudAvatar>
                                     <MudImage Src="images/chatgpt-icon.svg"></MudImage>
                                 </MudAvatar>
-                                <MudStack Spacing="1" Style="max-width: 70%">
+                                <MudStack Spacing="1" Class="chat-box">
                                     <MudText Typo="Typo.body1"><b>RulesGPT</b></MudText>
                                         @if (IsAwaitingResponse && string.IsNullOrWhiteSpace(message.Content))
                                         {
@@ -74,14 +96,7 @@
                                         else
                                         {
                                             <MudPaper Elevation="1" Class="px-4 py-3" Style="background: white; color: black;">
-                                                <MudMarkdown  Value="@message.Content"/>
-                                                <style>
-                                                    .mud-markdown-body p:last-child,
-                                                    .mud-markdown-body ol:last-child, 
-                                                    .mud-markdown-body ol:last-child {
-                                                        margin-bottom: 0 !important;
-                                                    }
-                                                </style>
+                                                <MudMarkdown Value="@message.Content"/>
                                             </MudPaper>
                                         }
                                 </MudStack>
