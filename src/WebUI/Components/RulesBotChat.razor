@@ -5,6 +5,8 @@
 @inject ApiKeyValidationService ApiKeyValidationService
 @inject NotifierService NotifierService
 @inject SignalRClient SignalR
+@inject IJSRuntime Js
+@inject ISnackbar Snackbar
 
 @* <MudText> *@
 @*     Using Client Side Chat Completion Api *@
@@ -18,16 +20,24 @@
             {
                 <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center" Style="height: 60%">
                     <MudText Typo="Typo.h3">
-                        RulesGPT
+                        <b>RulesGPT</b>
                     </MudText>
-                    <MudText Typo="Typo.body1" Style="font-style: italic">
-                        Ask a question to get started!
-                    </MudText>
+                    <MudStack Class="pt-4">
+                        <MudButton Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => OnExampleClicked("What is a v2 email?"))">
+                            What is a v2 email?
+                        </MudButton>
+                        <MudButton Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => OnExampleClicked("How can I get better at presenting?"))">
+                            How can I get better at presenting?
+                        </MudButton>
+                        <MudButton Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => OnExampleClicked("Give me some rules to better GPT"))">
+                            Give me some rules to better GPT
+                        </MudButton>
+                    </MudStack>
                 </MudStack>
             }
             else
             {
-                <MudList Class="py-0" DisableGutters="true">
+                <MudList Class="py-0 chatContainer" DisableGutters="true">
                 @foreach (var message in DataState.ChatMessages.Where(s => s.Role != "system"))
                 {
                     var isUser = message.Role == "user";
@@ -38,7 +48,7 @@
                                 <MudSpacer/>
                                 <MudStack Spacing="1" Style="max-width: 70%">
                                     <MudText Typo="Typo.body1" Align="Align.Right"><b>You</b></MudText>
-                                    <MudPaper Elevation="1" Class="px-4 py-2" Style="background: #323332; color: white">
+                                    <MudPaper Elevation="1" Class="px-4 py-3" Style="background: #323332; color: white">
                                         <MudText Typo="Typo.body1" Class="" Style="white-space: pre-wrap">@(message.Content)</MudText>
                                     </MudPaper>
                                 </MudStack>
@@ -55,21 +65,25 @@
                                 </MudAvatar>
                                 <MudStack Spacing="1" Style="max-width: 70%">
                                     <MudText Typo="Typo.body1"><b>RulesGPT</b></MudText>
-                                    <MudPaper Elevation="1" Class="px-4 py-2" Style="background: white; color: black">
                                         @if (IsAwaitingResponse && string.IsNullOrWhiteSpace(message.Content))
                                         {
-                                            <MudProgressCircular Size="Size.Small" Color="Color.Secondary" Indeterminate="true"/>
+                                            <MudPaper Elevation="1" Class="px-4 py-3" Style="background: white; color: black; text-align: center;">
+                                                <MudProgressCircular Size="Size.Small" Color="Color.Secondary" Indeterminate="true" Style="vertical-align: bottom;"/>
+                                            </MudPaper>
                                         }
                                         else
                                         {
-                                            <MudMarkdown  Value="@message.Content"/>
-                                            <style>
-                                                .mud-markdown-body p {
-                                                    margin-bottom: 0 !important;
-                                                }
-                                            </style>
+                                            <MudPaper Elevation="1" Class="px-4 py-3" Style="background: white; color: black;">
+                                                <MudMarkdown  Value="@message.Content"/>
+                                                <style>
+                                                    .mud-markdown-body p:last-child,
+                                                    .mud-markdown-body ol:last-child, 
+                                                    .mud-markdown-body ol:last-child {
+                                                        margin-bottom: 0 !important;
+                                                    }
+                                                </style>
+                                            </MudPaper>
                                         }
-                                    </MudPaper>
                                 </MudStack>
                             </MudStack>
                         }
@@ -103,6 +117,12 @@
         //DataState.ChatMessages.Add(new ChatMessage("assistant", "Hello, I'm an assistant"));
     }
 
+    private async Task OnExampleClicked(string message)
+    {
+        NewMessageString = message;
+        await SendMessage();
+    }
+
     public async Task SendMessage()
     {
         if (string.IsNullOrWhiteSpace(NewMessageString))
@@ -110,6 +130,18 @@
             return;
         }
 
+        if (SignalR.GetConnectionState() == SignalRClient.StatusHubConnectionState.Disconnected)
+        {
+            try
+            {
+                await SignalR.StartAsync();
+            }
+            catch (HttpRequestException e)
+            {
+                Snackbar.Add("Unable to connect to SSW RulesGPT", Severity.Error);
+                return;
+            }
+        }
         var newChatMessage = new ChatMessage("user", NewMessageString);
         NewMessageString = string.Empty;
         DataState.ChatMessages.Add(newChatMessage);
@@ -117,15 +149,19 @@
         var newAssistantMessage = new ChatMessage("assistant", string.Empty);
 
         DataState.ChatMessages.Add(newAssistantMessage);
-
         IsAwaitingResponse = true;
         StateHasChanged();
+
+        
+        await JsScrollMessageListToBottom();
         var resultStream = SignalR.RequestNewCompletionMessage(DataState.ChatMessages, DataState.OpenAiApiKey);
+        await JsScrollMessageListToBottom();
         await foreach (var result in resultStream)
         {
             IsAwaitingResponse = false;
             newAssistantMessage.Content += result?.Content;
             StateHasChanged();
+            await JsScrollMessageListToBottom();
         }
         IsAwaitingResponse = false;
     }
@@ -149,5 +185,10 @@
     public void Dispose()
     {
         NotifierService.Notify -= OnNotify;
+    }
+    
+    private async Task JsScrollMessageListToBottom()
+    {
+        await Js.InvokeVoidAsync("scrollLatestMessageIntoView");
     }
 }

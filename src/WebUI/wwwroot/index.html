@@ -33,9 +33,18 @@
         <a href="" class="reload">Reload</a>
         <a class="dismiss">🗙</a>
     </div>
+    
     <script defer src="_framework/blazor.webassembly.js"></script>
     <script defer src="_content/MudBlazor/MudBlazor.min.js"></script>
     <script defer src="_content/MudBlazor.Markdown/MudBlazor.Markdown.min.js"></script>
+    <script>
+        window.scrollLatestMessageIntoView = () => {
+            let messageList = document.querySelector(".chatContainer");
+            if (messageList !== null) {
+                messageList.scrollIntoView(false);
+            }
+        };
+    </script>
 </body>
 
 </html>
