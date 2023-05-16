@@ -60,7 +60,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'ssw-rules-gpt-api'
+          app-name: 'ssw-rulesgpt-api'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1FEDFC8C3C4A497399C6318E5C173C42 }}
           package: .
