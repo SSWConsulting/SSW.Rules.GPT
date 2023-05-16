@@ -39,7 +39,10 @@
     <script defer src="_content/MudBlazor.Markdown/MudBlazor.Markdown.min.js"></script>
     <script>
         window.scrollLatestMessageIntoView = () => {
-            document.querySelector(".chatContainer").scrollIntoView(false);
+            let messageList = document.querySelector(".chatContainer");
+            if (messageList !== null) {
+                messageList.scrollIntoView(false);
+            }
         };
     </script>
 </body>

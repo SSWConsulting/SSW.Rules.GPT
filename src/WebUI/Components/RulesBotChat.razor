@@ -6,6 +6,7 @@
 @inject NotifierService NotifierService
 @inject SignalRClient SignalR
 @inject IJSRuntime Js
+@inject ISnackbar Snackbar
 
 @* <MudText> *@
 @*     Using Client Side Chat Completion Api *@
@@ -111,6 +112,18 @@
             return;
         }
 
+        if (SignalR.GetConnectionState() == SignalRClient.StatusHubConnectionState.Disconnected)
+        {
+            try
+            {
+                await SignalR.StartAsync();
+            }
+            catch (HttpRequestException e)
+            {
+                Snackbar.Add("Unable to connect to SSW RulesGPT", Severity.Error);
+                return;
+            }
+        }
         var newChatMessage = new ChatMessage("user", NewMessageString);
         NewMessageString = string.Empty;
         DataState.ChatMessages.Add(newChatMessage);
@@ -120,15 +133,17 @@
         DataState.ChatMessages.Add(newAssistantMessage);
         IsAwaitingResponse = true;
         StateHasChanged();
-        await Js.InvokeVoidAsync("scrollLatestMessageIntoView");
+
+        
+        await JsScrollMessageListToBottom();
         var resultStream = SignalR.RequestNewCompletionMessage(DataState.ChatMessages, DataState.OpenAiApiKey);
-        await Js.InvokeVoidAsync("scrollLatestMessageIntoView");
+        await JsScrollMessageListToBottom();
         await foreach (var result in resultStream)
         {
             IsAwaitingResponse = false;
             newAssistantMessage.Content += result?.Content;
             StateHasChanged();
-            await Js.InvokeVoidAsync("scrollLatestMessageIntoView");
+            await JsScrollMessageListToBottom();
         }
         IsAwaitingResponse = false;
     }
@@ -152,5 +167,10 @@
     public void Dispose()
     {
         NotifierService.Notify -= OnNotify;
+    }
+    
+    private async Task JsScrollMessageListToBottom()
+    {
+        await Js.InvokeVoidAsync("scrollLatestMessageIntoView");
     }
 }

@@ -4,10 +4,11 @@
 @inject DataState DataState
 @inject NotifierService NotifierService
 @inject SignalRClient SignalRClient
+@inject ISnackbar Snackbar
 
 
 <MudThemeProvider Theme="_theme" @bind-IsDarkMode="@_isDarkMode" />
-<MudDialogProvider />
+<MudDialogProvider Position="DialogPosition.Center" />
 <MudSnackbarProvider />
     
 <style>
@@ -36,7 +37,7 @@
         *@
         <MudMenu Icon="@Icons.Material.Filled.MoreHoriz" Dense="true" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
             <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Delete" OnClick="ClearMessageHistory">Clear History</MudMenuItem>
-            <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Edit" OnClick="OpenApiKeyDialog">Input API Key</MudMenuItem>
+            <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Edit" OnTouch="OpenApiKeyDialog" OnClick="OpenApiKeyDialog">Input API Key</MudMenuItem>
         </MudMenu>
     </MudAppBar>
     @*
@@ -84,7 +85,16 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await SignalRClient.StartAsync();
+        try
+        {
+            await SignalRClient.StartAsync();
+        }
+        catch (HttpRequestException e)
+        {
+            // Display error message
+            Snackbar.Add("Unable to connect to SSW RulesGPT", Severity.Error);
+        }
+        
     }
 
     public async Task OpenApiKeyDialog()
