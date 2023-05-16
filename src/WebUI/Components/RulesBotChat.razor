@@ -238,8 +238,8 @@
     {
         DataState.CancellationTokenSource.Cancel();
         DataState.CancellationTokenSource.Dispose();
-        var lastAssistantMessage = DataState.ChatMessages.Last(s => s.Role == "assistant");
-        if (string.IsNullOrWhiteSpace(lastAssistantMessage.Content))
+        var lastAssistantMessage = DataState.ChatMessages.LastOrDefault(s => s.Role == "assistant");
+        if (lastAssistantMessage is not null && string.IsNullOrWhiteSpace(lastAssistantMessage?.Content))
         {
             DataState.ChatMessages.Remove(lastAssistantMessage);
         }
