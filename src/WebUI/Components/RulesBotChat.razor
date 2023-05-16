@@ -5,6 +5,8 @@
 @inject ApiKeyValidationService ApiKeyValidationService
 @inject NotifierService NotifierService
 @inject SignalRClient SignalR
+@inject IJSRuntime Js
+@inject ISnackbar Snackbar
 
 @* <MudText> *@
 @*     Using Client Side Chat Completion Api *@
@@ -35,7 +37,7 @@
             }
             else
             {
-                <MudList Class="py-0" DisableGutters="true">
+                <MudList Class="py-0 chatContainer" DisableGutters="true">
                 @foreach (var message in DataState.ChatMessages.Where(s => s.Role != "system"))
                 {
                     var isUser = message.Role == "user";
@@ -128,6 +130,18 @@
             return;
         }
 
+        if (SignalR.GetConnectionState() == SignalRClient.StatusHubConnectionState.Disconnected)
+        {
+            try
+            {
+                await SignalR.StartAsync();
+            }
+            catch (HttpRequestException e)
+            {
+                Snackbar.Add("Unable to connect to SSW RulesGPT", Severity.Error);
+                return;
+            }
+        }
         var newChatMessage = new ChatMessage("user", NewMessageString);
         NewMessageString = string.Empty;
         DataState.ChatMessages.Add(newChatMessage);
@@ -135,15 +149,19 @@
         var newAssistantMessage = new ChatMessage("assistant", string.Empty);
 
         DataState.ChatMessages.Add(newAssistantMessage);
-
         IsAwaitingResponse = true;
         StateHasChanged();
+
+        
+        await JsScrollMessageListToBottom();
         var resultStream = SignalR.RequestNewCompletionMessage(DataState.ChatMessages, DataState.OpenAiApiKey);
+        await JsScrollMessageListToBottom();
         await foreach (var result in resultStream)
         {
             IsAwaitingResponse = false;
             newAssistantMessage.Content += result?.Content;
             StateHasChanged();
+            await JsScrollMessageListToBottom();
         }
         IsAwaitingResponse = false;
     }
@@ -167,5 +185,10 @@
     public void Dispose()
     {
         NotifierService.Notify -= OnNotify;
+    }
+    
+    private async Task JsScrollMessageListToBottom()
+    {
+        await Js.InvokeVoidAsync("scrollLatestMessageIntoView");
     }
 }
