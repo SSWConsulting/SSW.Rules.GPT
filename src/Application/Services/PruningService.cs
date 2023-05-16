@@ -14,7 +14,7 @@ namespace Application.Services
         const int MAX_MESSAGE_HISTORY = 8;
         const int MIN_RESPONSE_SIZE = 300;
 
-        private TokenService _tokenService;
+        private readonly TokenService _tokenService;
 
         public PruningService(TokenService tokenService)
         {
@@ -28,7 +28,9 @@ namespace Application.Services
 
             while (totalTokens.TokenCount > MAX_RULES_SIZE)
             {
-                Console.WriteLine($"Trimmed '{rules[0].Name}' from reference rules for exceeding max allowed tokens.");
+                Console.WriteLine(
+                    $"Trimmed '{rules[0].Name}' from reference rules for exceeding max allowed tokens."
+                );
                 rules.RemoveAt(0);
                 totalTokens = _tokenService.GetTokenCount(rules);
             }
@@ -39,11 +41,15 @@ namespace Application.Services
         public TrimResult PruneMessageHistory(List<ChatMessage> messageList)
         {
             //Store the system message
-            var systemMessage = messageList.FirstOrDefault(m => m.Role == "system") ?? throw new ArgumentNullException("Can't find system message.");
+            var systemMessage =
+                messageList.FirstOrDefault(m => m.Role == "system")
+                ?? throw new ArgumentNullException("Can't find system message.");
 
             if (messageList.Count + 1 > MAX_MESSAGE_HISTORY)
             {
-                Console.WriteLine($"Trimmed {messageList.Count - MAX_MESSAGE_HISTORY} messages from message history for exceeding max allowed history.");
+                Console.WriteLine(
+                    $"Trimmed {messageList.Count - MAX_MESSAGE_HISTORY} messages from message history for exceeding max allowed history."
+                );
 
                 messageList = messageList.TakeLast(MAX_MESSAGE_HISTORY).ToList();
                 messageList.Insert(0, systemMessage);
@@ -60,8 +66,13 @@ namespace Application.Services
                     Messages = messageList
                 };
 
-            var lastMessageLength = _tokenService.GetTokenCount(messageList.Last(m => m.Role == "user"));
-            var remainingTokens = _tokenService.GetMaxAllowedTokens() - MIN_RESPONSE_SIZE - _tokenService.GetTokenCount(systemMessage);
+            var lastMessageLength = _tokenService.GetTokenCount(
+                messageList.Last(m => m.Role == "user")
+            );
+            var remainingTokens =
+                _tokenService.GetMaxAllowedTokens()
+                - MIN_RESPONSE_SIZE
+                - _tokenService.GetTokenCount(systemMessage);
 
             if (lastMessageLength > remainingTokens)
                 return new TrimResult
@@ -78,16 +89,21 @@ namespace Application.Services
                 if (messageList[i].Role == "system")
                     continue;
 
-                if (_tokenService.GetTokenCount(messageList[i]) is int length && length <= remainingTokens)
+                if (
+                    _tokenService.GetTokenCount(messageList[i]) is int length
+                    && length <= remainingTokens
+                )
                 {
                     trimmedMessages.Insert(0, messageList[i]);
                     remainingTokens -= length;
                 }
-
-                else break;
+                else
+                    break;
             }
 
-            Console.WriteLine($"Trimmed {messageList.Count - trimmedMessages.Count} messages from message history for exceeding max allowed tokens.");
+            Console.WriteLine(
+                $"Trimmed {messageList.Count - trimmedMessages.Count} messages from message history for exceeding max allowed tokens."
+            );
 
             return new TrimResult
             {

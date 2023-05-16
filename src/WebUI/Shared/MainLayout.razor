@@ -87,7 +87,7 @@
     {
         try
         {
-            await SignalRClient.StartAsync();
+            await SignalRClient.StartAsync(DataState.CancellationTokenSource.Token);
         }
         catch (HttpRequestException e)
         {

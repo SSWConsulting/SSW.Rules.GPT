@@ -1,4 +1,5 @@
-﻿using OpenAI.GPT3;
+﻿using System.Runtime.CompilerServices;
+using OpenAI.GPT3;
 using OpenAI.GPT3.Interfaces;
 using OpenAI.GPT3.Managers;
 using OpenAI.GPT3.ObjectModels;
@@ -20,7 +21,8 @@ public class ChatCompletionsService
 
     public async IAsyncEnumerable<ChatMessage?> RequestNewCompletionMessage(
         List<ChatMessage> messageList,
-        string? apiKey
+        string? apiKey,
+        [EnumeratorCancellation] CancellationToken cancellationToken
     )
     {
         var trimResult = _pruningService.PruneMessageHistory(messageList);
@@ -28,24 +30,27 @@ public class ChatCompletionsService
         if (trimResult.InputTooLong)
         {
             Console.WriteLine("Too many tokens.");
-            yield return new ChatMessage("assistant", "⚠️ Message too long! Please shorten your message and try again.");
+            yield return new ChatMessage(
+                "assistant",
+                "⚠️ Message too long! Please shorten your message and try again."
+            );
             yield break;
         }
 
         var openAiService = GetOpenAiService(apiKey);
 
         var completionResult = openAiService.ChatCompletion.CreateCompletionAsStream(
-
             new ChatCompletionCreateRequest()
             {
                 Messages = trimResult.Messages,
                 MaxTokens = trimResult.RemainingTokens,
                 Temperature = (float)0.5
             },
-            Models.ChatGpt3_5Turbo
+            Models.ChatGpt3_5Turbo,
+            cancellationToken
         );
 
-        await foreach (var completion in completionResult)
+        await foreach (var completion in completionResult.WithCancellation(cancellationToken))
         {
             if (completion.Successful)
             {

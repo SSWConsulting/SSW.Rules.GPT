@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+﻿using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.SignalR.Client;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 using WebUI.Models;
@@ -39,9 +40,9 @@ public class SignalRClient
         };
     }
 
-    public async Task StartAsync()
+    public async Task StartAsync(CancellationToken cancellationToken)
     {
-        await _connection.StartAsync();
+        await _connection.StartAsync(cancellationToken);
     }
 
     public async Task StopAsync()
@@ -82,16 +83,17 @@ public class SignalRClient
 
     public async IAsyncEnumerable<ChatMessage?> RequestNewCompletionMessage(
         List<ChatMessage> messageList,
-        string? apiKey
+        string? apiKey,
+        [EnumeratorCancellation] CancellationToken cancellationToken
     )
     {
-        //await _connection.StartAsync();
         var completionResult = _connection.StreamAsync<ChatMessage?>(
             "RequestNewCompletionMessage",
             messageList,
-            apiKey
+            apiKey,
+            cancellationToken
         );
-        await foreach (var message in completionResult)
+        await foreach (var message in completionResult.WithCancellation(cancellationToken))
         {
             yield return message;
         }

@@ -38,34 +38,34 @@
             else
             {
                 <MudList Class="py-0 chatContainer" DisableGutters="true">
-                @foreach (var message in DataState.ChatMessages.Where(s => s.Role != "system"))
-                {
-                    var isUser = message.Role == "user";
-                    <MudListItem>
-                        @if (isUser)
-                        {
-                            <MudStack Class="mx-4" Row="true">
-                                <MudSpacer/>
-                                <MudStack Spacing="1" Style="max-width: 70%">
-                                    <MudText Typo="Typo.body1" Align="Align.Right"><b>You</b></MudText>
-                                    <MudPaper Elevation="1" Class="px-4 py-3" Style="background: #323332; color: white">
-                                        <MudText Typo="Typo.body1" Class="" Style="white-space: pre-wrap">@(message.Content)</MudText>
-                                    </MudPaper>
+                    @foreach (var message in DataState.ChatMessages.Where(s => s.Role != "system"))
+                    {
+                        var isUser = message.Role == "user";
+                        <MudListItem>
+                            @if (isUser)
+                            {
+                                <MudStack Class="mx-4" Row="true">
+                                    <MudSpacer/>
+                                    <MudStack Spacing="1" Style="max-width: 70%">
+                                        <MudText Typo="Typo.body1" Align="Align.Right"><b>You</b></MudText>
+                                        <MudPaper Elevation="1" Class="px-4 py-3" Style="background: #323332; color: white">
+                                            <MudText Typo="Typo.body1" Class="" Style="white-space: pre-wrap">@(message.Content)</MudText>
+                                        </MudPaper>
+                                    </MudStack>
+                                    <MudAvatar>
+                                        <MudIcon Icon="@Icons.Material.Filled.Person"></MudIcon>
+                                    </MudAvatar>
                                 </MudStack>
-                                <MudAvatar>
-                                    <MudIcon Icon="@Icons.Material.Filled.Person"></MudIcon>
-                                </MudAvatar>
-                            </MudStack>
-                        }
-                        else
-                        {
-                            <MudStack Class="mx-4" Row="true">
-                                <MudAvatar>
-                                    <MudImage Src="images/chatgpt-icon.svg"></MudImage>
-                                </MudAvatar>
-                                <MudStack Spacing="1" Style="max-width: 70%">
-                                    <MudText Typo="Typo.body1"><b>RulesGPT</b></MudText>
-                                        @if (IsAwaitingResponse && string.IsNullOrWhiteSpace(message.Content))
+                            }
+                            else
+                            {
+                                <MudStack Class="mx-4" Row="true">
+                                    <MudAvatar>
+                                        <MudImage Src="images/chatgpt-icon.svg"></MudImage>
+                                    </MudAvatar>
+                                    <MudStack Spacing="1" Style="max-width: 70%">
+                                        <MudText Typo="Typo.body1"><b>RulesGPT</b></MudText>
+                                        @if (IsAwaitingResponseStream && string.IsNullOrWhiteSpace(message.Content))
                                         {
                                             <MudPaper Elevation="1" Class="px-4 py-3" Style="background: white; color: black; text-align: center;">
                                                 <MudProgressCircular Size="Size.Small" Color="Color.Secondary" Indeterminate="true" Style="vertical-align: bottom;"/>
@@ -84,19 +84,22 @@
                                                 </style>
                                             </MudPaper>
                                         }
+                                    </MudStack>
                                 </MudStack>
-                            </MudStack>
-                        }
-                    </MudListItem>
-                }
-            </MudList>
+                            }
+                        </MudListItem>
+                    }
+                </MudList>
             }
         </MudContainer>
+        <MudPopover Open="IsAwaitingResponse" OverflowBehavior="OverflowBehavior.FlipNever" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.BottomCenter" Paper="false">
+                <MudButton Class="mb-3" OnClick="CancelStreamingResponse" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Primary">Cancel Request</MudButton>
+        	</MudPopover>
     </MudPaper>
     @*<MudPaper Elevation="2" Class="mt-5">*@
 
     <MudStack Row="true" Class="mt-3">
-        <MudTextField Style="height: 100%" Class="mt-0" @bind-Value="NewMessageString" OnKeyDown="MessageTextFieldHandleEnterKey" Immediate="true" Label="Ask a question!" Variant="Variant.Filled"></MudTextField>
+        <MudTextField Disabled="IsAwaitingResponse" Style="height: 100%" Class="mt-0" @bind-Value="NewMessageString" OnKeyDown="MessageTextFieldHandleEnterKey" Immediate="true" Label="Ask a question!" Variant="Variant.Filled"></MudTextField>
         <MudButton Color="Color.Secondary" Variant="Variant.Filled" OnClick="SendMessage">
             <MudIcon Icon="@Icons.Material.Filled.Send"></MudIcon>
         </MudButton>
@@ -107,7 +110,9 @@
 
 @code {
     public string NewMessageString { get; set; } = string.Empty;
-    public bool IsAwaitingResponse { get; set; } = false;
+    public bool IsAwaitingResponseStream { get; set; } = false;
+    private bool IsAwaitingResponse { get; set; } = false;
+    
 
     protected override async Task OnInitializedAsync()
     {
@@ -129,12 +134,12 @@
         {
             return;
         }
-
+        
         if (SignalR.GetConnectionState() == SignalRClient.StatusHubConnectionState.Disconnected)
         {
             try
             {
-                await SignalR.StartAsync();
+                await SignalR.StartAsync(DataState.CancellationTokenSource.Token);
             }
             catch (HttpRequestException e)
             {
@@ -149,21 +154,30 @@
         var newAssistantMessage = new ChatMessage("assistant", string.Empty);
 
         DataState.ChatMessages.Add(newAssistantMessage);
+        IsAwaitingResponseStream = true;
         IsAwaitingResponse = true;
         StateHasChanged();
 
         
         await JsScrollMessageListToBottom();
-        var resultStream = SignalR.RequestNewCompletionMessage(DataState.ChatMessages, DataState.OpenAiApiKey);
+        
+        var resultStream = SignalR.RequestNewCompletionMessage(
+            DataState.ChatMessages,
+            DataState.OpenAiApiKey,
+            DataState.CancellationTokenSource.Token );
+        
         await JsScrollMessageListToBottom();
-        await foreach (var result in resultStream)
+        await foreach (var result in resultStream.WithCancellation(DataState.CancellationTokenSource.Token))
         {
-            IsAwaitingResponse = false;
+            IsAwaitingResponseStream = false;
             newAssistantMessage.Content += result?.Content;
             StateHasChanged();
             await JsScrollMessageListToBottom();
         }
+        IsAwaitingResponseStream = false;
         IsAwaitingResponse = false;
+        DataState.CancellationTokenSource.Dispose();
+        DataState.CancellationTokenSource = new CancellationTokenSource();
     }
 
     async Task MessageTextFieldHandleEnterKey(KeyboardEventArgs args)
@@ -190,5 +204,19 @@
     private async Task JsScrollMessageListToBottom()
     {
         await Js.InvokeVoidAsync("scrollLatestMessageIntoView");
+    }
+    
+    private async Task CancelStreamingResponse()
+    {
+        DataState.CancellationTokenSource.Cancel();
+        DataState.CancellationTokenSource.Dispose();
+        var lastAssistantMessage = DataState.ChatMessages.Last(s => s.Role == "assistant");
+        if (string.IsNullOrWhiteSpace(lastAssistantMessage.Content))
+        {
+            DataState.ChatMessages.Remove(lastAssistantMessage);
+        }
+        IsAwaitingResponse = false;
+        IsAwaitingResponseStream = false;
+        DataState.CancellationTokenSource = new CancellationTokenSource();
     }
 }
