@@ -11,5 +11,14 @@ public class NotifierService
         }
     }
 
+    public async Task CancelMessageStream()
+    {
+        if (CancelMessageStreamEvent != null)
+        {
+            await CancelMessageStreamEvent.Invoke();
+        }
+    }
+
     public event Func<Task>? Notify;
+    public event Func<Task>? CancelMessageStreamEvent;
 }

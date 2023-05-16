@@ -21,10 +21,15 @@
     <MudAppBar Elevation="0">
         @*<MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />*@
         <MudStack Justify="Justify.Center" Class="pr-2">
-            <MudImage Src="images/SSWlogo-DarkMode.svg" Height="40" ObjectFit="ObjectFit.ScaleDown"></MudImage>
+            <MudLink OnClick="ClearMessageHistory">
+                <MudImage Src="images/SSWlogo-DarkMode.svg" Height="40" ObjectFit="ObjectFit.ScaleDown"></MudImage>
+            </MudLink>
         </MudStack>
         <MudStack Justify="Justify.Center" Class="pl-2 border-l-2">
             <MudText Typo="Typo.h5">RulesGPT</MudText>
+        </MudStack>
+        <MudStack Justify="Justify.Center" Class="pl-3">
+            <MudText Color="Color.Primary" Typo="Typo.body1">Keeping Order with Intelligence</MudText>            
         </MudStack>
         <MudSpacer />
         @*
@@ -35,9 +40,11 @@
         <MudIconButton Icon="@Icons.Custom.Brands.MudBlazor" Color="Color.Inherit" Href="https://mudblazor.com/" Target="_blank" />
         <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Href="https://github.com/MudBlazor/MudBlazor/" Target="_blank" />
         *@
-        <MudMenu Icon="@Icons.Material.Filled.MoreHoriz" Dense="true" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
-            <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Delete" OnClick="ClearMessageHistory">Clear History</MudMenuItem>
+        <MudMenu Icon="@Icons.Material.Filled.Settings" Dense="true" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+            <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Refresh" OnTouch="ClearMessageHistory" OnClick="ClearMessageHistory">New Chat</MudMenuItem>
             <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Edit" OnTouch="OpenApiKeyDialog" OnClick="OpenApiKeyDialog">Input API Key</MudMenuItem>
+            <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.SettingsSuggest" Target="_blank" Href="https://github.com/SSWConsulting">Suggestions</MudMenuItem>
+            <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Info" OnTouch="OpenAboutRulesGptDialog" OnClick="OpenAboutRulesGptDialog">About</MudMenuItem>
         </MudMenu>
     </MudAppBar>
     @*
@@ -101,8 +108,15 @@
     {
         var success = await SswRulesGptDialogService.ApiKeyDialog();
     }
+    
+    public async Task OpenAboutRulesGptDialog()
+    {
+        var success = await SswRulesGptDialogService.AboutRulesGptDialog();
+    }
+    
     public async Task ClearMessageHistory()
     {
+        await NotifierService.CancelMessageStream();
         DataState.ChatMessages.Clear();
         await NotifierService.Update();
     }

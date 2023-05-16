@@ -27,4 +27,20 @@ public class SswRulesGptDialogService
         var success = dialog.Result.IsCompletedSuccessfully;
         return success;
     }
+
+    public async Task<bool> AboutRulesGptDialog()
+    {
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            CloseButton = true,
+            DisableBackdropClick = false,
+            NoHeader = false,
+            MaxWidth = MaxWidth.Large
+        };
+        var dialog = await _dialogService.ShowAsync<AboutAppDialog>("About RulesGPT", options);
+        var result = await dialog.Result;
+        var success = dialog.Result.IsCompletedSuccessfully;
+        return success;
+    }
 }

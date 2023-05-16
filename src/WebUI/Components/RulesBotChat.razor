@@ -44,7 +44,10 @@
                     <MudText Typo="Typo.h3">
                         <b>RulesGPT</b>
                     </MudText>
-                    <MudStack Class="pt-4">
+                    <MudText Typo="Typo.subtitle1" Style="font-style: italic">
+                       Examples
+                    </MudText>
+                    <MudStack Class="pt-0">
                         <MudButton Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => OnExampleClicked("What is a v2 email?"))">
                             What is a v2 email?
                         </MudButton>
@@ -132,6 +135,7 @@
     protected override async Task OnInitializedAsync()
     {
         NotifierService.Notify += OnNotify;
+        NotifierService.CancelMessageStreamEvent += OnCancelMessageStream;
         // Only for use when styling
         //DataState.ChatMessages.Add(new ChatMessage("user", "Hello, I'm a user"));
         //DataState.ChatMessages.Add(new ChatMessage("assistant", "Hello, I'm an assistant"));
@@ -210,10 +214,19 @@
             StateHasChanged();
         });
     }
+    
+    public async Task OnCancelMessageStream()
+    {
+        await InvokeAsync(() =>
+        {
+            CancelStreamingResponse();
+        });
+    }
 
     public void Dispose()
     {
         NotifierService.Notify -= OnNotify;
+        NotifierService.CancelMessageStreamEvent -= OnCancelMessageStream;
     }
     
     private async Task JsScrollMessageListToBottom()
