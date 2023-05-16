@@ -1,4 +1,43 @@
 <!DOCTYPE html>
+
+<style>
+    .gpt-loading-info {
+        margin: 200px auto 0;
+        max-width: 200px;
+        text-align: center;
+        font-family: Roboto, sans-serif;
+        color: #424242;
+    }
+
+    .simple-spinner {
+        display: block;
+        margin: 40px auto 0;
+        width: 50px;
+        height: 50px;
+        /*transform: translate(-50%, -50%);*/
+    }
+
+        .simple-spinner span {
+            display: block;
+            width: 50px;
+            height: 50px;
+            border: 3px solid transparent;
+            border-radius: 50%;
+            border-right-color: rgba(204, 65, 65, 1);
+            animation: spinner-anim 0.8s linear infinite;
+        }
+
+    @keyframes spinner-anim {
+        from {
+            transform: rotate(0);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+
 <html>
 
 <head>
@@ -15,9 +54,20 @@
     <div id="app">
         <!--Loading...-->
         <script src="/js/lottie-player.js"></script>
+
+        <div class="gpt-loading-info">
+            <img src="images/SSWlogo.svg" />
+            <h1>RulesGPT</h1>
+            <div class="simple-spinner">
+                <span></span>
+            </div>
+        </div>
+
+        <!--
         <div class="lottie-container">
             <lottie-player src="/loading.json" background="transparent" speed="1" style="width: 17em; height: 17em;" loop autoplay></lottie-player>
         </div>
+        -->
         <style>
             .lottie-container {
                 display: flex;
@@ -33,7 +83,7 @@
         <a href="" class="reload">Reload</a>
         <a class="dismiss">🗙</a>
     </div>
-    
+
     <script defer src="_framework/blazor.webassembly.js"></script>
     <script defer src="_content/MudBlazor/MudBlazor.min.js"></script>
     <script defer src="_content/MudBlazor.Markdown/MudBlazor.Markdown.min.js"></script>
