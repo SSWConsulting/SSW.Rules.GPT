@@ -117,7 +117,7 @@
     @*<MudPaper Elevation="2" Class="mt-5">*@
 
     <MudStack Row="true" Class="mt-3">
-        <MudTextField Style="height: 100%;" Clearable="true" Disabled="IsAwaitingResponse" Class="mt-0" @bind-Value="NewMessageString" OnKeyDown="MessageTextFieldHandleEnterKey" Immediate="true" Label="Ask a question!" Variant="Variant.Filled"></MudTextField>
+        <MudTextField Style="height: 100%;" Clearable="true" Disabled="IsAwaitingResponse" Class="mt-0" @bind-Value="NewMessageString" OnKeyDown="MessageTextFieldHandleEnterKey" Immediate="true" Label="Ask a question!" Variant="Variant.Outlined"></MudTextField>
         <MudButton Color="Color.Secondary" Variant="Variant.Filled" OnClick="SendMessage">
             <MudIcon Icon="@Icons.Material.Filled.Send"></MudIcon>
         </MudButton>
