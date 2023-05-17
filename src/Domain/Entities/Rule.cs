@@ -1,8 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using Pgvector.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
-using Pgvector.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations.Schema;
 using Pgvector;
 
 //using Vector = Pgvector.Vector;

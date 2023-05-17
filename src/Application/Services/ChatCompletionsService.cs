@@ -1,22 +1,22 @@
 ﻿using System.Runtime.CompilerServices;
-using OpenAI.GPT3;
-using OpenAI.GPT3.Interfaces;
-using OpenAI.GPT3.Managers;
+using Application.Contracts;
 using OpenAI.GPT3.ObjectModels;
 using OpenAI.GPT3.ObjectModels.RequestModels;
-using OpenAI.GPT3.ObjectModels.ResponseModels;
 
 namespace Application.Services;
 
 public class ChatCompletionsService
 {
-    private readonly IOpenAIService _openAiService;
     private readonly PruningService _pruningService;
+    private readonly IOpenAiChatCompletionsService _openAiChatCompletionsService;
 
-    public ChatCompletionsService(IOpenAIService openAiService, PruningService pruningService)
+    public ChatCompletionsService(
+        PruningService pruningService,
+        IOpenAiChatCompletionsService openAiChatCompletionsService
+    )
     {
-        _openAiService = openAiService;
         _pruningService = pruningService;
+        _openAiChatCompletionsService = openAiChatCompletionsService;
     }
 
     public async IAsyncEnumerable<ChatMessage?> RequestNewCompletionMessage(
@@ -37,16 +37,20 @@ public class ChatCompletionsService
             yield break;
         }
 
-        var openAiService = GetOpenAiService(apiKey);
+        //var openAiService = GetOpenAiService(apiKey);
 
-        var completionResult = openAiService.ChatCompletion.CreateCompletionAsStream(
-            new ChatCompletionCreateRequest()
-            {
-                Messages = trimResult.Messages,
-                MaxTokens = trimResult.RemainingTokens,
-                Temperature = (float)0.5
-            },
-            Models.ChatGpt3_5Turbo,
+        var chatCompletionCreateRequest = new ChatCompletionCreateRequest
+        {
+            Messages = trimResult.Messages,
+            MaxTokens = trimResult.RemainingTokens,
+            Temperature = 0.5F
+        };
+        var gptModel = Models.Model.ChatGpt3_5Turbo;
+
+        var completionResult = _openAiChatCompletionsService.CreateCompletionAsStream(
+            chatCompletionCreateRequest,
+            gptModel,
+            apiKey: apiKey,
             cancellationToken
         );
 
@@ -73,16 +77,5 @@ public class ChatCompletionsService
                 Console.WriteLine($"{completion.Error.Code}: {completion.Error.Message}");
             }
         }
-    }
-
-    private IOpenAIService GetOpenAiService(string? apiKey)
-    {
-        if (apiKey is null)
-        {
-            // TODO: Check Auth once implemented
-            return _openAiService;
-        }
-
-        return new OpenAIService(new OpenAiOptions() { ApiKey = apiKey });
     }
 }

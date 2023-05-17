@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenAI.GPT3.ObjectModels;
+﻿using OpenAI.GPT3.ObjectModels;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 using SharpToken;
 using Domain;
-using Microsoft.Extensions.Logging;
 
 namespace Application.Services
 {
@@ -18,20 +12,23 @@ namespace Application.Services
 
         public Models.Model GPTModel { get; private set; } = Models.Model.ChatGpt3_5Turbo;
 
-        public int GetTokenCount(ChatMessage message)
-            => GptEncoding.GetEncodingForModel(Models.ChatGpt3_5Turbo).Encode(message.Content).Count;
+        public int GetTokenCount(ChatMessage message) =>
+            GptEncoding.GetEncodingForModel(Models.ChatGpt3_5Turbo).Encode(message.Content).Count;
 
-        public int GetTokenCount(ChatMessage message, string model)
-            => GptEncoding.GetEncodingForModel(model).Encode(message.Content).Count;
+        public int GetTokenCount(ChatMessage message, string model) =>
+            GptEncoding.GetEncodingForModel(model).Encode(message.Content).Count;
 
-        public int GetTokenCount(RuleDto message, string model)
-            => GptEncoding.GetEncodingForModel(model).Encode(message.Content).Count;
+        public int GetTokenCount(RuleDto message, string model) =>
+            GptEncoding.GetEncodingForModel(model).Encode(message.Content).Count;
 
-        public TokenResult GetTokenCount(List<ChatMessage> messageList)
-            => GetTokenCount(messageList.Select(m => m.Content).ToList(), Models.ChatGpt3_5Turbo);
+        public TokenResult GetTokenCount(List<ChatMessage> messageList) =>
+            GetTokenCount(messageList.Select(m => m.Content).ToList(), Models.ChatGpt3_5Turbo);
 
-        public TokenResult GetTokenCount(List<RuleDto> messageList)
-            => GetTokenCount(messageList.Select(m => m.Content).Cast<string>().ToList(), Models.ChatGpt3_5Turbo);
+        public TokenResult GetTokenCount(List<RuleDto> messageList) =>
+            GetTokenCount(
+                messageList.Select(m => m.Content).Cast<string>().ToList(),
+                Models.ChatGpt3_5Turbo
+            );
 
         private TokenResult GetTokenCount(List<string> messageList, string model)
         {
