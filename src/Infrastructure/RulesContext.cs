@@ -1,4 +1,4 @@
-﻿using Application;
+﻿using Application.Contracts;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Object = Domain.Entities.Object;

@@ -1,4 +1,5 @@
-﻿using Domain;
+﻿using Application.Contracts;
+using Domain.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Pgvector;
 

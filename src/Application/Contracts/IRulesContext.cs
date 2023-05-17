@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Application;
+namespace Application.Contracts;
 
 public interface IRulesContext
 {

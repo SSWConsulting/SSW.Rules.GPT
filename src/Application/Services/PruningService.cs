@@ -1,4 +1,5 @@
 ﻿using Domain;
+using Domain.DTOs;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 
 namespace Application.Services;

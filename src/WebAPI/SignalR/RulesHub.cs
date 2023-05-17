@@ -4,7 +4,6 @@ using Application.Contracts;
 using Application.Services;
 using Microsoft.AspNetCore.SignalR;
 using Infrastructure;
-using Infrastructure.Services;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 using Pgvector;
 

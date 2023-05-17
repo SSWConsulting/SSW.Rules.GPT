@@ -2,6 +2,7 @@
 using OpenAI.GPT3.ObjectModels.RequestModels;
 using SharpToken;
 using Domain;
+using Domain.DTOs;
 
 namespace Application.Services;
 
