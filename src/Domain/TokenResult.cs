@@ -1,9 +1,8 @@
-﻿namespace Domain
-{
-    public class TokenResult
-    {
-        public int TokenCount { get; set; } = 0;
+﻿namespace Domain;
 
-        public int RemainingCount { get; set; }
-    }
+public class TokenResult
+{
+    public int TokenCount { get; set; } = 0;
+
+    public int RemainingCount { get; set; }
 }
