@@ -100,6 +100,16 @@ builder.Services.AddOpenApiDocument(configure =>
 
 builder.Services.AddEndpointsApiExplorer();
 
+// TODO: Set CORS in Bicep
+var productionCorsUrls = new string[]
+{
+    "https://white-desert-00e3fb600.3.azurestaticapps.net",
+    "https://rulesgpt.ssw.com.au",
+    "https://ssw.com.au/rulesgpt"
+};
+
+var developmentCorsUrls = new string[] { "https://localhost:5001" };
+
 const string StatusAppCorsPolicy = nameof(StatusAppCorsPolicy);
 builder.Services.AddCors(
     options =>
@@ -110,8 +120,8 @@ builder.Services.AddCors(
                     .WithOrigins(
                         Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
                         == "Development"
-                            ? "https://localhost:5001"
-                            : "https://white-desert-00e3fb600.3.azurestaticapps.net"
+                            ? developmentCorsUrls
+                            : productionCorsUrls
                     )
                     .AllowAnyMethod()
                     .AllowAnyHeader()
