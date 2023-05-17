@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using Application.Contracts;
 using Application.Services;
 using Microsoft.AspNetCore.SignalR;
 using Infrastructure;
@@ -13,14 +14,14 @@ public class RulesHub : Hub<IRulesClient>
 {
     private readonly RulesContext _db;
     private readonly ChatCompletionsService _chatCompletionsService;
-    private readonly OpenAiEmbeddingService _openAiEmbeddingService;
+    private readonly IOpenAiEmbeddingService _openAiEmbeddingService;
     private readonly EmbeddingNeighboursService _embeddingNeighboursService;
     private readonly PruningService _pruningService;
 
     public RulesHub(
         RulesContext db,
         ChatCompletionsService chatCompletionsService,
-        OpenAiEmbeddingService openAiEmbeddingService,
+        IOpenAiEmbeddingService openAiEmbeddingService,
         PruningService pruningService,
         EmbeddingNeighboursService embeddingNeighboursService
     )
