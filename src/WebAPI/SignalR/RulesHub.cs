@@ -41,6 +41,7 @@ public class RulesHub : Hub<IRulesClient>
     public async IAsyncEnumerable<ChatMessage?> RequestNewCompletionMessage(
         List<ChatMessage> messageList,
         string apiKey,
+        bool useGpt4Model,
         [EnumeratorCancellation] CancellationToken cancellationToken
     )
     {
@@ -75,7 +76,12 @@ public class RulesHub : Hub<IRulesClient>
 
         await foreach (
             var message in _chatCompletionsService
-                .RequestNewCompletionMessage(messageList, apiKey: apiKey, cancellationToken)
+                .RequestNewCompletionMessage(
+                    messageList,
+                    apiKey: apiKey,
+                    useGpt4Model,
+                    cancellationToken
+                )
                 .WithCancellation(cancellationToken)
         )
         {

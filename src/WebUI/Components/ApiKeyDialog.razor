@@ -3,20 +3,25 @@
 
 <MudDialog>
     <DialogContent>
-        <MudSelect T="bool" @bind-Value="@UsingByoApiKey" ToStringFunc="s => DropDownItemToString(s)" Label="Select a key" AnchorOrigin="Origin.BottomCenter">
-            <MudSelectItem Value="true"/>
-            <MudSelectItem Value="false" />
-        </MudSelect>
+        <MudStack Spacing="4">
+            <MudSelect T="bool" @bind-Value="@UsingByoApiKey" ToStringFunc="s => DropDownItemToString(s)" Label="Select a key" AnchorOrigin="Origin.BottomCenter">
+                <MudSelectItem Value="true"/>
+                <MudSelectItem Value="false"/>
+            </MudSelect>
         
-        @if (UsingByoApiKey)
-        {
-            <MudTextField @bind-Value="ApiKeyString" OnKeyDown="ResetValidationErrors" Label="Enter your key" Variant="Variant.Text"></MudTextField>
-            @if (validationState == ValidationState.Invalid)
+            @if (UsingByoApiKey)
             {
-                <MudAlert Severity="Severity.Error" Dense="true" Class="my-2">@KeyValidationErrorMessage</MudAlert>
+                <MudSelect T="bool" @bind-Value="@ByoUseGpt4Model" ToStringFunc="s => GptModelBoolToString(s)" Label="GPT Model" AnchorOrigin="Origin.BottomCenter">
+                    <MudSelectItem Value="true"/>
+                    <MudSelectItem Value="false"/>
+                </MudSelect>
+                <MudTextField @bind-Value="ApiKeyString" OnKeyDown="ResetValidationErrors" Label="Enter your key" Variant="Variant.Text"></MudTextField>
+                @if (validationState == ValidationState.Invalid)
+                {
+                    <MudAlert Severity="Severity.Error" Dense="true" Class="my-2">@KeyValidationErrorMessage</MudAlert>
+                }
             }
-        }
-
+        </MudStack>
     </DialogContent>
     <DialogActions>
         @if (UsingByoApiKey)
@@ -55,6 +60,7 @@
     private bool UsingByoApiKey { get; set; } = false;
     private bool Validating { get; set; } = false;
     private string? ApiKeyString { get; set; }
+    private bool ByoUseGpt4Model { get; set; } = false;
 
     public string KeyValidationErrorMessage { get; set; } = string.Empty;
     public ValidationState validationState { get; set; } = ValidationState.Initial;
@@ -82,12 +88,13 @@
             validationState = ValidationState.Invalid;   
             return;
         }
-        var success = await ApiKeyValidationService.ValidateApiKey(ApiKeyString);
+        var success = await ApiKeyValidationService.ValidateApiKey(ApiKeyString, ByoUseGpt4Model);
 
         if (success is true)
         {
             validationState = ValidationState.Valid;
             DataState.OpenAiApiKey = ApiKeyString;
+            DataState.ByoUseGpt4Model = ByoUseGpt4Model;
             MudDialog.Close(DialogResult.Ok(true));
         }
         else
@@ -111,6 +118,11 @@
     private string DropDownItemToString(bool usingByoApiKey)
     {
         return usingByoApiKey ? "BYO Key" : "SSW Key";
+    }
+    
+    private string GptModelBoolToString(bool useGpt4Model)
+    {
+        return useGpt4Model ? "gpt-4" : "gpt-3.5-turbo";
     }
 }
 

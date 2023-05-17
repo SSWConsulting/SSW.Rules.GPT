@@ -84,6 +84,7 @@ public class SignalRClient
     public async IAsyncEnumerable<ChatMessage?> RequestNewCompletionMessage(
         List<ChatMessage> messageList,
         string? apiKey,
+        bool byoUseGpt4Model,
         [EnumeratorCancellation] CancellationToken cancellationToken
     )
     {
@@ -91,6 +92,7 @@ public class SignalRClient
             "RequestNewCompletionMessage",
             messageList,
             apiKey,
+            byoUseGpt4Model,
             cancellationToken
         );
         await foreach (var message in completionResult.WithCancellation(cancellationToken))

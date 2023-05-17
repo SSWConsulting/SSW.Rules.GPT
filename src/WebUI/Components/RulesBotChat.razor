@@ -48,8 +48,8 @@
                        Examples
                     </MudText>
                     <MudStack Class="pt-0">
-                        <MudButton Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => OnExampleClicked("What is a v2 email?"))">
-                            What is a v2 email?
+                        <MudButton Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => OnExampleClicked("How do I send a v2 email?"))">
+                            How do I send a v2 email?
                         </MudButton>
                         <MudButton Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => OnExampleClicked("How can I get better at presenting?"))">
                             How can I get better at presenting?
@@ -179,10 +179,11 @@
 
         
         await JsScrollMessageListToBottom();
-        
+
         var resultStream = SignalR.RequestNewCompletionMessage(
             DataState.ChatMessages,
             DataState.OpenAiApiKey,
+            DataState.ByoUseGpt4Model,
             DataState.CancellationTokenSource.Token );
         
         await JsScrollMessageListToBottom();
