@@ -1,6 +1,4 @@
-﻿using Domain;
-
-namespace WebAPI.SignalR;
+﻿namespace WebAPI.SignalR;
 
 public interface IRulesClient
 {

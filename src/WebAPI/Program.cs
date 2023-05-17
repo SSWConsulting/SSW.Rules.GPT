@@ -1,14 +1,12 @@
-using System.Numerics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Application;
+using Application.Contracts;
 using Application.Services;
-using Domain;
-using Domain.Entities;
 using Infrastructure;
+using Infrastructure.Services;
 using OpenAI.GPT3.Extensions;
-using Pgvector;
 using WebAPI.Routes;
 using WebAPI.SignalR;
 using Pgvector.EntityFrameworkCore;
@@ -71,7 +69,9 @@ builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<PruningService>();
 
 builder.Services.AddScoped<ChatCompletionsService>();
-builder.Services.AddScoped<EmbeddingService>();
+builder.Services.AddScoped<EmbeddingNeighboursService>();
+builder.Services.AddScoped<IOpenAiEmbeddingService, OpenAiEmbeddingService>();
+builder.Services.AddScoped<IOpenAiChatCompletionsService, OpenAiChatCompletionsService>();
 
 var openAiApiKey = string.Empty;
 if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")

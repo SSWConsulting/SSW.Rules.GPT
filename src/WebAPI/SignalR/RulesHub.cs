@@ -3,6 +3,7 @@ using System.Text.Json;
 using Application.Services;
 using Microsoft.AspNetCore.SignalR;
 using Infrastructure;
+using Infrastructure.Services;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 using Pgvector;
 
@@ -12,20 +13,23 @@ public class RulesHub : Hub<IRulesClient>
 {
     private readonly RulesContext _db;
     private readonly ChatCompletionsService _chatCompletionsService;
-    private readonly EmbeddingService _embeddingService;
+    private readonly OpenAiEmbeddingService _openAiEmbeddingService;
+    private readonly EmbeddingNeighboursService _embeddingNeighboursService;
     private readonly PruningService _pruningService;
 
     public RulesHub(
         RulesContext db,
         ChatCompletionsService chatCompletionsService,
-        EmbeddingService embeddingService,
-        PruningService pruningService
+        OpenAiEmbeddingService openAiEmbeddingService,
+        PruningService pruningService,
+        EmbeddingNeighboursService embeddingNeighboursService
     )
     {
         _db = db;
         _chatCompletionsService = chatCompletionsService;
-        _embeddingService = embeddingService;
+        _openAiEmbeddingService = openAiEmbeddingService;
         _pruningService = pruningService;
+        _embeddingNeighboursService = embeddingNeighboursService;
     }
 
     // Server methods that a client can invoke - connection.invoke(...)
@@ -53,9 +57,12 @@ public class RulesHub : Hub<IRulesClient>
         }
         var concatenatedUserMessages = string.Join("\n", lastThreeUserMessagesContent);
 
-        var embeddingVector = await _embeddingService.GetEmbedding(concatenatedUserMessages);
+        var embeddingVector = await _openAiEmbeddingService.GetEmbedding(
+            concatenatedUserMessages,
+            apiKey
+        );
         //var embeddingVectorList = await _embeddingService.GetEmbeddingList(lastThreeUserMessagesContent);
-        var relevantRulesList = await _embeddingService.CalculateNearestNeighbours(
+        var relevantRulesList = await _embeddingNeighboursService.CalculateNearestNeighbours(
             new List<Vector> { embeddingVector }
         );
         relevantRulesList = _pruningService.PruneRelevantRules(relevantRulesList);
