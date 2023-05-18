@@ -26,4 +26,5 @@ app.UseHttpsRedirection();
 app.MapAuthRoutes();
 app.MapHub<RulesHub>("/ruleshub");
 
+app.Logger.LogInformation("Starting WebAPI");
 app.Run();

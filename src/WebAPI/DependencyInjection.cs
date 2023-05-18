@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging.ApplicationInsights;
 using WebAPI.SignalR;
 
 namespace WebAPI;
@@ -21,16 +22,19 @@ public static class DependencyInjection
 
         if (Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING") == null)
         {
-            services.AddLogging(options => 
-                options.AddConsole()
-            );
+            services.AddLogging(options => options.AddConsole());
         }
-
         else
         {
             services.AddApplicationInsightsTelemetry();
+            services.AddLogging(
+                options =>
+                    options
+                        .AddApplicationInsights()
+                        .AddFilter<ApplicationInsightsLoggerProvider>("", LogLevel.Information)
+            );
         }
-        
+
         // TODO: Set CORS in Bicep
         var productionCorsUrls = new string[]
         {
