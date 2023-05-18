@@ -28,14 +28,15 @@ public class ChatCompletionsService
     public async IAsyncEnumerable<ChatMessage?> RequestNewCompletionMessage(
         List<ChatMessage> messageList,
         string? apiKey,
+        Models.Model gptModel,
         [EnumeratorCancellation] CancellationToken cancellationToken
     )
     {
         _logger.LogInformation("User sent message '{MessageContent}' using {ModelName}.", 
             messageList.Last(m => m.Role == "user").Content, 
-            _tokenService.GPTModel.ToString());
+            gptModel.EnumToString());
 
-        var trimResult = _pruningService.PruneMessageHistory(messageList);
+        var trimResult = _pruningService.PruneMessageHistory(messageList, gptModel);
 
         if (trimResult.InputTooLong)
         {
@@ -54,7 +55,6 @@ public class ChatCompletionsService
             MaxTokens = trimResult.RemainingTokens,
             Temperature = 0.5F
         };
-        var gptModel = Models.Model.ChatGpt3_5Turbo;
 
         var completionResult = _openAiChatCompletionsService.CreateCompletionAsStream(
             chatCompletionCreateRequest,

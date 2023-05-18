@@ -3,20 +3,25 @@
 
 <MudDialog>
     <DialogContent>
-        <MudSelect T="bool" @bind-Value="@UsingByoApiKey" ToStringFunc="s => DropDownItemToString(s)" Label="Select a key" AnchorOrigin="Origin.BottomCenter">
-            <MudSelectItem Value="true"/>
-            <MudSelectItem Value="false" />
-        </MudSelect>
+        <MudStack Spacing="4">
+            <MudSelect T="bool" @bind-Value="@UsingByoApiKey" ToStringFunc="s => DropDownItemToString(s)" Label="Select a key" AnchorOrigin="Origin.BottomCenter">
+                <MudSelectItem Value="true"/>
+                <MudSelectItem Value="false"/>
+            </MudSelect>
         
-        @if (UsingByoApiKey)
-        {
-            <MudTextField @bind-Value="ApiKeyString" OnKeyDown="ResetValidationErrors" Label="Enter your key" Variant="Variant.Text"></MudTextField>
-            @if (validationState == ValidationState.Invalid)
+            @if (UsingByoApiKey)
             {
-                <MudAlert Severity="Severity.Error" Dense="true" Class="my-2">@KeyValidationErrorMessage</MudAlert>
+                <MudSelect T="AvailableGptModels" @bind-Value="@SelectedGptModel" ToStringFunc="s => AvailableModelEnumToString(s)" Label="GPT Model" AnchorOrigin="Origin.BottomCenter">
+                    <MudSelectItem Value="AvailableGptModels.Gpt35Turbo"/>
+                    <MudSelectItem Value="AvailableGptModels.Gpt4"/>
+                </MudSelect>
+                <MudTextField @bind-Value="ApiKeyString" OnKeyDown="ResetValidationErrors" Label="Enter your key" Variant="Variant.Text"></MudTextField>
+                @if (validationState == ValidationState.Invalid)
+                {
+                    <MudAlert Severity="Severity.Error" Dense="true" Class="my-2">@KeyValidationErrorMessage</MudAlert>
+                }
             }
-        }
-
+        </MudStack>
     </DialogContent>
     <DialogActions>
         @if (UsingByoApiKey)
@@ -55,6 +60,8 @@
     private bool UsingByoApiKey { get; set; } = false;
     private bool Validating { get; set; } = false;
     private string? ApiKeyString { get; set; }
+    private AvailableGptModels SelectedGptModel { get; set; } = AvailableGptModels.Gpt35Turbo;
+    
 
     public string KeyValidationErrorMessage { get; set; } = string.Empty;
     public ValidationState validationState { get; set; } = ValidationState.Initial;
@@ -65,12 +72,9 @@
         {
             ApiKeyString = DataState.OpenAiApiKey;
         }
-        if (DataState.OpenAiApiKey is not null)
-        {
-            ApiKeyString = DataState.OpenAiApiKey;
-        }
+        SelectedGptModel = (AvailableGptModels)DataState.SelectedGptModel;
     }
-    
+
     private async Task ValidateAndSaveKeyAsync()
     {
         Validating = true;
@@ -82,12 +86,13 @@
             validationState = ValidationState.Invalid;   
             return;
         }
-        var success = await ApiKeyValidationService.ValidateApiKey(ApiKeyString);
+        var success = await ApiKeyValidationService.ValidateApiKey(ApiKeyString, SelectedGptModel);
 
         if (success is true)
         {
             validationState = ValidationState.Valid;
             DataState.OpenAiApiKey = ApiKeyString;
+            DataState.SelectedGptModel = (Models.Model)SelectedGptModel;
             MudDialog.Close(DialogResult.Ok(true));
         }
         else
@@ -100,6 +105,8 @@
     
     private async Task SaveWithSswKey()
     {
+        DataState.OpenAiApiKey = null;
+        DataState.SelectedGptModel = (Models.Model)AvailableGptModels.Gpt35Turbo;
         MudDialog.Close(DialogResult.Ok(true));
     }
     
@@ -111,6 +118,17 @@
     private string DropDownItemToString(bool usingByoApiKey)
     {
         return usingByoApiKey ? "BYO Key" : "SSW Key";
+    }
+    
+    private string AvailableModelEnumToString(AvailableGptModels gptModel)
+    {
+        var modelString = gptModel switch
+        {
+            AvailableGptModels.Gpt4 => "GPT-4",
+            AvailableGptModels.Gpt35Turbo => "GPT-3.5 Turbo",
+            _ => throw new ArgumentOutOfRangeException()
+        };
+        return modelString;
     }
 }
 

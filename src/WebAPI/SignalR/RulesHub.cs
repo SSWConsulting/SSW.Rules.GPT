@@ -4,6 +4,7 @@ using Application.Contracts;
 using Application.Services;
 using Microsoft.AspNetCore.SignalR;
 using Infrastructure;
+using OpenAI.GPT3.ObjectModels;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 using Pgvector;
 
@@ -40,6 +41,7 @@ public class RulesHub : Hub<IRulesClient>
     public async IAsyncEnumerable<ChatMessage?> RequestNewCompletionMessage(
         List<ChatMessage> messageList,
         string apiKey,
+        Models.Model gptModel,
         [EnumeratorCancellation] CancellationToken cancellationToken
     )
     {
@@ -64,7 +66,7 @@ public class RulesHub : Hub<IRulesClient>
         var relevantRulesList = await _embeddingNeighboursService.CalculateNearestNeighbours(
             new List<Vector> { embeddingVector }
         );
-        relevantRulesList = _pruningService.PruneRelevantRules(relevantRulesList);
+        relevantRulesList = _pruningService.PruneRelevantRules(relevantRulesList, gptModel);
 
         var relevantRulesString = JsonSerializer.Serialize(relevantRulesList);
 
@@ -74,7 +76,12 @@ public class RulesHub : Hub<IRulesClient>
 
         await foreach (
             var message in _chatCompletionsService
-                .RequestNewCompletionMessage(messageList, apiKey: apiKey, cancellationToken)
+                .RequestNewCompletionMessage(
+                    messageList,
+                    apiKey: apiKey,
+                    gptModel,
+                    cancellationToken
+                )
                 .WithCancellation(cancellationToken)
         )
         {
