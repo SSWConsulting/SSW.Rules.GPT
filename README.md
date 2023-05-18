@@ -24,12 +24,6 @@ Follow these simple steps to install and set up our SSW Rules GPT project:
 - Jack Reimers (@jackreimers)
 - Adam Cogan (@adamcogan)
 
-## References
-
-- What is ChatGPT? As per https://ssw.com.au/rules/what-is-chatgpt
-- Using OpenAI Embeddings. As per https://ssw.com.au/rules/openai-embeddings
-- Building APIs with NextJS. As per https://ssw.com.au/rules/nextjs-apis
-
 ## Issue Templates
 
 To see the reasoning behind these issue templates see the rule:
