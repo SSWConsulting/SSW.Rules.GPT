@@ -36,7 +36,7 @@
 @* </MudText> *@
 
 <div style="display: grid; grid-template-rows: 1fr auto; height: 100%; padding: 24px 0;">
-    <MudPaper Elevation="0" Style="background: #f9fbfc; border: 1px solid #e6e6e6; overflow-y: auto; height: 100%">
+    <MudPaper Elevation="0" Style=@($"background: {(!isDarkMode ? Theme.Palette.BackgroundGrey : Theme.PaletteDark.BackgroundGrey)}; border: 1px solid #e6e6e6; overflow-y: auto; height: 100%")>
         <MudContainer Class="pa-0" Style="height: 100%">
             @if (DataState.ChatMessages.Count == 0)
             {
@@ -73,7 +73,7 @@
                                 <MudSpacer/>
                                 <MudStack Spacing="1" Class="chat-box">
                                     <MudText Typo="Typo.body1" Align="Align.Right"><b>You</b></MudText>
-                                    <MudPaper Elevation="1" Class="px-4 py-3" Style="background: #323332; color: white">
+                                    <MudPaper Elevation="1" Class="px-4 py-3" Style=@(!isDarkMode ? "color: white; background: #323332;" : "")>
                                         <MudText Typo="Typo.body1" Class="" Style="white-space: pre-wrap">@(message.Content)</MudText>
                                     </MudPaper>
                                 </MudStack>
@@ -92,13 +92,13 @@
                                     <MudText Typo="Typo.body1"><b>RulesGPT</b></MudText>
                                         @if (IsAwaitingResponseStream && string.IsNullOrWhiteSpace(message.Content))
                                         {
-                                            <MudPaper Elevation="1" Class="px-4 py-3" Style="background: white; color: black; text-align: center;">
+                                            <MudPaper Elevation="1" Class="px-4 py-3" Style="text-align: center;">
                                                 <MudProgressCircular Size="Size.Small" Color="Color.Secondary" Indeterminate="true" Style="vertical-align: bottom;"/>
                                             </MudPaper>
                                         }
                                         else
                                         {
-                                            <MudPaper Elevation="1" Class="px-4 py-3" Style="background: white; color: black;">
+                                            <MudPaper Elevation="1" Class="px-4 py-3" Style=@(isDarkMode ? "color: white;" : "")>
                                                 <MudMarkdown Value="@message.Content"/>
                                             </MudPaper>
                                         }
@@ -127,6 +127,9 @@
 
 
 @code {
+    [CascadingParameter] protected MudTheme Theme { get; set; } 
+    [CascadingParameter] protected bool isDarkMode { get; set; }
+    
     public string NewMessageString { get; set; } = string.Empty;
     public bool IsAwaitingResponseStream { get; set; } = false;
     private bool IsAwaitingResponse { get; set; } = false;
