@@ -11,7 +11,7 @@
         
             @if (UsingByoApiKey)
             {
-                <MudSelect T="AvailableGptModels" @bind-Value="@SelectedGptModel" ToStringFunc="s => GptModelBoolToString(s)" Label="GPT Model" AnchorOrigin="Origin.BottomCenter">
+                <MudSelect T="AvailableGptModels" @bind-Value="@SelectedGptModel" ToStringFunc="s => AvailableModelEnumToString(s)" Label="GPT Model" AnchorOrigin="Origin.BottomCenter">
                     <MudSelectItem Value="AvailableGptModels.Gpt35Turbo"/>
                     <MudSelectItem Value="AvailableGptModels.Gpt4"/>
                 </MudSelect>
@@ -120,7 +120,7 @@
         return usingByoApiKey ? "BYO Key" : "SSW Key";
     }
     
-    private string GptModelBoolToString(AvailableGptModels gptModel)
+    private string AvailableModelEnumToString(AvailableGptModels gptModel)
     {
         var modelString = gptModel switch
         {
