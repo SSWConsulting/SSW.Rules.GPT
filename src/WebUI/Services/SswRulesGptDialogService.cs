@@ -22,7 +22,7 @@ public class SswRulesGptDialogService
             NoHeader = false,
             MaxWidth = MaxWidth.ExtraSmall
         };
-        var dialog = await _dialogService.ShowAsync<ApiKeyDialog>("OpenAI API Key", options);
+        var dialog = await _dialogService.ShowAsync<ApiKeyDialog>("API Key", options);
         var result = await dialog.Result;
         var success = dialog.Result.IsCompletedSuccessfully;
         return success;

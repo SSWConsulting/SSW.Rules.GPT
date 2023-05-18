@@ -4,22 +4,21 @@
 <MudDialog>
     <DialogContent>
         <MudStack Spacing="4">
-            <MudSelect T="bool" @bind-Value="@UsingByoApiKey" ToStringFunc="s => DropDownItemToString(s)" Label="Select a key" AnchorOrigin="Origin.BottomCenter">
-                <MudSelectItem Value="true"/>
-                <MudSelectItem Value="false"/>
+            <MudRadioGroup T="bool" @bind-SelectedOption="@UsingByoApiKey">
+                <MudStack>
+                    <MudRadio Placement="Placement.End" Option="false">Use SSW's API Key 🔑</MudRadio>
+                    <MudRadio Placement="Placement.End" Option="true">Use my API Key 🔑</MudRadio>
+                </MudStack>
+            </MudRadioGroup>
+            
+            <MudSelect Disabled="!UsingByoApiKey" T="AvailableGptModels" @bind-Value="@SelectedGptModel" ToStringFunc="s => AvailableModelEnumToString(s)" Label="GPT Model" AnchorOrigin="Origin.BottomCenter">
+                <MudSelectItem Value="AvailableGptModels.Gpt35Turbo"/>
+                <MudSelectItem Value="AvailableGptModels.Gpt4"/>
             </MudSelect>
-        
-            @if (UsingByoApiKey)
+            <MudTextField Disabled="!UsingByoApiKey" @bind-Value="ApiKeyString" OnKeyDown="ResetValidationErrors" Label="Enter your key" Variant="Variant.Text"></MudTextField>
+            @if (validationState == ValidationState.Invalid)
             {
-                <MudSelect T="AvailableGptModels" @bind-Value="@SelectedGptModel" ToStringFunc="s => AvailableModelEnumToString(s)" Label="GPT Model" AnchorOrigin="Origin.BottomCenter">
-                    <MudSelectItem Value="AvailableGptModels.Gpt35Turbo"/>
-                    <MudSelectItem Value="AvailableGptModels.Gpt4"/>
-                </MudSelect>
-                <MudTextField @bind-Value="ApiKeyString" OnKeyDown="ResetValidationErrors" Label="Enter your key" Variant="Variant.Text"></MudTextField>
-                @if (validationState == ValidationState.Invalid)
-                {
-                    <MudAlert Severity="Severity.Error" Dense="true" Class="my-2">@KeyValidationErrorMessage</MudAlert>
-                }
+                <MudAlert Severity="Severity.Error" Dense="true" Class="my-2">@KeyValidationErrorMessage</MudAlert>
             }
         </MudStack>
     </DialogContent>
