@@ -20,16 +20,14 @@ public class PruningService
 
     public List<RuleDto> PruneRelevantRules(List<RuleDto> rules, Models.Model gptModel)
     {
-        rules = rules.Where(r => r.Content != null).ToList();
-        var totalTokens = _tokenService.GetTokenCount(rules, gptModel);
-
-        while (totalTokens.TokenCount > MaxRulesSize)
+        List<RuleDto> newRules = rules.Where(r => r.Similarity > 0.5 && r.Content != null).ToList();
+        int totalTokens = rules.Sum(curr => _tokenService.GetTokenCount(curr, gptModel));
+        while (totalTokens > MaxRulesSize)
         {
-            rules.RemoveAt(0);
-            totalTokens = _tokenService.GetTokenCount(rules, gptModel);
+            newRules.RemoveAt(newRules.Count - 1);
+            totalTokens = rules.Sum(curr => _tokenService.GetTokenCount(curr, gptModel));
         }
-
-        return rules;
+        return newRules;
     }
 
     public TrimResult PruneMessageHistory(List<ChatMessage> messageList, Models.Model gptModel)
