@@ -50,12 +50,7 @@ public class RulesHub : Hub<IRulesClient>
             .TakeLast(3)
             .Select(s => s.Content)
             .ToList();
-
-        // Replicate NextJS behaviour, whether intended or not
-        if (lastThreeUserMessagesContent.Count == 1)
-        {
-            lastThreeUserMessagesContent.Add(lastThreeUserMessagesContent.FirstOrDefault());
-        }
+        
         var concatenatedUserMessages = string.Join("\n", lastThreeUserMessagesContent);
 
         var embeddingVector = await _openAiEmbeddingService.GetEmbedding(
