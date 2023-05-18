@@ -1,4 +1,4 @@
-﻿namespace Domain;
+﻿namespace Domain.DTOs;
 
 public class RuleDto
 {

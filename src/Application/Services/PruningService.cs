@@ -1,13 +1,15 @@
 ﻿using Domain;
+using Domain.DTOs;
+using OpenAI.GPT3.ObjectModels;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 
 namespace Application.Services;
 
 public class PruningService
 {
-    const int MAX_RULES_SIZE = 2000;
-    const int MAX_MESSAGE_HISTORY = 8;
-    const int MIN_RESPONSE_SIZE = 300;
+    const int MaxRulesSize = 2000;
+    const int MaxMessageHistory = 8;
+    const int MinResponseSize = 300;
 
     private readonly TokenService _tokenService;
 
@@ -16,44 +18,41 @@ public class PruningService
         _tokenService = tokenService;
     }
 
-    public List<RuleDto> PruneRelevantRules(List<RuleDto> rules)
+    public List<RuleDto> PruneRelevantRules(List<RuleDto> rules, Models.Model gptModel)
     {
         rules = rules.Where(r => r.Content != null).ToList();
-        var totalTokens = _tokenService.GetTokenCount(rules);
+        var totalTokens = _tokenService.GetTokenCount(rules, gptModel);
 
-        while (totalTokens.TokenCount > MAX_RULES_SIZE)
+        while (totalTokens.TokenCount > MaxRulesSize)
         {
-            Console.WriteLine(
-                $"Trimmed '{rules[0].Name}' from reference rules for exceeding max allowed tokens."
-            );
             rules.RemoveAt(0);
-            totalTokens = _tokenService.GetTokenCount(rules);
+            totalTokens = _tokenService.GetTokenCount(rules, gptModel);
         }
 
         return rules;
     }
 
-    public TrimResult PruneMessageHistory(List<ChatMessage> messageList)
+    public TrimResult PruneMessageHistory(List<ChatMessage> messageList, Models.Model gptModel)
     {
         //Store the system message
         var systemMessage =
             messageList.FirstOrDefault(m => m.Role == "system")
-            ?? throw new ArgumentNullException();
+            ?? throw new ArgumentNullException(nameof(messageList), "No system message found.");
 
-        if (messageList.Count + 1 > MAX_MESSAGE_HISTORY)
+        if (messageList.Count + 1 > MaxMessageHistory)
         {
             Console.WriteLine(
-                $"Trimmed {messageList.Count - MAX_MESSAGE_HISTORY} messages from message history for exceeding max allowed history."
+                $"Trimmed {messageList.Count - MaxMessageHistory} messages from message history for exceeding max allowed history."
             );
 
-            messageList = messageList.TakeLast(MAX_MESSAGE_HISTORY).ToList();
+            messageList = messageList.TakeLast(MaxMessageHistory).ToList();
             messageList.Insert(0, systemMessage);
         }
 
-        var currentTokens = _tokenService.GetTokenCount(messageList);
+        var currentTokens = _tokenService.GetTokenCount(messageList, gptModel);
 
         //No further trimming required
-        if (currentTokens.RemainingCount >= MIN_RESPONSE_SIZE)
+        if (currentTokens.RemainingCount >= MinResponseSize)
             return new TrimResult
             {
                 InputTooLong = false,
@@ -62,12 +61,13 @@ public class PruningService
             };
 
         var lastMessageLength = _tokenService.GetTokenCount(
-            messageList.Last(m => m.Role == "user")
+            messageList.Last(m => m.Role == "user"),
+            gptModel
         );
         var remainingTokens =
-            _tokenService.GetMaxAllowedTokens()
-            - MIN_RESPONSE_SIZE
-            - _tokenService.GetTokenCount(systemMessage);
+            _tokenService.GetMaxAllowedTokens(gptModel)
+            - MinResponseSize
+            - _tokenService.GetTokenCount(systemMessage, gptModel);
 
         if (lastMessageLength > remainingTokens)
             return new TrimResult
@@ -85,7 +85,7 @@ public class PruningService
                 continue;
 
             if (
-                _tokenService.GetTokenCount(messageList[i]) is int length
+                _tokenService.GetTokenCount(messageList[i], gptModel) is var length
                 && length <= remainingTokens
             )
             {
@@ -96,14 +96,10 @@ public class PruningService
                 break;
         }
 
-        Console.WriteLine(
-            $"Trimmed {messageList.Count - trimmedMessages.Count} messages from message history for exceeding max allowed tokens."
-        );
-
         return new TrimResult
         {
             InputTooLong = false,
-            RemainingTokens = _tokenService.GetTokenCount(trimmedMessages).RemainingCount,
+            RemainingTokens = _tokenService.GetTokenCount(trimmedMessages, gptModel).RemainingCount,
             Messages = trimmedMessages
         };
     }

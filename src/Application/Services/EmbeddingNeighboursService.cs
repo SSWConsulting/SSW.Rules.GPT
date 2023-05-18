@@ -1,5 +1,8 @@
-﻿using Domain;
+using Microsoft.EntityFrameworkCore;
+using Domain;
 using Domain.Entities;
+using Application.Contracts;
+using Domain.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Pgvector;
 
@@ -26,9 +29,6 @@ public class EmbeddingNeighboursService
         foreach (var vector in vectorList)
         {
             var similarRules = await _rulesContext.MatchRulesResults.FromSql($"SELECT * FROM match_rules({vector}, 10)").ToListAsync();
-
-            //Console.WriteLine("Nearest Neighbours:");
-            //nearestNeighbours.ForEach(s => Console.WriteLine(s.Name));
             // only add distinct rules based on id to aggregateList
             aggregateList.AddRange(
                 similarRules.Where(s => !aggregateList.Any(a => a.Id == s.Id))
