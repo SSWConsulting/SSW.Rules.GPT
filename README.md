@@ -18,10 +18,11 @@ Follow these simple steps to install and set up our SSW Rules GPT project:
 
 ## Project Contributors
 
-- Harry Ross (@Harry-Ross)
 - Calum Simpson (@calumjs)
-- Jack Reimers (@jackreimers)
 - Matt Parker (@MattParkerDev)
+- Harry Ross (@Harry-Ross)
+- Jack Reimers (@jackreimers)
+- Adam Cogan (@adamcogan)
 
 ## References
 
