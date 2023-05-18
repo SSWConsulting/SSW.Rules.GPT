@@ -7,9 +7,9 @@
 @inject ISnackbar Snackbar
 
 
-<MudThemeProvider Theme="_theme" @bind-IsDarkMode="@_isDarkMode" />
-<MudDialogProvider Position="DialogPosition.Center" />
-<MudSnackbarProvider />
+<MudThemeProvider @ref="@_mudThemeProvider" Theme="_theme" @bind-IsDarkMode="@_isDarkMode"/>
+<MudDialogProvider Position="DialogPosition.Center"/>
+<MudSnackbarProvider/>
 
 <style>
     html, body, #app {
@@ -29,17 +29,12 @@
             <MudText Typo="Typo.h5">RulesGPT</MudText>
         </MudStack>
         <MudStack Justify="Justify.Center" Class="pl-3">
-            <MudText Color="Color.Primary" Typo="Typo.body1">Keeping Order with Intelligence</MudText>            
+            <MudText Color="Color.Primary" Typo="Typo.body1">Keeping Order with Intelligence</MudText>
         </MudStack>
-        <MudSpacer />
-        @*
-        <MudButton Color="Color.Primary" Variant="Variant.Filled" >Login</MudButton>
-        <MudTooltip Duration="1000" Text="@( _isDarkMode ? "Switch to Light Theme" : "Switch to Dark Theme")">
-        <MudIconButton Icon="@( _isDarkMode ? @Icons.Material.Rounded.LightMode : @Icons.Material.Outlined.DarkMode)" Color="Color.Inherit" OnClick="@ToggleDarkMode"/>
+        <MudSpacer/>
+        <MudTooltip Duration="1000" Text="@(_isDarkMode ? "Switch to Light Theme" : "Switch to Dark Theme")">
+            <MudIconButton Icon="@(_isDarkMode ? @Icons.Material.Rounded.LightMode : @Icons.Material.Outlined.DarkMode)" Color="Color.Inherit" OnClick="@ToggleDarkMode"/>
         </MudTooltip>
-        <MudIconButton Icon="@Icons.Custom.Brands.MudBlazor" Color="Color.Inherit" Href="https://mudblazor.com/" Target="_blank" />
-        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Href="https://github.com/MudBlazor/MudBlazor/" Target="_blank" />
-        *@
         <MudMenu Icon="@Icons.Material.Filled.Settings" Dense="true" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
             <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Refresh" OnTouch="ClearMessageHistory" OnClick="ClearMessageHistory">New Chat</MudMenuItem>
             <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Edit" OnTouch="OpenApiKeyDialog" OnClick="OpenApiKeyDialog">Input API Key</MudMenuItem>
@@ -59,31 +54,47 @@
     </MudDrawer>
     *@
     <MudMainContent Style="height: 100%;">
-        <MudContainer MaxWidth="MaxWidth.Large" Style="height: 100%">
-            @Body
-        </MudContainer>
+        <CascadingValue Value="_theme">
+            <CascadingValue Value="_isDarkMode">
+                <MudContainer MaxWidth="MaxWidth.Large" Style="height: 100%">
+                    @Body
+                </MudContainer>
+            </CascadingValue>
+        </CascadingValue>
     </MudMainContent>
 </MudLayout>
 
 @code {
-    bool _drawerOpen = true;
+    //bool _drawerOpen = true;
     bool _isDarkMode = false;
-    bool _isOptionMenuOpen = false;
+    private MudThemeProvider _mudThemeProvider;
 
     private MudTheme _theme = new MudTheme
-        {
-            Palette = new PaletteLight()
-            {
-                Primary = "#AAA",
-                Secondary = "#CC4141",
-                AppbarBackground = "#323332",
-            }
-        };
-
-    private void DrawerToggle()
     {
-        _drawerOpen = !_drawerOpen;
-    }
+        Palette = new PaletteLight()
+        {
+            Primary = "#AAA",
+            Secondary = "#CC4141",
+            Error = "#CC4141",
+            AppbarBackground = "#323332",
+            BackgroundGrey = "#f9fbfc"
+        },
+        PaletteDark = new PaletteDark()
+        {
+            Primary = "#AAA",
+            Secondary = "#CC4141",
+            Error = "#CC4141",
+            Background = "#333333",
+            AppbarBackground = "#323332",
+            Surface = "#333333",
+            BackgroundGrey = "#3E4446",
+        }
+    };
+
+    //private void DrawerToggle()
+    //{
+    //    _drawerOpen = !_drawerOpen;
+    //}
 
     private void ToggleDarkMode()
     {
@@ -101,23 +112,39 @@
             // Display error message
             Snackbar.Add("Unable to connect to SSW RulesGPT", Severity.Error);
         }
-
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _isDarkMode = await _mudThemeProvider.GetSystemPreference();
+            await _mudThemeProvider.WatchSystemPreference(OnSystemPreferenceChanged);
+            StateHasChanged();
+        }
+    }
+    
+    private async Task OnSystemPreferenceChanged(bool newValue)
+    {
+        _isDarkMode = newValue;
+        StateHasChanged();
     }
 
-    public async Task OpenApiKeyDialog()
+    private async Task OpenApiKeyDialog()
     {
         var success = await SswRulesGptDialogService.ApiKeyDialog();
     }
-    
-    public async Task OpenAboutRulesGptDialog()
+
+    private async Task OpenAboutRulesGptDialog()
     {
         var success = await SswRulesGptDialogService.AboutRulesGptDialog();
     }
-    
-    public async Task ClearMessageHistory()
+
+    private async Task ClearMessageHistory()
     {
         await NotifierService.CancelMessageStream();
         DataState.ChatMessages.Clear();
         await NotifierService.Update();
     }
+
 }
