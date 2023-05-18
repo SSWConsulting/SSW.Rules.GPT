@@ -69,7 +69,6 @@ public class RulesHub : Hub<IRulesClient>
         relevantRulesList = _pruningService.PruneRelevantRules(relevantRulesList);
 
         var relevantRulesString = JsonSerializer.Serialize(relevantRulesList);
-        System.Diagnostics.Debug.WriteLine(relevantRulesString);
 
         var systemMessage = GenerateSystemMessage(relevantRulesString);
 

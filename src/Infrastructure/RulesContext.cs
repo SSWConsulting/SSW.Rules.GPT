@@ -257,7 +257,7 @@ public partial class RulesContext : DbContext, IRulesContext
             entity.Property(e => e.Uuid).HasColumnName("uuid");
         });
 
-        modelBuilder.Entity<MatchRulesResult>().HasNoKey().ToView(null);
+        modelBuilder.Entity<MatchRulesResult>().ToView(null);
 
         modelBuilder.Entity<MfaAmrClaim>(entity =>
         {
