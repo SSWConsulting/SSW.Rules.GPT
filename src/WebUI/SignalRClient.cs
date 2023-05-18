@@ -84,6 +84,7 @@ public class SignalRClient
     public async IAsyncEnumerable<ChatMessage?> RequestNewCompletionMessage(
         List<ChatMessage> messageList,
         string? apiKey,
+        OpenAI.GPT3.ObjectModels.Models.Model gptModel,
         [EnumeratorCancellation] CancellationToken cancellationToken
     )
     {
@@ -91,6 +92,7 @@ public class SignalRClient
             "RequestNewCompletionMessage",
             messageList,
             apiKey,
+            gptModel,
             cancellationToken
         );
         await foreach (var message in completionResult.WithCancellation(cancellationToken))

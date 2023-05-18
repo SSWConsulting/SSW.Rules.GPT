@@ -7,10 +7,10 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        services.AddScoped<ChatCompletionsService>();
+        services.AddSingleton<ChatCompletionsService>();
         services.AddScoped<EmbeddingNeighboursService>();
-        services.AddScoped<PruningService>();
-        services.AddScoped<TokenService>();
+        services.AddSingleton<PruningService>();
+        services.AddSingleton<TokenService>();
 
         return services;
     }

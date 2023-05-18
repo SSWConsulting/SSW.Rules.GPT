@@ -15,8 +15,8 @@ public static class DependencyInjection
         IConfiguration config
     )
     {
-        services.AddScoped<IOpenAiChatCompletionsService, OpenAiChatCompletionsService>();
-        services.AddScoped<IOpenAiEmbeddingService, OpenAiEmbeddingService>();
+        services.AddSingleton<IOpenAiChatCompletionsService, OpenAiChatCompletionsService>();
+        services.AddSingleton<IOpenAiEmbeddingService, OpenAiEmbeddingService>();
 
         // ReSharper disable once RedundantAssignment
         var connectionString = string.Empty;
