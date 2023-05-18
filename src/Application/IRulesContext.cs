@@ -7,6 +7,7 @@ namespace Application;
 public interface IRulesContext
 {
     DbSet<Rule> Rules { get; set; }
+    DbSet<MatchRulesResult> MatchRulesResults { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     public DatabaseFacade Database { get; }
 }

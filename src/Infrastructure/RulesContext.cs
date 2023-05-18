@@ -24,6 +24,8 @@ public partial class RulesContext : DbContext, IRulesContext
 
     public virtual DbSet<Instance> Instances { get; set; } = null!;
 
+    public virtual DbSet<MatchRulesResult> MatchRulesResults { get; set; } = null!;
+
     public virtual DbSet<MfaAmrClaim> MfaAmrClaims { get; set; } = null!;
 
     public virtual DbSet<MfaChallenge> MfaChallenges { get; set; } = null!;
@@ -254,6 +256,8 @@ public partial class RulesContext : DbContext, IRulesContext
             entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
             entity.Property(e => e.Uuid).HasColumnName("uuid");
         });
+
+        modelBuilder.Entity<MatchRulesResult>().HasNoKey().ToView(null);
 
         modelBuilder.Entity<MfaAmrClaim>(entity =>
         {
