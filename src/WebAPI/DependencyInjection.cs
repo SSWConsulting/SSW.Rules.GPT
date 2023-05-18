@@ -31,7 +31,7 @@ public static class DependencyInjection
                 options =>
                     options
                         .AddApplicationInsights()
-                        .AddFilter<ApplicationInsightsLoggerProvider>("", LogLevel.Trace)
+                        .AddFilter<ApplicationInsightsLoggerProvider>("", LogLevel.Information)
             );
         }
 
