@@ -1,4 +1,7 @@
-﻿using Application.Contracts;
+using Microsoft.EntityFrameworkCore;
+using Domain;
+using Domain.Entities;
+using Application.Contracts;
 using Domain.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Pgvector;
@@ -21,40 +24,29 @@ public class EmbeddingNeighboursService
             return new List<RuleDto>();
         }
 
-        var aggregateList = new List<RuleDto>();
+        var aggregateList = new List<MatchRulesResult>();
 
         foreach (var vector in vectorList)
         {
-            // Once we upgrade to EF Core 8 use Unmapped Types
-            var nearestNeighbours = await _rulesContext.Rules
-                //TODO: Fix names
-                // .FromSql(@$"
-                //     SELECT * FROM rules ORDER BY embeddings <=> {vector} LIMIT 5")
-                .FromSql(
-                    @$"
-                    select
-                    *
-                    from rules
-                    order by (1 - (rules.embeddings <=> {vector})) DESC
-                    limit 5"
-                )
-                .Select(
-                    s =>
-                        new RuleDto
-                        {
-                            Id = s.Id,
-                            Name = s.Name,
-                            Content = s.Content,
-                        }
-                )
-                .ToListAsync();
+            var similarRules = await _rulesContext.MatchRulesResults.FromSql($"SELECT * FROM match_rules({vector}, 10)").ToListAsync();
             // only add distinct rules based on id to aggregateList
             aggregateList.AddRange(
-                nearestNeighbours.Where(s => !aggregateList.Any(a => a.Id == s.Id))
+                similarRules.Where(s => !aggregateList.Any(a => a.Id == s.Id))
             );
         }
 
+        var convertedList = aggregateList.Select(s =>
+            new RuleDto
+            {
+                Name = s.Name,
+                Content = s.Content,
+                Similarity = s.Similarity
+            })
+            .ToList();
         // Uncomment to debug most similar rules
-        return aggregateList;
+        //Console.WriteLine("Aggregate List:");
+        //aggregateList.ForEach(s => Console.WriteLine(s.Name));
+
+        return convertedList;
     }
 }
