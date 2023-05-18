@@ -20,7 +20,9 @@ public class PruningService
 
     public List<RuleDto> PruneRelevantRules(List<RuleDto> rules, Models.Model gptModel)
     {
-        List<RuleDto> newRules = rules.Where(r => r.Similarity > 0.5 && r.Content != null).ToList();
+        List<RuleDto> newRules = rules.Where(r => r.Similarity > 0.5 && r.Content != null)
+            .OrderByDescending(r => r.Similarity)
+            .ToList();
         int totalTokens = rules.Sum(curr => _tokenService.GetTokenCount(curr, gptModel));
         while (totalTokens > MaxRulesSize)
         {
