@@ -48,8 +48,6 @@ public class EmbeddingNeighboursService
                         }
                 )
                 .ToListAsync();
-            //Console.WriteLine("Nearest Neighbours:");
-            //nearestNeighbours.ForEach(s => Console.WriteLine(s.Name));
             // only add distinct rules based on id to aggregateList
             aggregateList.AddRange(
                 nearestNeighbours.Where(s => !aggregateList.Any(a => a.Id == s.Id))
@@ -57,8 +55,6 @@ public class EmbeddingNeighboursService
         }
 
         // Uncomment to debug most similar rules
-        //Console.WriteLine("Aggregate List:");
-        //aggregateList.ForEach(s => Console.WriteLine(s.Name));
         return aggregateList;
     }
 }

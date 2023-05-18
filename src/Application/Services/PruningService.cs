@@ -25,9 +25,6 @@ public class PruningService
 
         while (totalTokens.TokenCount > MaxRulesSize)
         {
-            Console.WriteLine(
-                $"Trimmed '{rules[0].Name}' from reference rules for exceeding max allowed tokens."
-            );
             rules.RemoveAt(0);
             totalTokens = _tokenService.GetTokenCount(rules, gptModel);
         }
@@ -40,7 +37,7 @@ public class PruningService
         //Store the system message
         var systemMessage =
             messageList.FirstOrDefault(m => m.Role == "system")
-            ?? throw new ArgumentNullException();
+            ?? throw new ArgumentNullException(nameof(messageList), "No system message found.");
 
         if (messageList.Count + 1 > MaxMessageHistory)
         {
@@ -98,10 +95,6 @@ public class PruningService
             else
                 break;
         }
-
-        Console.WriteLine(
-            $"Trimmed {messageList.Count - trimmedMessages.Count} messages from message history for exceeding max allowed tokens."
-        );
 
         return new TrimResult
         {
