@@ -23,6 +23,11 @@ public class PruningService
         List<RuleDto> newRules = rules.Where(r => r.Similarity > 0.5 && r.Content != null)
             .OrderByDescending(r => r.Similarity)
             .ToList();
+
+        if (newRules.Count == 0)
+        {
+            return new List<RuleDto>();
+        }
         var totalTokens = _tokenService.GetTokenCount(newRules, gptModel);
         while (totalTokens.TokenCount > MaxRulesSize)
         {
