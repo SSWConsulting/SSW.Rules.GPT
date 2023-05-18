@@ -23,8 +23,7 @@ public class RulesHub : Hub<IRulesClient>
         ChatCompletionsService chatCompletionsService,
         IOpenAiEmbeddingService openAiEmbeddingService,
         PruningService pruningService,
-        EmbeddingNeighboursService embeddingNeighboursService
-    )
+        EmbeddingNeighboursService embeddingNeighboursService)
     {
         _db = db;
         _chatCompletionsService = chatCompletionsService;

@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Application.Contracts;
+using Microsoft.Extensions.Logging;
 using OpenAI.GPT3.ObjectModels;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 
@@ -9,14 +10,16 @@ public class ChatCompletionsService
 {
     private readonly PruningService _pruningService;
     private readonly IOpenAiChatCompletionsService _openAiChatCompletionsService;
+    private readonly ILogger<ChatCompletionsService> _logger;
 
     public ChatCompletionsService(
         PruningService pruningService,
-        IOpenAiChatCompletionsService openAiChatCompletionsService
-    )
+        IOpenAiChatCompletionsService openAiChatCompletionsService, 
+        ILogger<ChatCompletionsService> logger)
     {
         _pruningService = pruningService;
         _openAiChatCompletionsService = openAiChatCompletionsService;
+        _logger = logger;
     }
 
     public async IAsyncEnumerable<ChatMessage?> RequestNewCompletionMessage(
@@ -26,11 +29,14 @@ public class ChatCompletionsService
         [EnumeratorCancellation] CancellationToken cancellationToken
     )
     {
+        _logger.LogInformation("User sent message '{MessageContent}' using {ModelName}.", 
+            messageList.Last(m => m.Role == "user").Content, 
+            gptModel.EnumToString());
+
         var trimResult = _pruningService.PruneMessageHistory(messageList, gptModel);
 
         if (trimResult.InputTooLong)
         {
-            Console.WriteLine("Too many tokens.");
             yield return new ChatMessage(
                 "assistant",
                 "⚠️ Message too long! Please shorten your message and try again."
@@ -60,10 +66,12 @@ public class ChatCompletionsService
             {
                 //Console.Write(completion.Choices.FirstOrDefault()?.Message.Content);
                 var finishReason = completion.Choices.FirstOrDefault()?.FinishReason;
-                if (finishReason != null)
+                
+                if (finishReason != null && finishReason != "stop")
                 {
-                    Console.WriteLine($"Finish Reason: {finishReason}");
+                    _logger.LogInformation("{FinishReason}", finishReason);
                 }
+                
                 yield return completion.Choices.FirstOrDefault()?.Message;
             }
             else
@@ -74,7 +82,7 @@ public class ChatCompletionsService
                     throw new Exception("Unknown Error");
                 }
 
-                Console.WriteLine($"{completion.Error.Code}: {completion.Error.Message}");
+                _logger.LogError("{ErrorCode}: {ErrorMessage}", completion.Error.Code, completion.Error.Message);
             }
         }
     }
