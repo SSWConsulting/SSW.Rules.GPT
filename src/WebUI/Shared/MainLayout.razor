@@ -29,9 +29,22 @@
             <MudText Typo="Typo.h5">RulesGPT</MudText>
         </MudStack>
         <MudStack Justify="Justify.Center" Class="pl-3">
-            <MudText Color="Color.Primary" Typo="Typo.body1">Keeping Order with Intelligence</MudText>
+            <MudText Class="tag-line" Color="Color.Primary" Typo="Typo.body1">Keeping Order with Intelligence</MudText>
+            <style>
+                @@media screen and (max-width: 600px) {
+                    .tag-line {
+                        display: none;
+                    }
+                }
+                @@media screen and (max-width: 432px) {
+                    .powered-by-link {
+                        display: none;
+                    }
+                }
+            </style>
         </MudStack>
         <MudSpacer/>
+        <MudLink Color="Color.Primary" Variant="Variant.Filled" Class="powered-by-link mr-2" Target="_blank" Href="https://ssw.com.au/rules">Powered by SSW Rules</MudLink>
         <MudTooltip Duration="1000" Text="@(_isDarkMode ? "Switch to Light Theme" : "Switch to Dark Theme")">
             <MudIconButton Icon="@(_isDarkMode ? @Icons.Material.Rounded.LightMode : @Icons.Material.Outlined.DarkMode)" Color="Color.Inherit" OnClick="@ToggleDarkMode"/>
         </MudTooltip>
