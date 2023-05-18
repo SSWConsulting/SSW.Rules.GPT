@@ -67,7 +67,7 @@ public class RulesHub : Hub<IRulesClient>
         var relevantRulesList = await _embeddingNeighboursService.CalculateNearestNeighbours(
             new List<Vector> { embeddingVector }
         );
-        relevantRulesList = _pruningService.PruneRelevantRules(relevantRulesList);
+        relevantRulesList = _pruningService.PruneRelevantRules(relevantRulesList, gptModel);
 
         var relevantRulesString = JsonSerializer.Serialize(relevantRulesList);
 

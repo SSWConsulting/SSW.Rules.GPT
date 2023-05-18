@@ -26,7 +26,7 @@ public class ChatCompletionsService
         [EnumeratorCancellation] CancellationToken cancellationToken
     )
     {
-        var trimResult = _pruningService.PruneMessageHistory(messageList);
+        var trimResult = _pruningService.PruneMessageHistory(messageList, gptModel);
 
         if (trimResult.InputTooLong)
         {
