@@ -9,20 +9,17 @@ namespace Application.Services;
 public class ChatCompletionsService
 {
     private readonly PruningService _pruningService;
-    private readonly TokenService _tokenService;
     private readonly IOpenAiChatCompletionsService _openAiChatCompletionsService;
     private readonly ILogger<ChatCompletionsService> _logger;
 
     public ChatCompletionsService(
         PruningService pruningService,
         IOpenAiChatCompletionsService openAiChatCompletionsService, 
-        ILogger<ChatCompletionsService> logger, 
-        TokenService tokenService)
+        ILogger<ChatCompletionsService> logger)
     {
         _pruningService = pruningService;
         _openAiChatCompletionsService = openAiChatCompletionsService;
         _logger = logger;
-        _tokenService = tokenService;
     }
 
     public async IAsyncEnumerable<ChatMessage?> RequestNewCompletionMessage(
