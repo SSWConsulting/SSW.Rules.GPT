@@ -11,7 +11,7 @@ public class TokenService
     public const int GPT3_ALLOWED_TOKENS = 4000;
     public const int GPT4_ALLOWED_TOKENS = 8000;
 
-    public Models.Model GPTModel { get; private set; } = Models.Model.ChatGpt3_5Turbo;
+    public Models.Model GPTModel { get; set; } = Models.Model.ChatGpt3_5Turbo;
 
     public int GetTokenCount(ChatMessage message) =>
         GptEncoding.GetEncodingForModel(Models.ChatGpt3_5Turbo).Encode(message.Content).Count;
@@ -42,8 +42,6 @@ public class TokenService
 
         return tokenResult;
     }
-
-    public void SetModel(Models.Model model) => GPTModel = model;
 
     public int GetMaxAllowedTokens()
     {

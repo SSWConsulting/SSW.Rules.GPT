@@ -12,15 +12,17 @@ public class SignalRClient
     private readonly DataState _dataState;
     private readonly NotifierService _notifierService;
     private readonly HubConnection _connection;
+    private readonly ILogger<SignalRClient> _logger;
 
     public SignalRClient(
         DataState dataState,
         IWebAssemblyHostEnvironment hostEnvironment,
-        NotifierService notifierService
-    )
+        NotifierService notifierService, 
+        ILogger<SignalRClient> logger)
     {
         _dataState = dataState;
         _notifierService = notifierService;
+        _logger = logger;
         var hubeBaseUrl = hostEnvironment.IsDevelopment()
             ? "https://localhost:7104"
             : "https://ssw-rulesgpt-api.azurewebsites.net";
@@ -29,13 +31,9 @@ public class SignalRClient
         RegisterHandlers();
         _connection.Closed += async (exception) =>
         {
-            if (exception == null)
+            if (exception != null)
             {
-                Console.WriteLine("Connection closed without error.");
-            }
-            else
-            {
-                Console.WriteLine($"Connection closed due to an error: {exception}");
+                _logger.LogInformation("Connection closed due to an error: {Exception}", exception);        
             }
         };
     }

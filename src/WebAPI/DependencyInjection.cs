@@ -19,6 +19,18 @@ public static class DependencyInjection
         });
         services.AddEndpointsApiExplorer();
 
+        if (Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING") == null)
+        {
+            services.AddLogging(options => 
+                options.AddConsole()
+            );
+        }
+
+        else
+        {
+            services.AddApplicationInsightsTelemetry();
+        }
+        
         // TODO: Set CORS in Bicep
         var productionCorsUrls = new string[]
         {

@@ -24,9 +24,6 @@ public class PruningService
 
         while (totalTokens.TokenCount > MAX_RULES_SIZE)
         {
-            Console.WriteLine(
-                $"Trimmed '{rules[0].Name}' from reference rules for exceeding max allowed tokens."
-            );
             rules.RemoveAt(0);
             totalTokens = _tokenService.GetTokenCount(rules);
         }
@@ -39,14 +36,10 @@ public class PruningService
         //Store the system message
         var systemMessage =
             messageList.FirstOrDefault(m => m.Role == "system")
-            ?? throw new ArgumentNullException();
+            ?? throw new ArgumentNullException(nameof(messageList), "No system message found.");
 
         if (messageList.Count + 1 > MAX_MESSAGE_HISTORY)
         {
-            Console.WriteLine(
-                $"Trimmed {messageList.Count - MAX_MESSAGE_HISTORY} messages from message history for exceeding max allowed history."
-            );
-
             messageList = messageList.TakeLast(MAX_MESSAGE_HISTORY).ToList();
             messageList.Insert(0, systemMessage);
         }
@@ -96,10 +89,6 @@ public class PruningService
             else
                 break;
         }
-
-        Console.WriteLine(
-            $"Trimmed {messageList.Count - trimmedMessages.Count} messages from message history for exceeding max allowed tokens."
-        );
 
         return new TrimResult
         {
