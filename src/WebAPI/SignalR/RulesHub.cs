@@ -4,6 +4,7 @@ using Application.Contracts;
 using Application.Services;
 using Microsoft.AspNetCore.SignalR;
 using Infrastructure;
+using OpenAI.GPT3.ObjectModels;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 using Pgvector;
 
@@ -41,7 +42,7 @@ public class RulesHub : Hub<IRulesClient>
     public async IAsyncEnumerable<ChatMessage?> RequestNewCompletionMessage(
         List<ChatMessage> messageList,
         string apiKey,
-        bool useGpt4Model,
+        Models.Model gptModel,
         [EnumeratorCancellation] CancellationToken cancellationToken
     )
     {
@@ -79,7 +80,7 @@ public class RulesHub : Hub<IRulesClient>
                 .RequestNewCompletionMessage(
                     messageList,
                     apiKey: apiKey,
-                    useGpt4Model,
+                    gptModel,
                     cancellationToken
                 )
                 .WithCancellation(cancellationToken)

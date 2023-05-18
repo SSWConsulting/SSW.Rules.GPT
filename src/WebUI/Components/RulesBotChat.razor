@@ -183,7 +183,7 @@
         var resultStream = SignalR.RequestNewCompletionMessage(
             DataState.ChatMessages,
             DataState.OpenAiApiKey,
-            DataState.ByoUseGpt4Model,
+            DataState.SelectedGptModel,
             DataState.CancellationTokenSource.Token );
         
         await JsScrollMessageListToBottom();

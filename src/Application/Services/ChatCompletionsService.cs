@@ -22,7 +22,7 @@ public class ChatCompletionsService
     public async IAsyncEnumerable<ChatMessage?> RequestNewCompletionMessage(
         List<ChatMessage> messageList,
         string? apiKey,
-        bool useGpt4Model,
+        Models.Model gptModel,
         [EnumeratorCancellation] CancellationToken cancellationToken
     )
     {
@@ -46,7 +46,6 @@ public class ChatCompletionsService
             MaxTokens = trimResult.RemainingTokens,
             Temperature = 0.5F
         };
-        var gptModel = useGpt4Model ? Models.Model.Gpt_4 : Models.Model.ChatGpt3_5Turbo;
 
         var completionResult = _openAiChatCompletionsService.CreateCompletionAsStream(
             chatCompletionCreateRequest,
