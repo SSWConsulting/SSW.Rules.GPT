@@ -12,10 +12,10 @@ public class TokenService
     public const int Gpt4AllowedTokens = 8000;
 
     public int GetTokenCount(ChatMessage message, Models.Model model) =>
-        GptEncoding.GetEncodingForModel(model.ToString()).Encode(message.Content).Count;
+        GptEncoding.GetEncodingForModel(model.EnumToString()).Encode(message.Content).Count;
 
     public int GetTokenCount(RuleDto message, Models.Model model) =>
-        GptEncoding.GetEncodingForModel(model.ToString()).Encode(message.Content).Count;
+        GptEncoding.GetEncodingForModel(model.EnumToString()).Encode(message.Content).Count;
 
     public TokenResult GetTokenCount(List<ChatMessage> messageList, Models.Model model) =>
         GetTokenCount(messageList.Select(m => m.Content).ToList(), model);

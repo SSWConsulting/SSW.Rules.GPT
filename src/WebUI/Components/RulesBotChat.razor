@@ -1,4 +1,5 @@
 @using OpenAI.GPT3.ObjectModels.RequestModels
+@using Markdig
 @inject StatusAppClient StatusAppClient
 @inject DataState DataState
 @inject SswRulesGptDialogService SswRulesGptDialogService
@@ -99,7 +100,7 @@
                                         else
                                         {
                                             <MudPaper Elevation="1" Class="px-4 py-3" Style=@(isDarkMode ? "color: white;" : "")>
-                                                <MudMarkdown Value="@message.Content"/>
+                                                @((MarkupString)Markdown.ToHtml(message.Content))
                                             </MudPaper>
                                         }
                                     </MudStack>
@@ -133,7 +134,6 @@
     public string NewMessageString { get; set; } = string.Empty;
     public bool IsAwaitingResponseStream { get; set; } = false;
     private bool IsAwaitingResponse { get; set; } = false;
-    
 
     protected override async Task OnInitializedAsync()
     {
@@ -142,6 +142,7 @@
         // Only for use when styling
         //DataState.ChatMessages.Add(new ChatMessage("user", "Hello, I'm a user"));
         //DataState.ChatMessages.Add(new ChatMessage("assistant", "Hello, I'm an assistant"));
+        await base.OnInitializedAsync();
     }
 
     private async Task OnExampleClicked(string message)
@@ -194,7 +195,9 @@
         {
             IsAwaitingResponseStream = false;
             newAssistantMessage.Content += result?.Content;
+            
             StateHasChanged();
+            await Js.InvokeVoidAsync("highlightCode");
             await JsScrollMessageListToBottom();
         }
         IsAwaitingResponseStream = false;
