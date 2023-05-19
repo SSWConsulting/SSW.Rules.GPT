@@ -12,24 +12,47 @@ namespace WebAPI.SignalR;
 
 public class RulesHub : Hub<IRulesClient>
 {
-    private readonly RulesContext _db;
     private readonly ChatCompletionsService _chatCompletionsService;
     private readonly IOpenAiEmbeddingService _openAiEmbeddingService;
     private readonly EmbeddingNeighboursService _embeddingNeighboursService;
     private readonly PruningService _pruningService;
+    private readonly ILogger<RulesHub> _logger;
 
     public RulesHub(
-        RulesContext db,
         ChatCompletionsService chatCompletionsService,
         IOpenAiEmbeddingService openAiEmbeddingService,
         PruningService pruningService,
-        EmbeddingNeighboursService embeddingNeighboursService)
+        EmbeddingNeighboursService embeddingNeighboursService,
+        ILogger<RulesHub> logger
+    )
     {
-        _db = db;
         _chatCompletionsService = chatCompletionsService;
         _openAiEmbeddingService = openAiEmbeddingService;
         _pruningService = pruningService;
         _embeddingNeighboursService = embeddingNeighboursService;
+        _logger = logger;
+    }
+
+    // override OnConnectedAsync to add user to group
+    public override Task OnConnectedAsync()
+    {
+        _logger.LogInformation("User connected: {User}", Context.ConnectionId);
+        return base.OnConnectedAsync();
+    }
+
+    public override Task OnDisconnectedAsync(Exception? exception)
+    {
+        if (exception is null)
+        {
+            _logger.LogInformation("User disconnected: {User}", Context.ConnectionId);
+            return base.OnConnectedAsync();
+        }
+        _logger.LogInformation(
+            "User disconnected: {User} with error: {Error}",
+            Context.ConnectionId,
+            exception.Message
+        );
+        return base.OnConnectedAsync();
     }
 
     // Server methods that a client can invoke - connection.invoke(...)
@@ -50,7 +73,7 @@ public class RulesHub : Hub<IRulesClient>
             .TakeLast(3)
             .Select(s => s.Content)
             .ToList();
-        
+
         var concatenatedUserMessages = string.Join("\n", lastThreeUserMessagesContent);
 
         var embeddingVector = await _openAiEmbeddingService.GetEmbedding(
