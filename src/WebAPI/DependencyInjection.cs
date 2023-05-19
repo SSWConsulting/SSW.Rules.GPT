@@ -26,7 +26,7 @@ public static class DependencyInjection
         }
         else
         {
-            //services.AddApplicationInsightsTelemetry();
+            services.AddApplicationInsightsTelemetry();
             services.AddLogging(
                 options =>
                     options
