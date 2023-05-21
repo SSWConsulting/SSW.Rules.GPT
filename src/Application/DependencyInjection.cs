@@ -11,6 +11,8 @@ public static class DependencyInjection
         services.AddScoped<EmbeddingNeighboursService>();
         services.AddSingleton<PruningService>();
         services.AddSingleton<TokenService>();
+        services.AddScoped<MessageHandler>();
+        services.AddScoped<RelevantRulesService>();
 
         return services;
     }

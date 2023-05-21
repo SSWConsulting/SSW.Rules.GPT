@@ -1,6 +1,4 @@
-﻿using OpenAI.GPT3.ObjectModels;
-
-namespace WebUI.Models;
+﻿namespace WebUI.Models;
 
 public enum AvailableGptModels
 {
