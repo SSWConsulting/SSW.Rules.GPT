@@ -1,5 +1,4 @@
 ﻿using OpenAI.GPT3.ObjectModels.RequestModels;
-using WebUI.Components;
 
 namespace WebUI.Models;
 

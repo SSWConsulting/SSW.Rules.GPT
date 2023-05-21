@@ -18,36 +18,14 @@ public static class DependencyInjection
         services.AddSingleton<IOpenAiChatCompletionsService, OpenAiChatCompletionsService>();
         services.AddSingleton<IOpenAiEmbeddingService, OpenAiEmbeddingService>();
 
-        // ReSharper disable once RedundantAssignment
-        var connectionString = string.Empty;
-        if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-        {
-            connectionString = config.GetConnectionString("DefaultConnection");
-        }
-        else
-        {
-            connectionString = Environment.GetEnvironmentVariable("ConnectionString");
-        }
+        var connectionString = config.GetConnectionString("DefaultConnection");
 
         services.AddDbContext<IRulesContext, RulesContext>(
             options =>
                 options.UseNpgsql(connectionString, x => x.UseVector()).EnableSensitiveDataLogging()
         );
 
-        var openAiApiKey = string.Empty;
-        if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-        {
-            openAiApiKey = config["OpenAiApiKey"];
-        }
-        else
-        {
-            openAiApiKey = Environment.GetEnvironmentVariable("OpenAiApiKey");
-        }
-
-        if (string.IsNullOrEmpty(openAiApiKey))
-        {
-            throw new ArgumentNullException();
-        }
+        var openAiApiKey = config["OpenAiApiKey"];
 
         services.AddOpenAIService(settings =>
         {

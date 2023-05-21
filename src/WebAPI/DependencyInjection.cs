@@ -12,8 +12,9 @@ public static class DependencyInjection
     )
     {
         //services.AddSingleton<IUserIdProvider, SignalRUserIdProvider>();
+        services.AddSingleton<SignalRHubFilter>();
 
-        services.AddSignalR();
+        services.AddSignalR(options => options.AddFilter<SignalRHubFilter>());
         services.AddOpenApiDocument(configure =>
         {
             configure.Title = "RulesGPT Api";

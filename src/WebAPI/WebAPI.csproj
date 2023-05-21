@@ -4,16 +4,17 @@
         <TargetFramework>net7.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>40537d8f-c6e5-4798-980a-3e143e70ad63</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="NSwag.AspNetCore" Version="13.19.0" />
         <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.5" />
+        <PackageReference Include="NSwag.AspNetCore" Version="13.19.0" />
         <PackageReference Include="NSwag.MSBuild" Version="13.19.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Pgvector.EntityFrameworkCore" Version="0.1.1" />
     </ItemGroup>
     
     <ItemGroup>
