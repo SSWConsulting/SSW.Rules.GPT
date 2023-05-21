@@ -16,7 +16,7 @@ public class RelevantRulesServiceTests
     [Theory]
     [InlineData("Hello", "no-hello")]
     [InlineData("How do I send a v2 email?", "email-send-a-v2")]
-    public async Task RelevantRulesService_WhenUserMessageIsHello_ReturnsNoHelloRule(
+    public async Task RelevantRulesService_WhenUserMessageIsX_ReturnsXRule(
         string userMessageString,
         string dbRuleName
     )
