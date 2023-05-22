@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  DeploymentEnvironment: 'Staging'
+  # DeploymentEnvironment: 'Staging'
   AzureWebAppName: 'ssw-rulesgpt-api-stage' # The name of the resource in Azure
   AzureWebAppSecret: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_706C909B7DCB4379927A9D3AF3D8B5EF }}
   AzureStaticWebAppsApiToken: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_ASHY_MEADOW_0A2BAD900 }}
@@ -72,7 +72,7 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: "${{ env.AzureWebAppName }}"
-          slot-name: 'Staging'
+          slot-name: 'Production' # The environment in Azure, Production is just the name of the slot
           publish-profile: ${{ env.AzureWebAppSecret }}
           package: .
 
