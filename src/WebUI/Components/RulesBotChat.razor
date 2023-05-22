@@ -1,5 +1,8 @@
 @using OpenAI.GPT3.ObjectModels.RequestModels
 @using Markdig
+@using Markdig.Renderers
+@using Markdig.Extensions.Tables
+@using Markdig.Extensions.AutoLinks
 @inject StatusAppClient StatusAppClient
 @inject DataState DataState
 @inject SswRulesGptDialogService SswRulesGptDialogService
@@ -10,13 +13,13 @@
 @inject ISnackbar Snackbar
 
 <style>
-    .mud-markdown-body p:last-child,
-    .mud-markdown-body ol:last-child,
-    .mud-markdown-body ol:last-child {
+    .markdown-body p:last-child,
+    .markdown-body ol:last-child,
+    .markdown-body ol:last-child {
         margin-bottom: 0 !important;
     }
     
-    .mud-markdown-body .mud-link {
+    a.markdown-body {
         color: #CC4141 !important;
     }
 
@@ -74,8 +77,8 @@
                                 <MudSpacer/>
                                 <MudStack Spacing="1" Class="chat-box">
                                     <MudText Typo="Typo.body1" Align="Align.Right"><b>You</b></MudText>
-                                    <MudPaper Elevation="1" Class="px-4 py-3" Style=@(!isDarkMode ? "color: white; background: #323332;" : "")>
-                                        <MudText Typo="Typo.body1" Class="" Style="white-space: pre-wrap">@(message.Content)</MudText>
+                                    <MudPaper Elevation="1" Class="px-4 py-3" Style=@(!isDarkMode ? "color: white; background: #323332;" : "display: contents")>
+                                        <MudText Typo="Typo.body1" Class="" Style="">@(message.Content)</MudText>
                                     </MudPaper>
                                 </MudStack>
                                 <MudAvatar>
@@ -95,12 +98,12 @@
                                         {
                                             <MudPaper Elevation="1" Class="px-4 py-3" Style="text-align: center;">
                                                 <MudProgressCircular Size="Size.Small" Color="Color.Secondary" Indeterminate="true" Style="vertical-align: bottom;"/>
-                                            </MudPaper>
+                                            </MudPaper>             
                                         }
                                         else
                                         {
-                                            <MudPaper Elevation="1" Class="px-4 py-3" Style=@(isDarkMode ? "color: white;" : "")>
-                                                @((MarkupString)Markdown.ToHtml(message.Content))
+                                            <MudPaper Elevation="1" Class="markdown-body px-4 py-3" Style=@(isDarkMode ? "color: white;" : "white-space: pre-wrap")>
+                                                <Markdown Content=@(message.Content) pipeline=@(pipeline)/>
                                             </MudPaper>
                                         }
                                     </MudStack>
@@ -135,13 +138,20 @@
     public bool IsAwaitingResponseStream { get; set; } = false;
     private bool IsAwaitingResponse { get; set; } = false;
 
+    private MarkdownPipeline pipeline { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
+        pipeline = new MarkdownPipelineBuilder()
+            .UseAdvancedExtensions()
+            .UseAutoLinks()
+            .UseEmojiAndSmiley()
+            .Build();
         NotifierService.Notify += OnNotify;
         NotifierService.CancelMessageStreamEvent += OnCancelMessageStream;
         // Only for use when styling
         //DataState.ChatMessages.Add(new ChatMessage("user", "Hello, I'm a user"));
-        //DataState.ChatMessages.Add(new ChatMessage("assistant", "Hello, I'm an assistant"));
+        DataState.ChatMessages.Add(new ChatMessage("assistant", "Hello, I'm an assistant"));
         await base.OnInitializedAsync();
     }
 

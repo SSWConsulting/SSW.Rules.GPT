@@ -1,0 +1,19 @@
+﻿@using Markdig
+
+@(_htmlContent)
+
+@code {
+
+    private MarkupString _htmlContent;
+
+    [Parameter]
+    public string Content { get; set; }
+    [Parameter]
+    public MarkdownPipeline pipeline { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        _htmlContent = (MarkupString)Markdig.Markdown.ToHtml(Content, pipeline);
+    }
+
+}
