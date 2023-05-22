@@ -1,6 +1,6 @@
 ﻿@using Markdig
 
-@(_htmlContent)
+<MudText>@(_htmlContent)</MudText>
 
 @code {
 
@@ -11,9 +11,12 @@
     [Parameter]
     public MarkdownPipeline pipeline { get; set; }
 
+    
+
     protected override void OnParametersSet()
     {
-        _htmlContent = (MarkupString)Markdig.Markdown.ToHtml(Content, pipeline);
+        var trimmedMarkdown = Markdig.Markdown.ToHtml(Content, pipeline).TrimEnd(Environment.NewLine.ToCharArray());
+        _htmlContent = (MarkupString)trimmedMarkdown;
     }
 
 }
