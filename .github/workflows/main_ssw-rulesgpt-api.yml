@@ -36,12 +36,12 @@ jobs:
 
       - name: dotnet publish WebUI
         run: dotnet publish ./src/WebUI -c Release --property PublishDir=${{env.DOTNET_ROOT}}/myapp/webui
-      # TODO: Build and run unit tests
-      
-      # Changes the base-tag in index.html from '/' to 'rulesgpt' to match SSW subdirectory
+# TODO: Build and run unit tests
+
+# Changes the base-tag in index.html from '/' to 'rulesgpt' to match SSW subdirectory
 #      - name: Change base-tag in index.html from / to rulesgpt
 #        run: sed -i 's/<base href="\/" \/>/<base href="\/rulesgpt\/" \/>/g' ${{env.DOTNET_ROOT}}/myapp/webui/wwwroot/index.html
-          
+
       - name: Upload API artifact for deployment job
         uses: actions/upload-artifact@v3.1.2
         with:
@@ -58,7 +58,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     environment:
-      name: ${{env.DeploymentEnvironment}}
+      name: ${{ env.DeploymentEnvironment }}
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
@@ -71,16 +71,16 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: ${{env.AzureWebAppName}}
-          slot-name: ${{env.DeploymentEnvironment}}
-          publish-profile: ${{env.AzureWebAppSecret}}
+          app-name: ${{ env.AzureWebAppName }}
+          slot-name: ${{ env.DeploymentEnvironment }}
+          publish-profile: ${{ env.AzureWebAppSecret }}
           package: .
 
   deploy-webui:
     runs-on: ubuntu-latest
     needs: build
     environment:
-      name: ${{env.DeploymentEnvironment}}
+      name: ${{ env.DeploymentEnvironment }}
       url: ${{ steps.deploy-to-staticwebapp.outputs.static_web_app_url }}
     steps:
       - name: Download artifact from build job
@@ -92,8 +92,8 @@ jobs:
         id: deploy-to-staticwebapp
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{env.AzureStaticWebAppsApiToken}}
-          repo_token: ${{env.GithubRepoToken}} # Used for Github integrations (i.e. PR comments)
+          azure_static_web_apps_api_token: ${{ env.AzureStaticWebAppsApiToken }}
+          repo_token: ${{ env.GithubRepoToken }} # Used for Github integrations (i.e. PR comments)
           skip_app_build: true
           action: "upload"
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
