@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices.Marshalling;
 using System.Text.Json;
 using OpenAI.GPT3.ObjectModels;
 using OpenAI.GPT3.ObjectModels.RequestModels;
@@ -54,6 +55,13 @@ public class MessageHandler
 
     private ChatMessage GenerateSystemMessage(string relevantRulesString)
     {
+        var placeholders = new
+        {
+            Email = "{{ EMAIL }}",
+            Subject = "{{ SUBJECT }}",
+            Body = "{{ BODY }}"
+        };
+
         var systemMessage = new ChatMessage(role: "system", content: string.Empty);
         systemMessage.Content = $"""
 You are SSWBot, a helpful, friendly and funny bot - with a 
@@ -70,10 +78,10 @@ Reference data based on user query: {relevantRulesString}
 Summarise the above, prioritising the most relevant information, without copying anything verbatim. 
 Use emojis, keep it humourous cool and fresh. If an email or appointment should be sent, include a 
 template in the format: 
-To: <email> 
-CC: <email> 
-Subject: <subject> 
-Body: <body> 
+To: {placeholders.Email}
+CC: {placeholders.Email}
+Subject: {placeholders.Subject}
+Body: {placeholders.Body}
     
 You should use the phrase "As per https://ssw.com.au/rules/<ruleName>" at the start of the response 
 when you are referring to data sourced from a rule above (make sure it is a URL - only include this if it is a rule name in the provided reference data) 🤓. 
