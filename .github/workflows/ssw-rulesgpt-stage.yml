@@ -39,8 +39,8 @@ jobs:
       # TODO: Build and run unit tests
 
       # Changes the base-tag in index.html from '/' to 'rulesgpt' to match SSW subdirectory
-      - name: Change base-tag in index.html from / to /rulesgpt/
-        run: sed -i 's/<base href="\/" \/>/<base href="\/rulesgpt\/" \/>/g' ${{env.DOTNET_ROOT}}/myapp/webui/wwwroot/index.html
+      #- name: Change base-tag in index.html from / to /rulesgpt/
+      #  run: sed -i 's/<base href="\/" \/>/<base href="\/rulesgpt\/" \/>/g' ${{env.DOTNET_ROOT}}/myapp/webui/wwwroot/index.html
 
       - name: Upload API artifact for deployment job
         uses: actions/upload-artifact@v3.1.2
