@@ -3,7 +3,6 @@
 @using Markdig.Renderers
 @using Markdig.Extensions.Tables
 @using Markdig.Extensions.AutoLinks
-@inject StatusAppClient StatusAppClient
 @inject DataState DataState
 @inject SswRulesGptDialogService SswRulesGptDialogService
 @inject ApiKeyValidationService ApiKeyValidationService
@@ -11,69 +10,6 @@
 @inject SignalRClient SignalR
 @inject IJSRuntime Js
 @inject ISnackbar Snackbar
-
-<style>
-    .markdown-body p:last-child,
-    .markdown-body ol:last-child,
-    .markdown-body ol:last-child {
-        margin-bottom: 0 !important;
-    }
-    
-    a {
-        color: #CC4141 !important;
-    }
-    
-    table {
-        border-spacing: 0px;
-        border-collapse: collapse;
-    }
-    
-    th {
-        display: table-cell;
-        border-width: 1px;
-        padding: 8px;
-    }
-    
-    td {
-        display: table-cell;
-        border-width: 1px;
-        padding: 8px;
-    }
-    
-    li {
-        display: list-item;
-    }
-    
-    ul {
-        white-space: normal;   
-    }
-    
-    ol {
-        white-space: normal;   
-    }
-
-    .chat-box {
-        max-width: 70%;
-    }
-    
-    .mud-typography {
-        white-space: pre-line;
-    }
-    
-    .markdown-body {
-        overflow-y: auto;
-    }
-    
-    @@media screen and (max-width: 600px) {
-        .chat-box {
-            max-width: 85%;
-        }
-    }
-    
-    code { 
-        white-space: pre-line
-    }
-</style>
 
 @* <MudText> *@
 @*     Using Client Side Chat Completion Api *@
@@ -119,7 +55,7 @@
                                 <MudStack Spacing="1" Class="chat-box">
                                     <MudText Typo="Typo.body1" Align="Align.Right"><b>You</b></MudText>
                                     <MudPaper Elevation="1" Class="px-4 py-3" Style=@(!isDarkMode ? "color: white; background: #323332;" : "")>
-                                        <MudText Typo="Typo.body1" Class="" Style="">@(message.Content)</MudText>
+                                        <MudText Typo="Typo.body1">@(message.Content)</MudText>
                                     </MudPaper>
                                 </MudStack>
                                 <MudAvatar>
@@ -180,14 +116,6 @@
     private bool IsAwaitingResponse { get; set; } = false;
 
     private MarkdownPipeline pipeline { get; set; }
-
-    private string SampleMarkdown { get; set; } = @"
-
-        1. Hello there 
-        2. How are you
-        
-        * Test bullet point
-        * Another bullet point";
 
     protected override async Task OnInitializedAsync()
     {

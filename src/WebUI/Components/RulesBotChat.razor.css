@@ -1,0 +1,63 @@
+﻿.markdown-body p:last-child,
+.markdown-body ol:last-child,
+.markdown-body ol:last-child {
+    margin-bottom: 0 !important;
+}
+
+a {
+    color: #CC4141 !important;
+}
+
+table {
+    border-spacing: 0px;
+    border-collapse: collapse;
+}
+
+th {
+    display: table-cell;
+    border-width: 1px;
+    padding: 8px;
+}
+
+td {
+    display: table-cell;
+    border-width: 1px;
+    padding: 8px;
+}
+
+li {
+    display: list-item;
+}
+
+ul {
+    white-space: normal;
+    padding-left: 2em !important;
+    list-style: disc !important;
+}
+
+ol {
+    padding-left: 2em !important;
+    white-space: normal;
+}
+
+.chat-box {
+    max-width: 70%;
+}
+
+.mud-typography {
+    white-space: pre-line;
+}
+
+.markdown-body {
+    overflow-y: auto;
+}
+
+@@media screen and (max-width: 600px) {
+    .chat-box {
+        max-width: 85%;
+    }
+}
+
+code {
+    white-space: pre-line
+}
