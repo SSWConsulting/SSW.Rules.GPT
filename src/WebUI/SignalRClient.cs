@@ -17,8 +17,9 @@ public class SignalRClient
     public SignalRClient(
         DataState dataState,
         IWebAssemblyHostEnvironment hostEnvironment,
-        NotifierService notifierService, 
-        ILogger<SignalRClient> logger)
+        NotifierService notifierService,
+        ILogger<SignalRClient> logger
+    )
     {
         _dataState = dataState;
         _notifierService = notifierService;
@@ -33,7 +34,7 @@ public class SignalRClient
         {
             if (exception != null)
             {
-                _logger.LogInformation("Connection closed due to an error: {Exception}", exception);        
+                _logger.LogInformation("Connection closed due to an error: {Exception}", exception);
             }
         };
     }
