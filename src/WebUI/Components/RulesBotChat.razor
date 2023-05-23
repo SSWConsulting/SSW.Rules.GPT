@@ -25,6 +25,7 @@
     
     table {
         border-spacing: 0px;
+        border-collapse: collapse;
     }
     
     th {
@@ -38,19 +39,39 @@
         border-width: 1px;
         padding: 8px;
     }
+    
+    li {
+        display: list-item;
+    }
+    
+    ul {
+        white-space: normal;   
+    }
+    
+    ol {
+        white-space: normal;   
+    }
 
     .chat-box {
         max-width: 70%;
     }
     
     .mud-typography {
-        line-height: 1.8
+        white-space: pre-line;
+    }
+    
+    .markdown-body {
+        overflow-y: auto;
     }
     
     @@media screen and (max-width: 600px) {
         .chat-box {
             max-width: 85%;
         }
+    }
+    
+    code { 
+        white-space: pre-line
     }
 </style>
 
@@ -160,6 +181,14 @@
 
     private MarkdownPipeline pipeline { get; set; }
 
+    private string SampleMarkdown { get; set; } = @"
+
+        1. Hello there 
+        2. How are you
+        
+        * Test bullet point
+        * Another bullet point";
+
     protected override async Task OnInitializedAsync()
     {
         pipeline = new MarkdownPipelineBuilder()
@@ -172,7 +201,7 @@
         NotifierService.CancelMessageStreamEvent += OnCancelMessageStream;
         // Only for use when styling
         //DataState.ChatMessages.Add(new ChatMessage("user", "Hello, I'm a user"));
-        DataState.ChatMessages.Add(new ChatMessage("assistant", "Hello, I'm an assistant"));
+        //DataState.ChatMessages.Add(new ChatMessage("assistant", "1. hello there https://ssw.com.au \r\n 2. hello there \r\n \r\n How are you? \r\n Things are going well \r\n * hi there \r\n * how are you doing? \r\n \r\n | Tables | Are | Cool | \r\n | ------------- | :-----------: | -----: | \r\n | col 3 is | right-aligned | $1600 | \r\n | col 2 is | centered | $12 | \r\n | zebra stripes | are neat | $1 |"));
         await base.OnInitializedAsync();
     }
 
