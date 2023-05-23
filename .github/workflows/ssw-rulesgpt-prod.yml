@@ -12,6 +12,7 @@ on:
 env:
   # DeploymentEnvironment: 'Production'
   AzureWebAppName: 'ssw-rulesgpt-api' # The name of the resource in Azure
+  AzureWebAppUrl: 'https:\/\/ssw-rulesgpt-api.azurewebsites.net' # Escape slashes for regex
   AzureWebAppSecret: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1FEDFC8C3C4A497399C6318E5C173C42 }}
   AzureStaticWebAppsApiToken: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_WHITE_DESERT_00E3FB600 }}
   GithubRepoToken: ${{ secrets.GITHUB_TOKEN }}
@@ -31,15 +32,18 @@ jobs:
       - name: Build with dotnet
         run: dotnet build --configuration Release
 
+      - name: Change ApiBaseUrl in appsettings.json from localhost to Azure Web App
+        run: sed -i 's/https:\/\/localhost:7104/${{env.AzureWebAppUrl}}/g' ./src/WebUI/wwwroot/appsettings.json
+
       - name: dotnet publish WebAPI
         run: dotnet publish ./src/WebAPI -c Release --property PublishDir=${{env.DOTNET_ROOT}}/myapp/api
 
       - name: dotnet publish WebUI
         run: dotnet publish ./src/WebUI -c Release --property PublishDir=${{env.DOTNET_ROOT}}/myapp/webui
       # TODO: Build and run unit tests
-      
-      # Changes the base-tag in index.html from '/' to '/rulesgpt/' to match SSW subdirectory
-      - name: Change base-tag in index.html from / to /rulesgpt/
+
+      # Changes the basehref in index.html from '/' to '/rulesgpt/' to match SSW subdirectory
+      - name: Change basehref in index.html from / to /rulesgpt/
         run: sed -i 's/<base href="\/" \/>/<base href="\/rulesgpt\/" \/>/g' ${{env.DOTNET_ROOT}}/myapp/webui/wwwroot/index.html
 
       - name: Upload API artifact for deployment job
@@ -103,5 +107,3 @@ jobs:
           api_location: '' # Api source code path - optional
           output_location: '' # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
-        env:
-          ApiBaseUrl: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
