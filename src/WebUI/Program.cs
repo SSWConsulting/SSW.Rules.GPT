@@ -47,6 +47,6 @@ builder.Services
     )
     .AddHttpMessageHandler(sp => sp.GetRequiredService<CookieHandler>());
 
-builder.Services.AddHttpClient<StatusAppClient>(ApiClient);
+builder.Services.AddHttpClient<RulesGptClient>(ApiClient);
 
 await builder.Build().RunAsync();

@@ -11,12 +11,13 @@ public static class DependencyInjection
         string rulesGptCorsPolicy
     )
     {
-        services.AddSingleton<IUserIdProvider, SignalRUserIdProvider>();
+        //services.AddSingleton<IUserIdProvider, SignalRUserIdProvider>();
+        services.AddSingleton<SignalRHubFilter>();
 
-        services.AddSignalR();
+        services.AddSignalR(options => options.AddFilter<SignalRHubFilter>());
         services.AddOpenApiDocument(configure =>
         {
-            configure.Title = "StatusApp Api";
+            configure.Title = "RulesGPT Api";
         });
         services.AddEndpointsApiExplorer();
 

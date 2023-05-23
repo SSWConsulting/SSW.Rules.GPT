@@ -1,0 +1,105 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy - ssw-rulesgpt-prod
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    
+env:
+  # DeploymentEnvironment: 'Production'
+  AzureWebAppName: 'ssw-rulesgpt-api' # The name of the resource in Azure
+  AzureWebAppSecret: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1FEDFC8C3C4A497399C6318E5C173C42 }}
+  AzureStaticWebAppsApiToken: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_WHITE_DESERT_00E3FB600 }}
+  GithubRepoToken: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3.3.0
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v3.0.3
+        with:
+          dotnet-version: '7.x'
+
+      - name: Build with dotnet
+        run: dotnet build --configuration Release
+
+      - name: dotnet publish WebAPI
+        run: dotnet publish ./src/WebAPI -c Release --property PublishDir=${{env.DOTNET_ROOT}}/myapp/api
+
+      - name: dotnet publish WebUI
+        run: dotnet publish ./src/WebUI -c Release --property PublishDir=${{env.DOTNET_ROOT}}/myapp/webui
+      # TODO: Build and run unit tests
+      
+      # Changes the base-tag in index.html from '/' to 'rulesgpt' to match SSW subdirectory
+      #      - name: Change base-tag in index.html from / to rulesgpt
+      #        run: sed -i 's/<base href="\/" \/>/<base href="\/rulesgpt\/" \/>/g' ${{env.DOTNET_ROOT}}/myapp/webui/wwwroot/index.html
+
+      - name: Upload API artifact for deployment job
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: .net-app-api
+          path: ${{env.DOTNET_ROOT}}/myapp/api
+
+      - name: Upload WebUI artifact for deployment job
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: .net-app-webui
+          path: ${{env.DOTNET_ROOT}}/myapp/webui
+
+  deploy-api:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: 'Production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v3.0.2
+        with:
+          name: .net-app-api
+
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "${{ env.AzureWebAppName }}"
+          slot-name: 'Production' # The environment in Azure, Production is just the name of the slot
+          publish-profile: ${{ env.AzureWebAppSecret }}
+          package: .
+
+  deploy-webui:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: 'Production'
+      url: ${{ steps.deploy-to-staticwebapp.outputs.static_web_app_url }}
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v3.0.2
+        with:
+          name: .net-app-webui
+
+      - name: Deploy Static Web App
+        id: deploy-to-staticwebapp
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ env.AzureStaticWebAppsApiToken }}
+          repo_token: ${{ env.GithubRepoToken }} # Used for Github integrations (i.e. PR comments)
+          skip_app_build: true
+          action: "upload"
+          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
+          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
+          app_location: "./wwwroot" # App source code path
+          config_file_location: "./"
+          api_location: '' # Api source code path - optional
+          output_location: '' # Built app content directory - optional
+          ###### End of Repository/Build Configurations ######

@@ -34,7 +34,7 @@
       "serviceHost": null,
       "serviceBasePath": null,
       "serviceSchemes": [],
-      "infoTitle": "StatusApp Api",
+      "infoTitle": "RulesGPT Api",
       "infoDescription": null,
       "infoVersion": "1.0.0",
       "documentTemplate": null,
@@ -92,7 +92,7 @@
       "useRequestAndResponseSerializationSettings": false,
       "serializeTypeInformation": false,
       "queryNullValue": "",
-      "className": "{controller}StatusAppClient",
+      "className": "{controller}RulesGptClient",
       "operationGenerationMode": "MultipleClientsFromOperationId",
       "additionalNamespaceUsages": [],
       "additionalContractNamespaceUsages": [],
@@ -144,7 +144,7 @@
       "enumNameGeneratorType": null,
       "serviceHost": null,
       "serviceSchemes": null,
-      "output": "../WebUI/StatusAppApiClients.cs",
+      "output": "../WebUI/RulesGptApiClients.cs",
       "newLineBehavior": "Auto"
     }
   }

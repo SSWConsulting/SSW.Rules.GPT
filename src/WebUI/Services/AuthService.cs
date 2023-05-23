@@ -2,18 +2,18 @@
 
 public class AuthService
 {
-    private readonly StatusAppClient _statusAppClient;
+    private readonly RulesGptClient _rulesGptClient;
 
-    public AuthService(StatusAppClient statusAppClient)
+    public AuthService(RulesGptClient rulesGptClient)
     {
-        _statusAppClient = statusAppClient;
+        _rulesGptClient = rulesGptClient;
     }
 
     public async Task<bool> CheckAuthAsync()
     {
         try
         {
-            var response = await _statusAppClient.CheckAuthAsync();
+            var response = await _rulesGptClient.CheckAuthAsync();
             return true;
         }
         catch (ApiException e)
@@ -27,7 +27,7 @@ public class AuthService
     {
         try
         {
-            //await _statusAppClient.SignOutAsync();
+            //await _rulesGptClient.SignOutAsync();
             return true;
         }
         catch (ApiException e)
