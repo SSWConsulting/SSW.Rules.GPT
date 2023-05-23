@@ -19,6 +19,7 @@ builder.Services.AddSingleton<DataState>();
 builder.Services.AddSingleton<AuthService>();
 builder.Services.AddSingleton<SignalRClient>();
 builder.Services.AddSingleton<NotifierService>();
+builder.Services.AddSingleton<MarkdigPipelineService>();
 builder.Services.AddScoped<SswRulesGptDialogService>();
 builder.Services.AddScoped<ApiKeyValidationService>();
 builder.Services.AddMudServices(config =>

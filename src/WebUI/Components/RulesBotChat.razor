@@ -16,6 +16,73 @@
 @*     @DataState.UseClientSideChatCompletionApi *@
 @* </MudText> *@
 
+
+<style>
+    .chat-box {
+        max-width: 70%;
+    }
+
+    @@media screen and (max-width: 600px) {
+        .chat-box {
+            max-width: 85%;
+        }
+    }
+
+    .markdown-body p:last-child,
+    .markdown-body ol:last-child,
+    .markdown-body ol:last-child {
+        margin-bottom: 0 !important;
+    }
+    
+    .mud-typography .markdown-body {
+        white-space: pre-line;
+    }
+
+    .markdown-body {
+        overflow-y: auto;
+    }
+    
+    .markdown-body a {
+        color: #CC4141 !important;
+    }
+
+    .markdown-body table {
+        border-spacing: 0px;
+        border-collapse: collapse;
+    }
+
+    .markdown-body th {
+        display: table-cell;
+        border-width: 1px;
+        padding: 8px;
+    }
+
+    .markdown-body td {
+        display: table-cell;
+        border-width: 1px;
+        padding: 8px;
+    }
+
+    .markdown-body li {
+        display: list-item;
+    }
+
+    .markdown-body ul {
+        white-space: normal;
+        padding-left: 2em !important;
+        list-style: disc !important;
+    }
+
+    .markdown-body ol {
+        padding-left: 2em !important;
+        white-space: normal;
+    }
+
+    .markdown-body code {
+        white-space: pre-line
+    }
+</style>
+
 <div style="display: grid; grid-template-rows: 1fr auto; height: 100%; padding: 24px 0;">
     <MudPaper Elevation="0" Style=@($"background: {(!isDarkMode ? Theme.Palette.BackgroundGrey : Theme.PaletteDark.BackgroundGrey)}; border: 1px solid #e6e6e6; overflow-y: auto; height: 100%")>
         <MudContainer Class="pa-0" Style="height: 100%">
@@ -79,8 +146,8 @@
                                         }
                                         else
                                         {
-                                            <MudPaper Elevation="1" Class="markdown-body px-4 py-3" Style=@(isDarkMode ? "color: white;" : "")>
-                                                <Markdown Content=@(message.Content) pipeline=@(pipeline)/>
+                                            <MudPaper Elevation="1" Class="px-4 py-3" Style=@(isDarkMode ? "color: white;" : "")>
+                                                <Markdown Content=@(message.Content)/>
                                             </MudPaper>
                                         }
                                     </MudStack>
@@ -115,21 +182,13 @@
     public bool IsAwaitingResponseStream { get; set; } = false;
     private bool IsAwaitingResponse { get; set; } = false;
 
-    private MarkdownPipeline pipeline { get; set; }
-
     protected override async Task OnInitializedAsync()
     {
-        pipeline = new MarkdownPipelineBuilder()
-            .UseAdvancedExtensions()
-            .UsePipeTables()
-            .UseAutoLinks()
-            .UseEmojiAndSmiley()
-            .Build();
         NotifierService.Notify += OnNotify;
         NotifierService.CancelMessageStreamEvent += OnCancelMessageStream;
         // Only for use when styling
         //DataState.ChatMessages.Add(new ChatMessage("user", "Hello, I'm a user"));
-        //DataState.ChatMessages.Add(new ChatMessage("assistant", "1. hello there https://ssw.com.au \r\n 2. hello there \r\n \r\n How are you? \r\n Things are going well \r\n * hi there \r\n * how are you doing? \r\n \r\n | Tables | Are | Cool | \r\n | ------------- | :-----------: | -----: | \r\n | col 3 is | right-aligned | $1600 | \r\n | col 2 is | centered | $12 | \r\n | zebra stripes | are neat | $1 |"));
+        DataState.ChatMessages.Add(new ChatMessage("assistant", "1. hello there https://ssw.com.au \r\n 2. hello there \r\n \r\n How are you? \r\n Things are going well \r\n * hi there \r\n * how are you doing? \r\n \r\n | Tables | Are | Cool | \r\n | ------------- | :-----------: | -----: | \r\n | col 3 is | right-aligned | $1600 | \r\n | col 2 is | centered | $12 | \r\n | zebra stripes | are neat | $1 |"));
     }
 
     private async Task OnExampleClicked(string message)

@@ -1,21 +1,21 @@
 ﻿@using Markdig
+@inject MarkdigPipelineService MarkdigPipelineService
 
-<MudText>@(_htmlContent)</MudText>
+<div class="markdown-body">
+    @(_htmlContent)
+</div>
+
 
 @code {
 
     private MarkupString _htmlContent;
 
     [Parameter]
-    public string Content { get; set; }
-    [Parameter]
-    public MarkdownPipeline pipeline { get; set; }
-
-    
+    public string Content { get; set; } = string.Empty;
 
     protected override void OnParametersSet()
     {
-        var trimmedMarkdown = Markdig.Markdown.ToHtml(Content, pipeline).TrimEnd(Environment.NewLine.ToCharArray());
+        var trimmedMarkdown = Markdig.Markdown.ToHtml(Content, MarkdigPipelineService.Pipeline).TrimEnd(Environment.NewLine.ToCharArray());
         _htmlContent = (MarkupString)trimmedMarkdown;
     }
 
