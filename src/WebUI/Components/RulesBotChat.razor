@@ -40,12 +40,15 @@
             @if (DataState.ChatMessages.Count == 0)
             {
                 <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center" Style="height: 60%">
-                    <MudText Typo="Typo.h3">
-                        <b>RulesGPT</b>
-                    </MudText>
-                    <MudText Typo="Typo.subtitle1" Style="font-style: italic">
-                       Examples
-                    </MudText>
+                    <MudStack Row="true">
+                        <MudAvatar Size="Size.Large">
+                            <MudImage Src="images/chatgpt-icon.svg"></MudImage>
+                        </MudAvatar>
+                        <MudText Typo="Typo.h3">
+                            <b>RulesGPT</b>
+                        </MudText>
+                    </MudStack>
+                    <MudText Typo="Typo.subtitle1" Style="font-style: italic">Examples</MudText>
                     <MudStack Class="pt-0">
                         <MudButton Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => OnExampleClicked("How do I send a v2 email?"))">
                             How do I send a v2 email?
