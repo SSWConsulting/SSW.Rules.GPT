@@ -3,31 +3,26 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.SignalR.Client;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 using WebUI.Models;
-using WebUI.Services;
 
 namespace WebUI;
 
 public class SignalRClient
 {
-    private readonly DataState _dataState;
-    private readonly NotifierService _notifierService;
     private readonly HubConnection _connection;
     private readonly ILogger<SignalRClient> _logger;
+    private readonly DataState _dataState;
 
     public SignalRClient(
-        DataState dataState,
         IWebAssemblyHostEnvironment hostEnvironment,
-        NotifierService notifierService,
-        ILogger<SignalRClient> logger
+        IConfiguration config,
+        ILogger<SignalRClient> logger,
+        DataState dataState
     )
     {
-        _dataState = dataState;
-        _notifierService = notifierService;
         _logger = logger;
-        var hubeBaseUrl = hostEnvironment.IsDevelopment()
-            ? "https://localhost:7104"
-            : "https://ssw-rulesgpt-api.azurewebsites.net";
-        var hubUrl = $"{hubeBaseUrl}/ruleshub";
+        _dataState = dataState;
+        var hubBaseUrl = config["ApiBaseUrl"];
+        var hubUrl = $"{hubBaseUrl}/ruleshub";
         _connection = new HubConnectionBuilder().WithUrl(hubUrl).WithAutomaticReconnect().Build();
         RegisterHandlers();
         _connection.Closed += async (exception) =>
