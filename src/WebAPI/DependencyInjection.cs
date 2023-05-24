@@ -48,7 +48,8 @@ public static class DependencyInjection
             "https://ssw.com.au", // TODO: Fix Host Origin Header
             // Staging
             "https://www.tfs365.com/rulesgpt",
-            "https://www.tfs365.com" // TODO: Fix Host Origin Header
+            "https://www.tfs365.com", // TODO: Fix Host Origin Header
+            "https://tfs365.com" // TODO: Fix Host Origin Header
         };
 
         var developmentCorsUrls = new string[] { "https://localhost:5001" };
