@@ -58,7 +58,7 @@
 </style>
 
 <div class="markdown-body">
-    @(_htmlContent)
+    @_htmlContent
 </div>
 
 
@@ -74,5 +74,4 @@
         var trimmedMarkdown = Markdig.Markdown.ToHtml(Content, MarkdigPipelineService.Pipeline).TrimEnd(Environment.NewLine.ToCharArray());
         _htmlContent = (MarkupString)trimmedMarkdown;
     }
-
 }

@@ -1,8 +1,4 @@
 @using OpenAI.GPT3.ObjectModels.RequestModels
-@using Markdig
-@using Markdig.Renderers
-@using Markdig.Extensions.Tables
-@using Markdig.Extensions.AutoLinks
 @inject DataState DataState
 @inject SswRulesGptDialogService SswRulesGptDialogService
 @inject ApiKeyValidationService ApiKeyValidationService
@@ -10,12 +6,6 @@
 @inject SignalRClient SignalR
 @inject IJSRuntime Js
 @inject ISnackbar Snackbar
-
-@* <MudText> *@
-@*     Using Client Side Chat Completion Api *@
-@*     @DataState.UseClientSideChatCompletionApi *@
-@* </MudText> *@
-
 
 <style>
     .chat-box {
@@ -27,7 +17,6 @@
             max-width: 85%;
         }
     }
-
 </style>
 
 <div style="display: grid; grid-template-rows: 1fr auto; height: 100%; padding: 24px 0;">
@@ -69,7 +58,7 @@
                                 <MudStack Spacing="1" Class="chat-box">
                                     <MudText Typo="Typo.body1" Align="Align.Right"><b>You</b></MudText>
                                     <MudPaper Elevation="1" Class="px-4 py-3" Style=@(!isDarkMode ? "color: white; background: #323332;" : "")>
-                                        <MudText Typo="Typo.body1">@(message.Content)</MudText>
+                                        <MudText Typo="Typo.body1">@message.Content</MudText>
                                     </MudPaper>
                                 </MudStack>
                                 <MudAvatar>
@@ -94,7 +83,7 @@
                                         else
                                         {
                                             <MudPaper Elevation="1" Class="px-4 py-3" Style=@(isDarkMode ? "color: white;" : "")>
-                                                <Markdown Content=@(message.Content)/>
+                                                <Markdown Content=@message.Content/>
                                             </MudPaper>
                                         }
                                     </MudStack>
@@ -135,7 +124,7 @@
         NotifierService.CancelMessageStreamEvent += OnCancelMessageStream;
         // Only for use when styling
         //DataState.ChatMessages.Add(new ChatMessage("user", "Hello, I'm a user"));
-        DataState.ChatMessages.Add(new ChatMessage("assistant", "1. hello there https://ssw.com.au \r\n 2. hello there \r\n \r\n How are you? \r\n Things are going well \r\n * hi there \r\n * how are you doing? \r\n \r\n | Tables | Are | Cool | \r\n | ------------- | :-----------: | -----: | \r\n | col 3 is | right-aligned | $1600 | \r\n | col 2 is | centered | $12 | \r\n | zebra stripes | are neat | $1 |"));
+        //DataState.ChatMessages.Add(new ChatMessage("assistant", "1. hello there https://ssw.com.au \r\n 2. hello there \r\n \r\n How are you? \r\n Things are going well \r\n * hi there \r\n * how are you doing? \r\n \r\n | Tables | Are | Cool | \r\n | ------------- | :-----------: | -----: | \r\n | col 3 is | right-aligned | $1600 | \r\n | col 2 is | centered | $12 | \r\n | zebra stripes | are neat | $1 |"));
     }
 
     private async Task OnExampleClicked(string message)
