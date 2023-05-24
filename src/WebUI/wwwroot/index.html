@@ -54,8 +54,6 @@
 <body>
     <div id="app">
         <!--Loading...-->
-        <script src="/js/lottie-player.js"></script>
-
         <div class="gpt-loading-info">
             <img src="images/SSWlogo.svg" />
             <h1>RulesGPT</h1>
@@ -63,22 +61,8 @@
                 <span></span>
             </div>
         </div>
-
-        <!--
-        <div class="lottie-container">
-            <lottie-player src="/loading.json" background="transparent" speed="1" style="width: 17em; height: 17em;" loop autoplay></lottie-player>
-        </div>
-        -->
-        <style>
-            .lottie-container {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 100vw;
-                height: 80vh;
-            }
-        </style>
     </div>
+    
     <div id="blazor-error-ui">
         An unhandled error has occurred.
         <a href="" class="reload">Reload</a>
@@ -88,6 +72,7 @@
     <script defer src="_framework/blazor.webassembly.js"></script>
     <script defer src="_content/MudBlazor/MudBlazor.min.js"></script>
     <script defer src="js/prism.js"></script>
+    
     <script>
         window.highlightCode = () => {
             Prism.highlightAll();
