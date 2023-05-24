@@ -1,14 +1,21 @@
 ﻿
 <MudDialog>
+    <TitleContent>
+        <MudStack AlignItems="AlignItems.Center" Row="true">
+            <MudImage Style="height: 40px" Src="images/SSWlogo.svg"></MudImage>
+            <MudText Style="height: min-content" Align="Align.Center" Typo="Typo.h6">About RulesGPT</MudText>
+            <MudSpacer/>
+        </MudStack>
+    </TitleContent>
     <DialogContent>
         <MudStack Class="pr-10">
-            <MudText Typo="Typo.body2">Built by SSW Engineers</MudText>
+            <MudText Typo="Typo.body1">Built by SSW Engineers</MudText>
             <MudLink Color="Color.Secondary" Href="www.ssw.com.au">www.ssw.com.au</MudLink>
-            <MudLink Color="Color.Secondary" Href="https://github.com/SSWConsulting/SSW.Rules.GPT.Blazor">github.com/SSWConsulting/SSW.Rules.GPT.Blazor</MudLink>
+            <MudLink Color="Color.Secondary" Href="https://github.com/SSWConsulting/SSW.Rules.GPT">github.com/SSWConsulting/SSW.Rules.GPT</MudLink>
         </MudStack>
     </DialogContent>
     <DialogActions>
-        
+
     </DialogActions>
 </MudDialog>
 
@@ -16,6 +23,12 @@
 
     [CascadingParameter]
     MudDialogInstance MudDialog { get; set; } = default!;
-    
+
+    protected override Task OnInitializedAsync()
+    {
+        //MudDialog.TitleContent = "About RulesGPT";
+        return base.OnInitializedAsync();
+    }
+
 }
 

@@ -8,31 +8,16 @@
 @inject ISnackbar Snackbar
 
 <style>
-    .mud-markdown-body p:last-child,
-    .mud-markdown-body ol:last-child,
-    .mud-markdown-body ol:last-child {
-        margin-bottom: 0 !important;
-    }
-    
-    .mud-markdown-body .mud-link {
-        color: #CC4141 !important;
-    }
-
     .chat-box {
         max-width: 70%;
     }
-    
+
     @@media screen and (max-width: 600px) {
         .chat-box {
             max-width: 85%;
         }
     }
 </style>
-
-@* <MudText> *@
-@*     Using Client Side Chat Completion Api *@
-@*     @DataState.UseClientSideChatCompletionApi *@
-@* </MudText> *@
 
 <div style="display: grid; grid-template-rows: 1fr auto; height: 100%; padding: 24px 0;">
     <MudPaper Elevation="0" Style=@($"background: {(!isDarkMode ? Theme.Palette.BackgroundGrey : Theme.PaletteDark.BackgroundGrey)}; border: 1px solid #e6e6e6; overflow-y: auto; height: 100%")>
@@ -76,7 +61,7 @@
                                 <MudStack Spacing="1" Class="chat-box">
                                     <MudText Typo="Typo.body1" Align="Align.Right"><b>You</b></MudText>
                                     <MudPaper Elevation="1" Class="px-4 py-3" Style=@(!isDarkMode ? "color: white; background: #323332;" : "")>
-                                        <MudText Typo="Typo.body1" Class="" Style="white-space: pre-wrap">@(message.Content)</MudText>
+                                        <MudText Typo="Typo.body1">@message.Content</MudText>
                                     </MudPaper>
                                 </MudStack>
                                 <MudAvatar>
@@ -96,12 +81,12 @@
                                         {
                                             <MudPaper Elevation="1" Class="px-4 py-3" Style="text-align: center;">
                                                 <MudProgressCircular Size="Size.Small" Color="Color.Secondary" Indeterminate="true" Style="vertical-align: bottom;"/>
-                                            </MudPaper>
+                                            </MudPaper>             
                                         }
                                         else
                                         {
                                             <MudPaper Elevation="1" Class="px-4 py-3" Style=@(isDarkMode ? "color: white;" : "")>
-                                                <MudMarkdown Value="@message.Content"/>
+                                                <Markdown Content=@message.Content/>
                                             </MudPaper>
                                         }
                                     </MudStack>
@@ -135,7 +120,6 @@
     public string NewMessageString { get; set; } = string.Empty;
     public bool IsAwaitingResponseStream { get; set; } = false;
     private bool IsAwaitingResponse { get; set; } = false;
-    
 
     protected override async Task OnInitializedAsync()
     {
@@ -143,7 +127,7 @@
         NotifierService.CancelMessageStreamEvent += OnCancelMessageStream;
         // Only for use when styling
         //DataState.ChatMessages.Add(new ChatMessage("user", "Hello, I'm a user"));
-        //DataState.ChatMessages.Add(new ChatMessage("assistant", "Hello, I'm an assistant"));
+        //DataState.ChatMessages.Add(new ChatMessage("assistant", "1. hello there https://ssw.com.au \r\n 2. hello there \r\n \r\n How are you? \r\n Things are going well \r\n * hi there \r\n * how are you doing? \r\n \r\n | Tables | Are | Cool | \r\n | ------------- | :-----------: | -----: | \r\n | col 3 is | right-aligned | $1600 | \r\n | col 2 is | centered | $12 | \r\n | zebra stripes | are neat | $1 |"));
     }
 
     private async Task OnExampleClicked(string message)
@@ -196,7 +180,9 @@
         {
             IsAwaitingResponseStream = false;
             newAssistantMessage.Content += result?.Content;
+            
             StateHasChanged();
+            await Js.InvokeVoidAsync("highlightCode");
             await JsScrollMessageListToBottom();
         }
         IsAwaitingResponseStream = false;
