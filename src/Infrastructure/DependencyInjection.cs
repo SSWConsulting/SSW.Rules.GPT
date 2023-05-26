@@ -3,6 +3,7 @@ using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using OpenAI.GPT3;
 using OpenAI.GPT3.Extensions;
 using Pgvector.EntityFrameworkCore;
 
@@ -26,11 +27,27 @@ public static class DependencyInjection
         );
 
         var openAiApiKey = config["OpenAiApiKey"];
+        var azureOpenAiApiKey = config["AzureOpenAiApiKey"];
+        var azureOpenAiEndpoint = config["AzureOpenAiEndpoint"];
+        var useAzureOpenAi = config.GetValue<bool>("UseAzureOpenAiBool");
 
-        services.AddOpenAIService(settings =>
+        if (useAzureOpenAi)
         {
-            settings.ApiKey = openAiApiKey;
-        });
+            services.AddOpenAIService(settings =>
+            {
+                settings.ApiKey = azureOpenAiApiKey;
+                settings.ResourceName = azureOpenAiEndpoint;
+                settings.DeploymentId = "GPT35Turbo";
+                settings.ProviderType = ProviderType.Azure;
+            });
+        }
+        else
+        {
+            services.AddOpenAIService(settings =>
+            {
+                settings.ApiKey = openAiApiKey;
+            });
+        }
 
         return services;
     }
