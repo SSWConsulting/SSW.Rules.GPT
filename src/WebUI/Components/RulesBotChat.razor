@@ -88,7 +88,7 @@
                                     <MudImage Src="images/chatgpt-icon.svg"></MudImage>
                                 </MudAvatar>
                                 <MudStack Spacing="1" Class="chat-box">
-                                    <MudText Typo="Typo.body1"><b>RulesGPT</b></MudText>
+                                        <MudText Typo="Typo.body1"><b>RulesGPT</b> - @(message.GptModel.AvailableModelEnumToString())</MudText>
                                         @if (IsAwaitingResponseStream && string.IsNullOrWhiteSpace(message.Content))
                                         {
                                             <MudPaper Elevation="1" Class="px-4 py-3" Style="text-align: center;">
@@ -168,11 +168,11 @@
                 return;
             }
         }
-        var newChatMessage = new ChatMessage("user", NewMessageString);
+        var newChatMessage = new Message("user", NewMessageString, DataState.SelectedGptModel);
         NewMessageString = string.Empty;
         DataState.ChatMessages.Add(newChatMessage);
 
-        var newAssistantMessage = new ChatMessage("assistant", string.Empty);
+        var newAssistantMessage = new Message("assistant", string.Empty, DataState.SelectedGptModel);
 
         DataState.ChatMessages.Add(newAssistantMessage);
         IsAwaitingResponseStream = true;
@@ -182,10 +182,12 @@
         
         await JsScrollMessageListToBottom();
 
+        List<ChatMessage> chatMessages = DataState.ChatMessages.Select(m => m.ToChatMessage()).ToList();
+
         var resultStream = SignalR.RequestNewCompletionMessage(
-            DataState.ChatMessages,
+            chatMessages,
             DataState.OpenAiApiKey,
-            DataState.SelectedGptModel,
+            (Models.Model)DataState.SelectedGptModel,
             DataState.CancellationTokenSource.Token );
         
         await JsScrollMessageListToBottom();

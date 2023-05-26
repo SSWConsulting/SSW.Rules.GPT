@@ -11,7 +11,7 @@
                 </MudStack>
             </MudRadioGroup>
             
-            <MudSelect Disabled="!UsingByoApiKey" T="AvailableGptModels" @bind-Value="@SelectedGptModel" ToStringFunc="s => AvailableModelEnumToString(s)" Label="GPT Model" AnchorOrigin="Origin.BottomCenter">
+            <MudSelect Disabled="!UsingByoApiKey" T="AvailableGptModels" @bind-Value="@SelectedGptModel" ToStringFunc="s => s.AvailableModelEnumToString()" Label="GPT Model" AnchorOrigin="Origin.BottomCenter">
                 <MudSelectItem Value="AvailableGptModels.Gpt35Turbo"/>
                 <MudSelectItem Value="AvailableGptModels.Gpt4"/>
             </MudSelect>
@@ -71,7 +71,7 @@
         {
             ApiKeyString = DataState.OpenAiApiKey;
         }
-        SelectedGptModel = (AvailableGptModels)DataState.SelectedGptModel;
+        SelectedGptModel = DataState.SelectedGptModel;
     }
 
     private async Task ValidateAndSaveKeyAsync()
@@ -91,7 +91,7 @@
         {
             validationState = ValidationState.Valid;
             DataState.OpenAiApiKey = ApiKeyString;
-            DataState.SelectedGptModel = (Models.Model)SelectedGptModel;
+            DataState.SelectedGptModel = SelectedGptModel;
             MudDialog.Close(DialogResult.Ok(true));
         }
         else
@@ -105,7 +105,7 @@
     private async Task SaveWithSswKey()
     {
         DataState.OpenAiApiKey = null;
-        DataState.SelectedGptModel = (Models.Model)AvailableGptModels.Gpt35Turbo;
+        DataState.SelectedGptModel = AvailableGptModels.Gpt35Turbo;
         MudDialog.Close(DialogResult.Ok(true));
     }
     
@@ -117,17 +117,6 @@
     private string DropDownItemToString(bool usingByoApiKey)
     {
         return usingByoApiKey ? "BYO Key" : "SSW Key";
-    }
-    
-    private string AvailableModelEnumToString(AvailableGptModels gptModel)
-    {
-        var modelString = gptModel switch
-        {
-            AvailableGptModels.Gpt4 => "GPT-4",
-            AvailableGptModels.Gpt35Turbo => "GPT-3.5 Turbo",
-            _ => throw new ArgumentOutOfRangeException()
-        };
-        return modelString;
     }
 }
 

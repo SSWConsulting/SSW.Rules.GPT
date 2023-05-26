@@ -38,7 +38,7 @@ public class OpenAiChatCompletionsService : IOpenAiChatCompletionsService
             gptModelStr = gptModel.EnumToString();
         }
 
-        var openAiService = GetOpenAiService("apiKey");
+        var openAiService = GetOpenAiService(apiKey);
         return openAiService.ChatCompletion.CreateCompletionAsStream(
             chatCompletionCreateRequest,
             gptModelStr,
