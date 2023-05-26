@@ -38,7 +38,7 @@ public class SswRulesGptDialogService
             NoHeader = false,
             MaxWidth = MaxWidth.Large
         };
-        var dialog = await _dialogService.ShowAsync<AboutAppDialog>("About RulesGPT", options);
+        var dialog = await _dialogService.ShowAsync<AboutAppDialog>(string.Empty, options);
         var result = await dialog.Result;
         var success = dialog.Result.IsCompletedSuccessfully;
         return success;

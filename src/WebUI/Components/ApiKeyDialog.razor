@@ -4,9 +4,9 @@
 <MudDialog>
     <DialogContent>
         <MudStack Spacing="4">
-            <MudRadioGroup T="bool" @bind-SelectedOption="@UsingByoApiKey">
+            <MudRadioGroup T="bool" SelectedOption="UsingByoApiKey" SelectedOptionChanged="UpdateByoOptionAndSelectedModel">
                 <MudStack>
-                    <MudRadio Placement="Placement.End" Option="false">Use SSW's API Key 🔑</MudRadio>
+                    <MudRadio Placement="Placement.End" Option="false">Use SSW's gpt-3.5-turbo API Key 🔑</MudRadio>
                     <MudRadio Placement="Placement.End" Option="true">Use my API Key 🔑</MudRadio>
                 </MudStack>
             </MudRadioGroup>
@@ -15,7 +15,15 @@
                 <MudSelectItem Value="AvailableGptModels.Gpt35Turbo"/>
                 <MudSelectItem Value="AvailableGptModels.Gpt4"/>
             </MudSelect>
-            <MudTextField Disabled="!UsingByoApiKey" @bind-Value="ApiKeyString" OnKeyDown="ResetValidationErrors" Label="Enter your key" Variant="Variant.Text"></MudTextField>
+            @if (SelectedGptModel == AvailableGptModels.Gpt35Turbo)
+            {
+                <MudText Style="font-style: italic">Fast but prone to hallucination</MudText>
+            }
+            else
+            {
+                <MudText Style="font-style: italic">Slow and smart</MudText>
+            }
+            <MudTextField Disabled="!UsingByoApiKey" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="ToggleShowPassword" @bind-Value="ApiKeyString" OnKeyDown="ResetValidationErrors" Label="Enter your key" Variant="Variant.Text"></MudTextField>
             @if (validationState == ValidationState.Invalid)
             {
                 <MudAlert Severity="Severity.Error" Dense="true" Class="my-2">@KeyValidationErrorMessage</MudAlert>
@@ -61,9 +69,13 @@
     private string? ApiKeyString { get; set; }
     private AvailableGptModels SelectedGptModel { get; set; } = AvailableGptModels.Gpt35Turbo;
     
-
     public string KeyValidationErrorMessage { get; set; } = string.Empty;
     public ValidationState validationState { get; set; } = ValidationState.Initial;
+    
+    private InputType PasswordInput = InputType.Password;
+    private string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+    private bool ShowPassword { get; set; } = false;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -72,6 +84,34 @@
             ApiKeyString = DataState.OpenAiApiKey;
         }
         SelectedGptModel = DataState.SelectedGptModel;
+        UsingByoApiKey = DataState.UsingByoApiKey;
+        StateHasChanged();
+    }
+    
+    private void ToggleShowPassword()
+    {
+        if (ShowPassword)
+        {
+            SetShowPasswordFalse();
+        }
+        else
+        {
+            SetShowPasswordTrue();
+        }
+    }
+
+    private void SetShowPasswordFalse()
+    {
+        ShowPassword = false;
+        PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+        PasswordInput = InputType.Password;
+    }
+    
+    private void SetShowPasswordTrue()
+    {
+        ShowPassword = true;
+        PasswordInputIcon = Icons.Material.Filled.Visibility;
+        PasswordInput = InputType.Text;
     }
 
     private async Task ValidateAndSaveKeyAsync()
@@ -92,6 +132,7 @@
             validationState = ValidationState.Valid;
             DataState.OpenAiApiKey = ApiKeyString;
             DataState.SelectedGptModel = SelectedGptModel;
+            DataState.UsingByoApiKey = true;
             MudDialog.Close(DialogResult.Ok(true));
         }
         else
@@ -106,6 +147,7 @@
     {
         DataState.OpenAiApiKey = null;
         DataState.SelectedGptModel = AvailableGptModels.Gpt35Turbo;
+        DataState.UsingByoApiKey = false;
         MudDialog.Close(DialogResult.Ok(true));
     }
     
@@ -114,6 +156,13 @@
         validationState = ValidationState.Initial;
     }
 
+    private async Task UpdateByoOptionAndSelectedModel(bool usingByoApiKey)
+    {
+        UsingByoApiKey = usingByoApiKey;
+        SelectedGptModel = usingByoApiKey ? AvailableGptModels.Gpt4 : AvailableGptModels.Gpt35Turbo;
+        StateHasChanged();
+    }
+    
     private string DropDownItemToString(bool usingByoApiKey)
     {
         return usingByoApiKey ? "BYO Key" : "SSW Key";
