@@ -60,6 +60,7 @@ public class ChatCompletionsService
             cancellationToken
         );
 
+
         await foreach (var completion in completionResult.WithCancellation(cancellationToken))
         {
             if (completion.Successful)
@@ -82,7 +83,24 @@ public class ChatCompletionsService
                     throw new Exception("Unknown Error");
                 }
 
+                _logger.LogError("OpenAI API request failed.");
                 _logger.LogError("{ErrorCode}: {ErrorMessage}", completion.Error.Code, completion.Error.Message);
+
+                if (gptModel == Models.Model.Gpt_4)
+                {
+                    yield return new ChatMessage("assistant", "⚠️ *GPT-4 Request failed, reverting to GPT-3.5 Turbo.*" + Environment.NewLine);
+                    await foreach (
+                        var chatMessage in RequestNewCompletionMessage(messageList, apiKey,
+                            Models.Model.ChatGpt3_5Turbo,
+                            cancellationToken))
+                    {
+                        yield return chatMessage;
+                    }
+                } else
+                {
+                    yield return new ChatMessage("assistant", "❌ **OpenAI API request failed. Please try again later.**");
+                }
+                
             }
         }
     }

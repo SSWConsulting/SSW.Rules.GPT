@@ -31,14 +31,14 @@ public class OpenAiChatCompletionsService : IOpenAiChatCompletionsService
         
         if (apiKey is null)
         {
-            gptModelStr = _config["GPT_Model"] ?? Models.Model.ChatGpt3_5Turbo.EnumToString();
+            gptModelStr = _config["GPT_Model"] ?? gptModel.EnumToString();
         }
         else
         {
             gptModelStr = gptModel.EnumToString();
         }
 
-        var openAiService = GetOpenAiService("asdasdasdasd");
+        var openAiService = GetOpenAiService("apiKey");
         return openAiService.ChatCompletion.CreateCompletionAsStream(
             chatCompletionCreateRequest,
             gptModelStr,
