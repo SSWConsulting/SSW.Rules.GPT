@@ -5,13 +5,18 @@ using OpenAI.GPT3.Managers;
 namespace Application.Services;
 public class OpenAiServiceFactory
 {
-    public OpenAiServiceFactory() { }
-    public OpenAIService Create(IConfiguration config, string? azureOpenAiResourceName)
+    private readonly IConfiguration _config;
+
+    public OpenAiServiceFactory(IConfiguration config)
     {
-        var openAiApiKey = config["OpenAiApiKey"];
-        var azureOpenAiApiKey = config["AzureOpenAiApiKey"];
-        var azureOpenAiEndpoint = config["AzureOpenAiEndpoint"];
-        var useAzureOpenAi = config.GetValue<bool>("UseAzureOpenAiBool");
+        _config = config;
+    }
+    public OpenAIService Create(string? azureOpenAiResourceName)
+    {
+        var openAiApiKey = _config["OpenAiApiKey"];
+        var azureOpenAiApiKey = _config["AzureOpenAiApiKey"];
+        var azureOpenAiEndpoint = _config["AzureOpenAiEndpoint"];
+        var useAzureOpenAi = _config.GetValue<bool>("UseAzureOpenAiBool");
 
         OpenAIService openAiService;
 

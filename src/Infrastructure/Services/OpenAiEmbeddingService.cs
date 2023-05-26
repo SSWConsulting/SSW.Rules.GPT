@@ -15,9 +15,9 @@ public class OpenAiEmbeddingService : IOpenAiEmbeddingService
 {
     private readonly IOpenAIService _openAiService;
 
-    public OpenAiEmbeddingService(IConfiguration config, OpenAiServiceFactory openAiServiceFactory)
+    public OpenAiEmbeddingService(OpenAiServiceFactory openAiServiceFactory)
     {
-        _openAiService = openAiServiceFactory.Create(config, "Embedding-Ada-002");
+        _openAiService = openAiServiceFactory.Create("Embedding-Ada-002");
     }
 
     public async Task<List<Vector>> GetEmbeddingList(List<string> stringList, string? apiKey)

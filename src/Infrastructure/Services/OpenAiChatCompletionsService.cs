@@ -14,9 +14,9 @@ public class OpenAiChatCompletionsService : IOpenAiChatCompletionsService
 {
     private readonly IOpenAIService _openAiService;
 
-    public OpenAiChatCompletionsService(IConfiguration config, OpenAiServiceFactory openAiServiceFactory)
+    public OpenAiChatCompletionsService(OpenAiServiceFactory openAiServiceFactory)
     {
-        _openAiService = openAiServiceFactory.Create(config, "GPT35Turbo");
+        _openAiService = openAiServiceFactory.Create("GPT35Turbo");
     }
 
     public IAsyncEnumerable<ChatCompletionCreateResponse> CreateCompletionAsStream(
