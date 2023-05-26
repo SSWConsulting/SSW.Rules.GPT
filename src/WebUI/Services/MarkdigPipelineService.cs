@@ -11,5 +11,3 @@ public class MarkdigPipelineService
         .UseEmojiAndSmiley()
         .Build();
 }
-
-

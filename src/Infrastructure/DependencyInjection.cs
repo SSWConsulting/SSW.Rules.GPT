@@ -26,29 +26,6 @@ public static class DependencyInjection
                 options.UseNpgsql(connectionString, x => x.UseVector()).EnableSensitiveDataLogging()
         );
 
-        var openAiApiKey = config["OpenAiApiKey"];
-        var azureOpenAiApiKey = config["AzureOpenAiApiKey"];
-        var azureOpenAiEndpoint = config["AzureOpenAiEndpoint"];
-        var useAzureOpenAi = config.GetValue<bool>("UseAzureOpenAiBool");
-
-        if (useAzureOpenAi)
-        {
-            services.AddOpenAIService(settings =>
-            {
-                settings.ApiKey = azureOpenAiApiKey;
-                settings.ResourceName = azureOpenAiEndpoint;
-                settings.DeploymentId = "GPT35Turbo";
-                settings.ProviderType = ProviderType.Azure;
-            });
-        }
-        else
-        {
-            services.AddOpenAIService(settings =>
-            {
-                settings.ApiKey = openAiApiKey;
-            });
-        }
-
         return services;
     }
 }

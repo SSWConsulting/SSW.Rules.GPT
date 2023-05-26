@@ -1,4 +1,7 @@
 ﻿using Application.Contracts;
+using Application.Services;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using OpenAI.GPT3;
 using OpenAI.GPT3.Interfaces;
 using OpenAI.GPT3.Managers;
@@ -12,9 +15,9 @@ public class OpenAiEmbeddingService : IOpenAiEmbeddingService
 {
     private readonly IOpenAIService _openAiService;
 
-    public OpenAiEmbeddingService(IOpenAIService openAiService)
+    public OpenAiEmbeddingService(IConfiguration config, OpenAiServiceFactory openAiServiceFactory)
     {
-        _openAiService = openAiService;
+        _openAiService = openAiServiceFactory.Create(config, "Embedding-Ada-002");
     }
 
     public async Task<List<Vector>> GetEmbeddingList(List<string> stringList, string? apiKey)

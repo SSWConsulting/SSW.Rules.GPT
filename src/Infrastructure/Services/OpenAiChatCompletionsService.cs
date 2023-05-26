@@ -1,4 +1,6 @@
 ﻿using Application.Contracts;
+using Application.Services;
+using Microsoft.Extensions.Configuration;
 using OpenAI.GPT3;
 using OpenAI.GPT3.Interfaces;
 using OpenAI.GPT3.Managers;
@@ -12,9 +14,9 @@ public class OpenAiChatCompletionsService : IOpenAiChatCompletionsService
 {
     private readonly IOpenAIService _openAiService;
 
-    public OpenAiChatCompletionsService(IOpenAIService openAiService)
+    public OpenAiChatCompletionsService(IConfiguration config, OpenAiServiceFactory openAiServiceFactory)
     {
-        _openAiService = openAiService;
+        _openAiService = openAiServiceFactory.Create(config, "GPT35Turbo");
     }
 
     public IAsyncEnumerable<ChatCompletionCreateResponse> CreateCompletionAsStream(
