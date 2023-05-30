@@ -6,6 +6,7 @@
 @inject SignalRClient SignalR
 @inject IJSRuntime Js
 @inject ISnackbar Snackbar
+@inject IAnalytics Analytics
 
 <style>
     .chat-box {
@@ -155,6 +156,9 @@
                 return;
             }
         }
+
+        _= Analytics.TrackEvent("SendMessage", new { message = NewMessageString });
+        
         var newChatMessage = new ChatMessage("user", NewMessageString);
         NewMessageString = string.Empty;
         DataState.ChatMessages.Add(newChatMessage);

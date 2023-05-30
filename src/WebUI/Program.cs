@@ -1,3 +1,4 @@
+using Blazor.Analytics;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor;
@@ -22,6 +23,7 @@ builder.Services.AddSingleton<NotifierService>();
 builder.Services.AddSingleton<MarkdigPipelineService>();
 builder.Services.AddScoped<SswRulesGptDialogService>();
 builder.Services.AddScoped<ApiKeyValidationService>();
+builder.Services.AddGoogleAnalytics("G-239HQG61FX");
 builder.Services.AddMudServices(config =>
 {
     config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.TopCenter;
