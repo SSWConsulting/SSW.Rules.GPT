@@ -71,7 +71,7 @@
                         }
                         else
                         {
-                            <MudStack Class="mx-4" Row="true">
+                            <MudStack Class=@(IsAwaitingResponse && DataState.ChatMessages.Last() == message ? "mb-12 mt-4 mx-4" : "mx-4") Row="true">
                                 <MudAvatar>
                                     <MudImage Src="images/chatgpt-icon.svg"></MudImage>
                                 </MudAvatar>
@@ -101,15 +101,12 @@
                 <MudButton Class="mb-3" OnClick="CancelStreamingResponse" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Primary">Cancel Request</MudButton>
         	</MudPopover>
     </MudPaper>
-    @*<MudPaper Elevation="2" Class="mt-5">*@
-
     <MudStack Row="true" Class="mt-3">
         <MudTextField Style="height: 100%;" Clearable="true" Disabled="IsAwaitingResponse" Class="mt-0" @bind-Value="NewMessageString" OnKeyDown="MessageTextFieldHandleEnterKey" Immediate="true" Label="Ask a question!" Variant="Variant.Outlined"></MudTextField>
         <MudButton Color="Color.Secondary" Variant="Variant.Filled" OnClick="SendMessage">
             <MudIcon Icon="@Icons.Material.Filled.Send"></MudIcon>
         </MudButton>
     </MudStack>
-    @*</MudPaper>*@
 </div>
 
 
