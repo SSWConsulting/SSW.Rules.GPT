@@ -6,7 +6,6 @@
 @inject SignalRClient SignalRClient
 @inject ISnackbar Snackbar
 
-
 <MudThemeProvider @ref="@_mudThemeProvider" Theme="_theme" @bind-IsDarkMode="@_isDarkMode"/>
 <MudDialogProvider Position="DialogPosition.Center"/>
 <MudSnackbarProvider/>
@@ -25,7 +24,7 @@
                 <MudImage Src="images/SSWlogo-DarkMode.svg" Height="40" ObjectFit="ObjectFit.ScaleDown"></MudImage>
             </MudLink>
         </MudStack>
-        <MudStack Justify="Justify.Center" Class="pl-2 border-l-2">
+        <MudStack Justify="Justify.Center" Class="pl-2">
             <MudText Typo="Typo.h5">RulesGPT</MudText>
         </MudStack>
         <MudStack Justify="Justify.Center" Class="pl-3">
