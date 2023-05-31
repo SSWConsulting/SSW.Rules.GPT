@@ -10,4 +10,6 @@ public class DataState
     public OpenAI.GPT3.ObjectModels.Models.Model SelectedGptModel { get; set; } =
         OpenAI.GPT3.ObjectModels.Models.Model.ChatGpt3_5Turbo;
     public bool UsingByoApiKey { get; set; } = false;
+    public bool IsAwaitingResponse { get; set; }
+    public bool IsAwaitingResponseStream { get; set; }
 }

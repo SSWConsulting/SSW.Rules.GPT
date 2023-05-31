@@ -1,0 +1,85 @@
+﻿@using OpenAI.GPT3.ObjectModels.RequestModels
+@implements IDisposable
+@inject DataState DataState
+@inject NotifierService NotifierService
+
+<style>
+    .chat-box {
+        max-width: 70%;
+    }
+
+    @@media screen and (max-width: 600px) {
+        .chat-box {
+            max-width: 85%;
+        }
+    }
+</style>
+
+<MudListItem>
+    @if (isUser)
+    {
+        <MudStack Class="mx-4" Row="true">
+            <MudSpacer/>
+            <MudStack Spacing="1" Class="chat-box">
+                <MudText Typo="Typo.body1" Align="Align.Right">
+                    <b>You</b>
+                </MudText>
+                <MudPaper Elevation="1" Class="px-4 py-3" Style=@(!isDarkMode ? "color: white; background: #323332;" : "")>
+                    <MudText Typo="Typo.body1">@Message.Content</MudText>
+                </MudPaper>
+            </MudStack>
+            <MudAvatar>
+                <MudIcon Icon="@Icons.Material.Filled.Person"></MudIcon>
+            </MudAvatar>
+        </MudStack>
+    }
+    else
+    {
+        <MudStack Class=@(DataState.IsAwaitingResponse && DataState.ChatMessages.Last() == Message ? "mb-12 mx-4" : "mx-4") Row="true">
+            <MudAvatar>
+                <MudImage Src="images/chatgpt-icon.svg"></MudImage>
+            </MudAvatar>
+            <MudStack Spacing="1" Class="chat-box">
+                <MudText Typo="Typo.body1">
+                    <b>RulesGPT</b>
+                </MudText>
+                @if (DataState.IsAwaitingResponseStream && string.IsNullOrWhiteSpace(Message.Content))
+                {
+                    <MudPaper Elevation="1" Class="px-4 py-3" Style="text-align: center;">
+                        <MudProgressCircular Size="Size.Small" Color="Color.Secondary" Indeterminate="true" Style="vertical-align: bottom;"/>
+                    </MudPaper>
+                }
+                else
+                {
+                    <MudPaper Elevation="1" Class="px-4 py-3" Style=@(isDarkMode ? "color: white;" : "")>
+                        <Markdown Content=@Message.Content/>
+                    </MudPaper>
+                }
+            </MudStack>
+        </MudStack>
+    }
+</MudListItem>
+
+@code{
+
+    [Parameter] public ChatMessage Message { get; set; }
+    [Parameter] public bool isDarkMode { get; set; }
+
+    private bool isUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        NotifierService.Notify += OnNotify;
+        isUser = Message.Role == "user";
+    }
+
+    private async Task OnNotify()
+    {
+        await InvokeAsync(() => { StateHasChanged(); });
+    }
+
+    public void Dispose()
+    {
+        NotifierService.Notify -= OnNotify;
+    }
+}
