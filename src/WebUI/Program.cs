@@ -23,7 +23,7 @@ builder.Services.AddSingleton<NotifierService>();
 builder.Services.AddSingleton<MarkdigPipelineService>();
 builder.Services.AddScoped<SswRulesGptDialogService>();
 builder.Services.AddScoped<ApiKeyValidationService>();
-builder.Services.AddGoogleAnalytics("G-239HQG61FX");
+builder.Services.AddGoogleAnalytics(builder.Configuration.GetValue<string>("AnalyticsID"));
 builder.Services.AddMudServices(config =>
 {
     config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.TopCenter;
