@@ -36,14 +36,14 @@
                     }
                 }
                 @@media screen and (max-width: 432px) {
-                    .powered-by-link {
+                    .powered-by-text {
                         display: none;
                     }
                 }
             </style>
         </MudStack>
         <MudSpacer/>
-        <MudLink Color="Color.Primary" Variant="Variant.Filled" Class="powered-by-link mr-2" Target="_blank" Href="https://ssw.com.au/rules">Powered by SSW Rules</MudLink>
+        <MudText Color="Color.Primary" Class="powered-by-text mr-2">Powered by SSW Rules</MudText>
         <MudTooltip Duration="1000" Text="@(_isDarkMode ? "Switch to Light Theme" : "Switch to Dark Theme")">
             <MudIconButton Icon="@(_isDarkMode ? @Icons.Material.Rounded.LightMode : @Icons.Material.Outlined.DarkMode)" Color="Color.Inherit" OnClick="@ToggleDarkMode"/>
         </MudTooltip>
