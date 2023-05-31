@@ -42,7 +42,7 @@
                 <MudList Class="py-0 chatContainer" DisableGutters="true">
                     @foreach (var message in DataState.ChatMessages.Where(s => s.Role != "system"))
                     {
-                        <ChatItem Message="message" isDarkMode="isDarkMode"/>
+                        <ChatItem Message="message" />
                     }
                 </MudList>
             }
@@ -52,24 +52,18 @@
         </MudPopover>
     </MudPaper>
     <MudStack Row="true" Class="mt-3">
-        <MudTextField Style="height: 100%;" Clearable="true" Disabled="DataState.IsAwaitingResponse" Class="mt-0" @bind-Value="NewMessageString" OnKeyDown="MessageTextFieldHandleEnterKey" Immediate="true" Label="Ask a question!" Variant="Variant.Outlined"></MudTextField>
+        <MudTextField Style="height: 100%;" Clearable="true" Disabled="DataState.IsAwaitingResponse" Class="mt-0" @bind-Value="DataState.NewMessageString" OnKeyDown="MessageTextFieldHandleEnterKey" Immediate="true" Label="Ask a question!" Variant="Variant.Outlined"></MudTextField>
         <MudButton Color="Color.Secondary" Variant="Variant.Filled" OnClick="SendMessage">
             <MudIcon Icon="@Icons.Material.Filled.Send"></MudIcon>
         </MudButton>
     </MudStack>
 </div>
 
-
 @code {
 
-    [CascadingParameter]
-    protected MudTheme Theme { get; set; }
-
-    [CascadingParameter]
-    protected bool isDarkMode { get; set; }
-
-    public string NewMessageString { get; set; } = string.Empty;
-
+    [CascadingParameter] protected MudTheme Theme { get; set; }
+    [CascadingParameter] protected bool isDarkMode { get; set; }
+    
     protected override async Task OnInitializedAsync()
     {
         NotifierService.Notify += OnNotify;
@@ -81,13 +75,13 @@
 
     private async Task OnExampleClicked(string message)
     {
-        NewMessageString = message;
+        DataState.NewMessageString = message;
         await SendMessage();
     }
 
     public async Task SendMessage()
     {
-        if (string.IsNullOrWhiteSpace(NewMessageString))
+        if (string.IsNullOrWhiteSpace(DataState.NewMessageString))
         {
             return;
         }
@@ -105,10 +99,10 @@
             }
         }
 
-        _ = Analytics.TrackEvent("SendMessage", new { message = NewMessageString, ownKey = DataState.OpenAiApiKey != null });
+        _ = Analytics.TrackEvent("SendMessage", new { message = DataState.NewMessageString, ownKey = DataState.OpenAiApiKey != null });
 
-        var newChatMessage = new ChatMessage("user", NewMessageString);
-        NewMessageString = string.Empty;
+        var newChatMessage = new ChatMessage("user", DataState.NewMessageString);
+        DataState.NewMessageString = string.Empty;
         DataState.ChatMessages.Add(newChatMessage);
 
         var newAssistantMessage = new ChatMessage("assistant", string.Empty);

@@ -12,4 +12,5 @@ public class DataState
     public bool UsingByoApiKey { get; set; } = false;
     public bool IsAwaitingResponse { get; set; }
     public bool IsAwaitingResponseStream { get; set; }
+    public string NewMessageString { get; set; } = "";
 }

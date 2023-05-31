@@ -2,6 +2,7 @@
 @implements IDisposable
 @inject DataState DataState
 @inject NotifierService NotifierService
+@inject SswRulesGptDialogService SswRulesGptDialogService
 
 <style>
     .chat-box {
@@ -24,9 +25,15 @@
                 <MudText Typo="Typo.body1" Align="Align.Right">
                     <b>You</b>
                 </MudText>
-                <MudPaper Elevation="1" Class="px-4 py-3" Style=@(!isDarkMode ? "color: white; background: #323332;" : "")>
-                    <MudText Typo="Typo.body1">@Message.Content</MudText>
-                </MudPaper>
+                <MudStack Row="true">
+                    @if(!DataState.IsAwaitingResponse)
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="OnEditClicked"/>
+                    }
+                    <MudPaper Elevation="1" Class="px-4 py-3" Style=@(!isDarkMode ? "color: white; background: #323332;" : "")>
+                        <MudText Typo="Typo.body1">@Message.Content</MudText>
+                    </MudPaper>
+                </MudStack>
             </MudStack>
             <MudAvatar>
                 <MudIcon Icon="@Icons.Material.Filled.Person"></MudIcon>
@@ -63,7 +70,7 @@
 @code{
 
     [Parameter] public ChatMessage Message { get; set; }
-    [Parameter] public bool isDarkMode { get; set; }
+    [CascadingParameter] public bool isDarkMode { get; set; }
 
     private bool isUser;
 
@@ -75,9 +82,29 @@
 
     private async Task OnNotify()
     {
-        await InvokeAsync(() => { StateHasChanged(); });
+        await InvokeAsync(StateHasChanged);
     }
 
+    private async Task OnEditClicked()
+    {
+        if (Message.Content == DataState.NewMessageString)
+        {
+            return;
+        }
+        
+        if (!string.IsNullOrEmpty(DataState.NewMessageString))
+        {
+            var result = await SswRulesGptDialogService.EditMessageDialog();
+            if (!result)
+            {
+                return;
+            }   
+        }
+
+        DataState.NewMessageString = Message.Content;
+        _= NotifierService.Update();
+    }
+    
     public void Dispose()
     {
         NotifierService.Notify -= OnNotify;
