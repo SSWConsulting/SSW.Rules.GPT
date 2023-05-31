@@ -157,7 +157,7 @@
             }
         }
 
-        _= Analytics.TrackEvent("SendMessage", new { message = NewMessageString });
+        _= Analytics.TrackEvent("SendMessage", new { message = NewMessageString, ownKey = DataState.OpenAiApiKey != null });
         
         var newChatMessage = new ChatMessage("user", NewMessageString);
         NewMessageString = string.Empty;
