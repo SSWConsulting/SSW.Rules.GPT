@@ -17,19 +17,22 @@
 </style>
 
 <MudLayout>
-    <MudAppBar Elevation="0">
+    <MudAppBar Elevation="0" Class="py-4">
         @*<MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />*@
-        <MudStack Justify="Justify.Center" Class="pr-2">
-            <MudLink OnClick="ClearMessageHistory">
-                <MudImage Src="images/SSWlogo-DarkMode.svg" Height="40" ObjectFit="ObjectFit.ScaleDown"></MudImage>
-            </MudLink>
-        </MudStack>
-        <MudStack Justify="Justify.Center" Class="pl-2">
-            <MudText Typo="Typo.h5">RulesGPT</MudText>
-        </MudStack>
-        <MudStack Justify="Justify.Center" Class="pl-3">
-            <MudText Class="tag-line" Color="Color.Primary" Typo="Typo.body1">Keeping Order with Intelligence</MudText>
-            <style>
+        <MudStack Spacing="0">
+            <MudStack Row="true" Spacing="0">
+                <MudStack Class="pr-2">
+                    <MudLink OnClick="ClearMessageHistory">
+                        <MudImage Src=@(_isDarkMode ? "images/SSWlogo-DarkMode.svg" : "images/SSWlogo.svg") Height="40" ObjectFit="ObjectFit.ScaleDown"></MudImage>
+                    </MudLink>
+                </MudStack>
+                <MudStack Justify="Justify.Center">
+                    <MudText Color="Color.Primary" Typo="Typo.h5"><b>RulesGPT</b></MudText>
+                </MudStack>
+            </MudStack>
+            <MudStack>
+                <MudText Class="tag-line" Color="Color.Primary" Typo="Typo.body1">Keeping order with intelligence</MudText>
+                <style>
                 @@media screen and (max-width: 600px) {
                     .tag-line {
                         display: none;
@@ -41,13 +44,14 @@
                     }
                 }
             </style>
+            </MudStack>
         </MudStack>
         <MudSpacer/>
         <MudText Color="Color.Primary" Class="powered-by-text mr-2">Powered by SSW Rules</MudText>
         <MudTooltip Duration="1000" Text="@(_isDarkMode ? "Switch to Light Theme" : "Switch to Dark Theme")">
-            <MudIconButton Icon="@(_isDarkMode ? @Icons.Material.Rounded.LightMode : @Icons.Material.Outlined.DarkMode)" Color="Color.Inherit" OnClick="@ToggleDarkMode"/>
+            <MudIconButton Icon="@(_isDarkMode ? @Icons.Material.Rounded.LightMode : @Icons.Material.Outlined.DarkMode)" OnClick="@ToggleDarkMode"/>
         </MudTooltip>
-        <MudMenu Icon="@Icons.Material.Filled.Settings" Dense="false" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+        <MudMenu Icon="@Icons.Material.Filled.Settings" Dense="false" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
             <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Refresh" OnTouch="ClearMessageHistory" OnClick="ClearMessageHistory">New Chat</MudMenuItem>
             <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Edit" OnTouch="OpenApiKeyDialog" OnClick="OpenApiKeyDialog">API Key</MudMenuItem>
             <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.SettingsSuggest" Target="_blank" Href="https://github.com/SSWConsulting/SSW.Rules.GPT.Blazor/issues">Suggestions</MudMenuItem>
@@ -65,10 +69,10 @@
     <NavMenu />
     </MudDrawer>
     *@
-    <MudMainContent Style="height: 100%;">
+    <MudMainContent Style="height: 100%">
         <CascadingValue Value="_theme">
             <CascadingValue Value="_isDarkMode">
-                <MudContainer MaxWidth="MaxWidth.Large" Style="height: 100%">
+                <MudContainer MaxWidth="MaxWidth.Large" Style="height: 100%;" Class="pt-8">
                     @Body
                 </MudContainer>
             </CascadingValue>
@@ -85,10 +89,10 @@
     {
         Palette = new PaletteLight()
         {
-            Primary = "#AAA",
-            Secondary = "#CC4141",
+            Primary = "#333333",
+            Secondary = "#333333",
             Error = "#CC4141",
-            AppbarBackground = "#323332",
+            AppbarBackground = "#ffffff",
             BackgroundGrey = "#f9fbfc"
         },
         PaletteDark = new PaletteDark()
@@ -121,11 +125,11 @@
         }
         catch (HttpRequestException e)
         {
-            // Display error message
+    // Display error message
             Snackbar.Add("Unable to connect to SSW RulesGPT", Severity.Error);
         }
     }
-    
+
     // protected override async Task OnAfterRenderAsync(bool firstRender)
     // {
     //     if (firstRender)
@@ -135,7 +139,7 @@
     //         StateHasChanged();
     //     }
     // }
-    
+
     private async Task OnSystemPreferenceChanged(bool newValue)
     {
         _isDarkMode = newValue;
