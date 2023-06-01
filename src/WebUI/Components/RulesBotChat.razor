@@ -1,3 +1,4 @@
+@implements IDisposable
 @using OpenAI.GPT3.ObjectModels.RequestModels
 @inject DataState DataState
 @inject SswRulesGptDialogService SswRulesGptDialogService
@@ -7,25 +8,13 @@
 @inject IJSRuntime Js
 @inject ISnackbar Snackbar
 
-<style>
-    .chat-box {
-        max-width: 70%;
-    }
-
-    @@media screen and (max-width: 600px) {
-        .chat-box {
-            max-width: 85%;
-        }
-    }
-</style>
-
-<div style="display: grid; grid-template-rows: 1fr auto; height: 100%; padding: 24px 0;">
+<div class="container">
     <MudPaper Elevation="0" Style=@($"background: {(!isDarkMode ? Theme.Palette.BackgroundGrey : Theme.PaletteDark.BackgroundGrey)}; border: 1px solid #e6e6e6; overflow-y: auto; height: 100%")>
         <MudContainer Class="pa-0" Style="height: 100%">
             @if (DataState.ChatMessages.Count == 0)
             {
                 <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center" Style="height: 60%">
-                    <MudStack Row="true">
+                    <MudStack Row="true" Class="pb-6">
                         <MudAvatar Size="Size.Large">
                             <MudImage Src="images/chatgpt-icon.svg"></MudImage>
                         </MudAvatar>
@@ -33,15 +22,15 @@
                             <b>RulesGPT</b>
                         </MudText>
                     </MudStack>
-                    <MudText Typo="Typo.subtitle1" Style="font-style: italic">Examples</MudText>
+                    <MudText Typo="Typo.subtitle1" Style="font-style: italic">Ask a question OR start with these examples</MudText>
                     <MudStack Class="pt-0">
-                        <MudButton Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => OnExampleClicked("How do I send a v2 email?"))">
+                        <MudButton Class="button-lowercase" Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => OnExampleClicked("How do I send a v2 email?"))">
                             How do I send a v2 email?
                         </MudButton>
-                        <MudButton Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => OnExampleClicked("How can I get better at presenting?"))">
+                        <MudButton Class="button-lowercase" Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => OnExampleClicked("How can I get better at presenting?"))">
                             How can I get better at presenting?
                         </MudButton>
-                        <MudButton Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => OnExampleClicked("Give me some rules to better GPT"))">
+                        <MudButton Class="button-lowercase" Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => OnExampleClicked("Give me some rules to better GPT"))">
                             Give me some rules to better GPT
                         </MudButton>
                     </MudStack>
@@ -102,13 +91,12 @@
         	</MudPopover>
     </MudPaper>
     <MudStack Row="true" Class="mt-3">
-        <MudTextField Style="height: 100%;" Clearable="true" Disabled="IsAwaitingResponse" Class="mt-0" @bind-Value="NewMessageString" OnKeyDown="MessageTextFieldHandleEnterKey" Immediate="true" Label="Ask a question!" Variant="Variant.Outlined"></MudTextField>
+        <MudTextField Style="height: 100%;" Clearable="true" Disabled="IsAwaitingResponse" Class="mt-0" @bind-Value="NewMessageString" OnKeyDown="MessageTextFieldHandleEnterKey" Immediate="true" Label="Hit me up with any queries" Variant="Variant.Outlined"></MudTextField>
         <MudButton Color="Color.Secondary" Variant="Variant.Filled" OnClick="SendMessage">
             <MudIcon Icon="@Icons.Material.Filled.Send"></MudIcon>
         </MudButton>
     </MudStack>
 </div>
-
 
 @code {
     [CascadingParameter] protected MudTheme Theme { get; set; } 
@@ -122,9 +110,6 @@
     {
         NotifierService.Notify += OnNotify;
         NotifierService.CancelMessageStreamEvent += OnCancelMessageStream;
-        // Only for use when styling
-        //DataState.ChatMessages.Add(new ChatMessage("user", "Hello, I'm a user"));
-        //DataState.ChatMessages.Add(new ChatMessage("assistant", "1. hello there https://ssw.com.au \r\n 2. hello there \r\n \r\n How are you? \r\n Things are going well \r\n * hi there \r\n * how are you doing? \r\n \r\n | Tables | Are | Cool | \r\n | ------------- | :-----------: | -----: | \r\n | col 3 is | right-aligned | $1600 | \r\n | col 2 is | centered | $12 | \r\n | zebra stripes | are neat | $1 |"));
     }
 
     private async Task OnExampleClicked(string message)
@@ -163,7 +148,6 @@
         IsAwaitingResponse = true;
         StateHasChanged();
 
-        
         await JsScrollMessageListToBottom();
 
         var resultStream = SignalR.RequestNewCompletionMessage(
@@ -182,6 +166,7 @@
             await Js.InvokeVoidAsync("highlightCode");
             await JsScrollMessageListToBottom();
         }
+        
         IsAwaitingResponseStream = false;
         IsAwaitingResponse = false;
         DataState.CancellationTokenSource.Dispose();
@@ -196,20 +181,14 @@
         }
     }
 
-    public async Task OnNotify()
+    private async Task OnNotify()
     {
-        await InvokeAsync(() =>
-        {
-            StateHasChanged();
-        });
+        await InvokeAsync(StateHasChanged);
     }
-    
-    public async Task OnCancelMessageStream()
+
+    private async Task OnCancelMessageStream()
     {
-        await InvokeAsync(() =>
-        {
-            CancelStreamingResponse();
-        });
+        await InvokeAsync(CancelStreamingResponse);
     }
 
     public void Dispose()

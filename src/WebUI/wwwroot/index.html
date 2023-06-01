@@ -1,91 +1,50 @@
 <!DOCTYPE html>
-
-<style>
-    .gpt-loading-info {
-        margin: 200px auto 0;
-        max-width: 200px;
-        text-align: center;
-        font-family: Roboto, sans-serif;
-        color: #424242;
-    }
-
-    .simple-spinner {
-        display: block;
-        margin: 40px auto 0;
-        width: 50px;
-        height: 50px;
-        /*transform: translate(-50%, -50%);*/
-    }
-
-    .simple-spinner span {
-        display: block;
-        width: 50px;
-        height: 50px;
-        border: 3px solid transparent;
-        border-radius: 50%;
-        border-right-color: rgba(204, 65, 65, 1);
-        animation: spinner-anim 0.8s linear infinite;
-    }
-
-    @keyframes spinner-anim {
-        from {
-            transform: rotate(0);
-        }
-
-        to {
-            transform: rotate(360deg);
-        }
-    }
-</style>
-
-<html>
-
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>SSW Rules Bot</title>
-    <base href="/" />
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
-    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="css/prism.css">
-    <link href="WebUI.styles.css" rel="stylesheet">
-</head>
-
-<body>
-    <div id="app">
-        <!--Loading...-->
-        <div class="gpt-loading-info">
-            <img src="images/SSWlogo.svg" />
-            <h1>RulesGPT</h1>
-            <div class="simple-spinner">
-                <span></span>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <title>SSW Rules Bot</title>
+        <base href="/" />
+        <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+        <link href="css/app.css" rel="stylesheet" />
+        <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+        <link rel="stylesheet" href="css/prism.css">
+        <link href="WebUI.styles.css" rel="stylesheet">
+    </head>
+    
+    <body>
+        <div id="app">
+            <div class="gpt-loading-info">
+                <img src="images/SSWlogo.svg" />
+                <h1>RulesGPT</h1>
+                <div class="simple-spinner">
+                    <span></span>
+                </div>
             </div>
         </div>
-    </div>
+        
+        <div id="blazor-error-ui">
+            An unhandled error has occurred.
+            <a href="" class="reload">Reload</a>
+            <a class="dismiss">🗙</a>
+        </div>
     
-    <div id="blazor-error-ui">
-        An unhandled error has occurred.
-        <a href="" class="reload">Reload</a>
-        <a class="dismiss">🗙</a>
-    </div>
-
-    <script defer src="_framework/blazor.webassembly.js"></script>
-    <script defer src="_content/MudBlazor/MudBlazor.min.js"></script>
-    <script defer src="js/prism.js"></script>
-    
-    <script>
-        window.highlightCode = () => {
-            Prism.highlightAll();
-        };
-    </script>
-    <script>
-        window.scrollLatestMessageIntoView = () => {
-            let messageList = document.querySelector(".chatContainer");
-            if (messageList !== null) {
-                messageList.scrollIntoView(false);
-            }
-        };
-    </script>
-</body>
-
+        <script defer src="_framework/blazor.webassembly.js"></script>
+        <script defer src="_content/MudBlazor/MudBlazor.min.js"></script>
+        <script defer src="js/prism.js"></script>
+        
+        <script>
+            window.highlightCode = () => {
+                Prism.highlightAll();
+            };
+        </script>
+        <script>
+            window.scrollLatestMessageIntoView = () => {
+                let messageList = document.querySelector(".chatContainer");
+                if (messageList !== null) {
+                    messageList.scrollIntoView(false);
+                }
+            };
+        </script>
+    </body>
 </html>

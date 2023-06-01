@@ -1,5 +1,4 @@
 ﻿@inherits LayoutComponentBase
-
 @inject SswRulesGptDialogService SswRulesGptDialogService
 @inject DataState DataState
 @inject NotifierService NotifierService
@@ -10,78 +9,54 @@
 <MudDialogProvider Position="DialogPosition.Center"/>
 <MudSnackbarProvider/>
 
-<style>
-    html, body, #app {
-        height: 100%;
-    }
-</style>
-
-<MudLayout>
-    <MudAppBar Elevation="0" Class="py-4">
-        @*<MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />*@
-        <MudStack Spacing="0">
-            <MudStack Row="true" Spacing="0">
-                <MudStack Class="pr-2">
-                    <MudLink OnClick="ClearMessageHistory">
-                        <MudImage Src=@(_isDarkMode ? "images/SSWlogo-DarkMode.svg" : "images/SSWlogo.svg") Height="40" ObjectFit="ObjectFit.ScaleDown"></MudImage>
-                    </MudLink>
+<div class="h-100">
+    <MudLayout>
+        <MudAppBar Elevation="0" Class="py-4">
+            <MudStack Spacing="0">
+                <MudStack Row="true" Spacing="0">
+                    <MudStack Class="pr-2">
+                        <MudLink OnClick="ClearMessageHistory" Style="line-height: 1">
+                            <MudImage Src=@(_isDarkMode ? "images/SSWlogo-DarkMode.svg" : "images/SSWlogo.svg") Height="40" ObjectFit="ObjectFit.ScaleDown"></MudImage>
+                        </MudLink>
+                    </MudStack>
+                    <MudStack Justify="Justify.Center">
+                        <MudText Color="Color.Primary" Typo="Typo.h5">
+                            <b>RulesGPT</b>
+                        </MudText>
+                    </MudStack>
                 </MudStack>
-                <MudStack Justify="Justify.Center">
-                    <MudText Color="Color.Primary" Typo="Typo.h5"><b>RulesGPT</b></MudText>
+                <MudStack>
+                    <MudText Class="tag-line" Color="Color.Primary" Typo="Typo.body1">Keeping order with intelligence</MudText>
                 </MudStack>
             </MudStack>
-            <MudStack>
-                <MudText Class="tag-line" Color="Color.Primary" Typo="Typo.body1">Keeping order with intelligence</MudText>
-                <style>
-                @@media screen and (max-width: 600px) {
-                    .tag-line {
-                        display: none;
-                    }
-                }
-                @@media screen and (max-width: 432px) {
-                    .powered-by-text {
-                        display: none;
-                    }
-                }
-            </style>
-            </MudStack>
-        </MudStack>
-        <MudSpacer/>
-        <MudText Color="Color.Primary" Class="powered-by-text mr-2">Powered by SSW Rules</MudText>
-        <MudTooltip Duration="1000" Text="@(_isDarkMode ? "Switch to Light Theme" : "Switch to Dark Theme")">
-            <MudIconButton Icon="@(_isDarkMode ? @Icons.Material.Rounded.LightMode : @Icons.Material.Outlined.DarkMode)" OnClick="@ToggleDarkMode"/>
-        </MudTooltip>
-        <MudMenu Icon="@Icons.Material.Filled.Settings" Dense="false" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
-            <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Refresh" OnTouch="ClearMessageHistory" OnClick="ClearMessageHistory">New Chat</MudMenuItem>
-            <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Edit" OnTouch="OpenApiKeyDialog" OnClick="OpenApiKeyDialog">API Key</MudMenuItem>
-            <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.SettingsSuggest" Target="_blank" Href="https://github.com/SSWConsulting/SSW.Rules.GPT.Blazor/issues">Suggestions</MudMenuItem>
-            <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Info" OnTouch="OpenAboutRulesGptDialog" OnClick="OpenAboutRulesGptDialog">About</MudMenuItem>
-        </MudMenu>
-    </MudAppBar>
-    @*
-    <MudDrawer @bind-Open="_drawerOpen" Elevation="1">
-    <MudDrawerHeader>
-    <MudStack Style="width: 100%" Justify="Justify.Center">
-    <MudImage Src="images/SSWlogo-DarkMode.svg" Height="40" ObjectFit="ObjectFit.ScaleDown"></MudImage>
-    </MudStack>
-    <MudText Typo="Typo.h6">SSW Rules Bot</MudText>
-    </MudDrawerHeader>
-    <NavMenu />
-    </MudDrawer>
-    *@
-    <MudMainContent Style="height: 100%">
-        <CascadingValue Value="_theme">
-            <CascadingValue Value="_isDarkMode">
-                <MudContainer MaxWidth="MaxWidth.Large" Style="height: 100%;" Class="pt-8">
-                    @Body
-                </MudContainer>
+            <MudSpacer/>
+            <MudText Color="Color.Primary" Class="powered-by-text mr-2">
+                Powered by
+                <MudLink Class="rules-link" Underline="Underline.Always" Target="_blank" Href="https://www.ssw.com.au/rules">SSW Rules</MudLink>
+            </MudText>
+            <MudTooltip Duration="1000" Text="@(_isDarkMode ? "Switch to light mode" : "Switch to dark mode")">
+                <MudIconButton Icon="@(_isDarkMode ? @Icons.Material.Rounded.LightMode : @Icons.Material.Outlined.DarkMode)" OnClick="@ToggleDarkMode"/>
+            </MudTooltip>
+            <MudMenu Icon="@Icons.Material.Filled.Settings" Dense="false" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+                <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Refresh" OnTouch="ClearMessageHistory" OnClick="ClearMessageHistory">Reload chat</MudMenuItem>
+                <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Key" OnTouch="OpenApiKeyDialog" OnClick="OpenApiKeyDialog">API key</MudMenuItem>
+                <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.TipsAndUpdates" Target="_blank" Href="https://github.com/SSWConsulting/SSW.Rules.GPT.Blazor/issues">Suggestions</MudMenuItem>
+                <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Info" OnTouch="OpenAboutRulesGptDialog" OnClick="OpenAboutRulesGptDialog">About</MudMenuItem>
+            </MudMenu>
+        </MudAppBar>
+        <MudMainContent Style="height: 100%">
+            <CascadingValue Value="_theme">
+                <CascadingValue Value="_isDarkMode">
+                    <MudContainer MaxWidth="MaxWidth.Large" Style="height: 100%;" Class="pt-8">
+                        @Body
+                    </MudContainer>
+                </CascadingValue>
             </CascadingValue>
-        </CascadingValue>
-    </MudMainContent>
-</MudLayout>
+        </MudMainContent>
+    </MudLayout>
+</div>
 
 @code {
-    //bool _drawerOpen = true;
     bool _isDarkMode = false;
     private MudThemeProvider _mudThemeProvider;
 
@@ -90,7 +65,7 @@
         Palette = new PaletteLight()
         {
             Primary = "#333333",
-            Secondary = "#333333",
+            Secondary = "#CC4141",
             Error = "#CC4141",
             AppbarBackground = "#ffffff",
             BackgroundGrey = "#f9fbfc"
@@ -107,11 +82,6 @@
         }
     };
 
-    //private void DrawerToggle()
-    //{
-    //    _drawerOpen = !_drawerOpen;
-    //}
-
     private void ToggleDarkMode()
     {
         _isDarkMode = !_isDarkMode;
@@ -125,35 +95,19 @@
         }
         catch (HttpRequestException e)
         {
-    // Display error message
+            // Display error message
             Snackbar.Add("Unable to connect to SSW RulesGPT", Severity.Error);
         }
     }
 
-    // protected override async Task OnAfterRenderAsync(bool firstRender)
-    // {
-    //     if (firstRender)
-    //     {
-    //         _isDarkMode = await _mudThemeProvider.GetSystemPreference();
-    //         await _mudThemeProvider.WatchSystemPreference(OnSystemPreferenceChanged);
-    //         StateHasChanged();
-    //     }
-    // }
-
-    private async Task OnSystemPreferenceChanged(bool newValue)
-    {
-        _isDarkMode = newValue;
-        StateHasChanged();
-    }
-
     private async Task OpenApiKeyDialog()
     {
-        var success = await SswRulesGptDialogService.ApiKeyDialog();
+        await SswRulesGptDialogService.ApiKeyDialog();
     }
 
     private async Task OpenAboutRulesGptDialog()
     {
-        var success = await SswRulesGptDialogService.AboutRulesGptDialog();
+        await SswRulesGptDialogService.AboutRulesGptDialog();
     }
 
     private async Task ClearMessageHistory()
@@ -162,5 +116,4 @@
         DataState.ChatMessages.Clear();
         await NotifierService.Update();
     }
-
 }
