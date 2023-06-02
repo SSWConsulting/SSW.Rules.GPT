@@ -125,6 +125,20 @@
             // Display error message
             Snackbar.Add("Unable to connect to SSW RulesGPT", Severity.Error);
         }
+
+        NotifierService.OnRateLimited += OnRateLimited;
+    }
+
+    private async Task OnRateLimited(double retryAfter)
+    {
+        Snackbar.Add($"Too many messages sent! Try again in {retryAfter} seconds.", Severity.Error);
+        await NotifierService.CancelMessageStream();
+
+        var lastMessage = DataState.ChatMessages.Last(s => s.Role == "user");
+        DataState.ChatMessages.Remove(lastMessage);
+        //TODO: Add last message to datastate when #55 pr is merged
+        
+        StateHasChanged();
     }
     
     // protected override async Task OnAfterRenderAsync(bool firstRender)

@@ -227,7 +227,7 @@
         await Js.InvokeVoidAsync("scrollLatestMessageIntoView");
     }
     
-    private async Task CancelStreamingResponse()
+    private void CancelStreamingResponse()
     {
         DataState.CancellationTokenSource.Cancel();
         DataState.CancellationTokenSource.Dispose();

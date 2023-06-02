@@ -5,6 +5,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OpenAI.GPT3.Extensions;
 using Pgvector.EntityFrameworkCore;
+using Polly;
+using Polly.Extensions.Http;
 
 namespace Infrastructure;
 
@@ -26,11 +28,18 @@ public static class DependencyInjection
         );
 
         var openAiApiKey = config["OpenAiApiKey"];
+        var rateLimitPolicy = Policy.RateLimitAsync(3, TimeSpan.FromMinutes(5));
 
         services.AddOpenAIService(settings =>
         {
             settings.ApiKey = openAiApiKey;
-        });
+        })
+        .AddTransientHttpErrorPolicy(policy =>
+            {
+                return policy.WaitAndRetryAsync(0, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)))
+                    .WrapAsync(rateLimitPolicy);
+            }
+        );
 
         return services;
     }
