@@ -36,7 +36,8 @@ public class SswRulesGptDialogService
             CloseButton = true,
             DisableBackdropClick = false,
             NoHeader = false,
-            MaxWidth = MaxWidth.Large
+            MaxWidth = MaxWidth.Small,
+            
         };
         var dialog = await _dialogService.ShowAsync<AboutAppDialog>(string.Empty, options);
         var result = await dialog.Result;
