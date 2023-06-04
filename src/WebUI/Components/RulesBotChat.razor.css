@@ -5,7 +5,7 @@
     padding: 24px 0;
 }
 
-.chat-box {
+::deep .chat-box {
     max-width: 70%;
 }
 
