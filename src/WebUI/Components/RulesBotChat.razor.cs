@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using MudBlazor;
 using OpenAI.GPT3.ObjectModels.RequestModels;
+using WebUI.Classes;
 using WebUI.Models;
 using WebUI.Services;
+using Direction = WebUI.Classes.Direction;
 
 namespace WebUI.Components;
 
@@ -35,6 +37,19 @@ public class RulesBotChatBase : ComponentBase, IDisposable
         await SendMessage();
     }
 
+    protected async Task Move(ChatLinkedListItem item, Direction direction)
+    {
+        var target = direction == Direction.Left 
+            ? item.Left
+            : item.Right;
+        
+        if (target is null)
+            return;
+        
+        DataState.CurrentMessageThread = DataState.ChatMessages.GetThread(target);
+        StateHasChanged();
+    }
+
     protected async Task SendMessage()
     {
         if (string.IsNullOrWhiteSpace(DataState.NewMessageString))
@@ -58,20 +73,29 @@ public class RulesBotChatBase : ComponentBase, IDisposable
         _ = Analytics.TrackEvent("SendMessage", new { message = DataState.NewMessageString, ownKey = DataState.OpenAiApiKey != null });
 
         var newChatMessage = new ChatMessage("user", DataState.NewMessageString);
-        DataState.NewMessageString = string.Empty;
-        DataState.ChatMessages.Add(newChatMessage);
-
         var newAssistantMessage = new ChatMessage("assistant", string.Empty);
 
-        DataState.ChatMessages.Add(newAssistantMessage);
+        var userLinkedListItem = DataState.ChatMessages.Any(s => s.Message.Role != "system") 
+            ? DataState.ChatMessages.AddAfter(newChatMessage, DataState.ChatMessages.Last())
+            : DataState.ChatMessages.Add(newChatMessage);
+        
+        var assistantLinkedListItem = DataState.ChatMessages.Any(s => s.Message.Role != "system") 
+            ? DataState.ChatMessages.AddAfter(newAssistantMessage, DataState.ChatMessages.Last())
+            : DataState.ChatMessages.Add(newAssistantMessage);
+        
+        DataState.CurrentMessageThread.Add(userLinkedListItem);
+        DataState.CurrentMessageThread.Add(assistantLinkedListItem);
+        
+        DataState.NewMessageString = string.Empty;
         DataState.IsAwaitingResponseStream = true;
         DataState.IsAwaitingResponse = true;
+        
         StateHasChanged();
 
         await JsScrollMessageListToBottom();
 
         var resultStream = SignalR.RequestNewCompletionMessage(
-            DataState.ChatMessages,
+            DataState.CurrentMessageThread.Select(s => s.Message).ToList(),
             DataState.OpenAiApiKey,
             DataState.SelectedGptModel,
             DataState.CancellationTokenSource.Token);
@@ -122,15 +146,18 @@ public class RulesBotChatBase : ComponentBase, IDisposable
         await Js.InvokeVoidAsync("scrollLatestMessageIntoView");
     }
 
-    private async Task CancelStreamingResponse()
+    protected async Task CancelStreamingResponse()
     {
         DataState.CancellationTokenSource.Cancel();
         DataState.CancellationTokenSource.Dispose();
-        var lastAssistantMessage = DataState.ChatMessages.LastOrDefault(s => s.Role == "assistant");
-        if (lastAssistantMessage is not null && string.IsNullOrWhiteSpace(lastAssistantMessage?.Content))
+        
+        var lastAssistantMessage = DataState.CurrentMessageThread.LastOrDefault(s => s.Message.Role == "assistant");
+        if (lastAssistantMessage is not null && string.IsNullOrWhiteSpace(lastAssistantMessage?.Message.Content))
         {
+            DataState.CurrentMessageThread.Remove(lastAssistantMessage);
             DataState.ChatMessages.Remove(lastAssistantMessage);
         }
+        
         DataState.IsAwaitingResponse = false;
         DataState.IsAwaitingResponseStream = false;
         DataState.CancellationTokenSource = new CancellationTokenSource();

@@ -33,7 +33,7 @@
             else
             {
                 <MudList Class="py-0 chatContainer" DisableGutters="true">
-                    @foreach (var message in DataState.ChatMessages.Where(s => s.Message.Role != "system"))
+                    @foreach (var message in DataState.CurrentMessageThread.Where(s => s.Message.Role != "system").Select(s => s.Message))
                     {
                         <ChatItem Message="message" />
                     }
