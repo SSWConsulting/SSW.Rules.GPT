@@ -1,13 +1,6 @@
 @using OpenAI.GPT3.ObjectModels.RequestModels
-@implements IDisposable
-@inject DataState DataState
-@inject SswRulesGptDialogService SswRulesGptDialogService
-@inject ApiKeyValidationService ApiKeyValidationService
-@inject NotifierService NotifierService
-@inject SignalRClient SignalR
-@inject IJSRuntime Js
-@inject ISnackbar Snackbar
-@inject IAnalytics Analytics
+
+@inherits RulesBotChatBase
 
 <div style="display: grid; grid-template-rows: 1fr auto; height: 100%; padding: 24px 0;">
     <MudPaper Elevation="0" Style=@($"background: {(!isDarkMode ? Theme.Palette.BackgroundGrey : Theme.PaletteDark.BackgroundGrey)}; border: 1px solid #e6e6e6; overflow-y: auto; height: 100%")>
@@ -40,7 +33,7 @@
             else
             {
                 <MudList Class="py-0 chatContainer" DisableGutters="true">
-                    @foreach (var message in DataState.ChatMessages.Where(s => s.Role != "system"))
+                    @foreach (var message in DataState.ChatMessages.Where(s => s.Message.Role != "system"))
                     {
                         <ChatItem Message="message" />
                     }
@@ -58,126 +51,3 @@
         </MudButton>
     </MudStack>
 </div>
-
-@code {
-
-    [CascadingParameter] protected MudTheme Theme { get; set; }
-    [CascadingParameter] protected bool isDarkMode { get; set; }
-    
-    protected override async Task OnInitializedAsync()
-    {
-        NotifierService.Notify += OnNotify;
-        NotifierService.CancelMessageStreamEvent += OnCancelMessageStream;
-    // Only for use when styling
-    //DataState.ChatMessages.Add(new ChatMessage("user", "Hello, I'm a user"));
-    //DataState.ChatMessages.Add(new ChatMessage("assistant", "1. hello there https://ssw.com.au \r\n 2. hello there \r\n \r\n How are you? \r\n Things are going well \r\n * hi there \r\n * how are you doing? \r\n \r\n | Tables | Are | Cool | \r\n | ------------- | :-----------: | -----: | \r\n | col 3 is | right-aligned | $1600 | \r\n | col 2 is | centered | $12 | \r\n | zebra stripes | are neat | $1 |"));
-    }
-
-    private async Task OnExampleClicked(string message)
-    {
-        DataState.NewMessageString = message;
-        await SendMessage();
-    }
-
-    public async Task SendMessage()
-    {
-        if (string.IsNullOrWhiteSpace(DataState.NewMessageString))
-        {
-            return;
-        }
-
-        if (SignalR.GetConnectionState() == SignalRClient.StatusHubConnectionState.Disconnected)
-        {
-            try
-            {
-                await SignalR.StartAsync(DataState.CancellationTokenSource.Token);
-            }
-            catch (HttpRequestException e)
-            {
-                Snackbar.Add("Unable to connect to SSW RulesGPT", Severity.Error);
-                return;
-            }
-        }
-
-        _ = Analytics.TrackEvent("SendMessage", new { message = DataState.NewMessageString, ownKey = DataState.OpenAiApiKey != null });
-
-        var newChatMessage = new ChatMessage("user", DataState.NewMessageString);
-        DataState.NewMessageString = string.Empty;
-        DataState.ChatMessages.Add(newChatMessage);
-
-        var newAssistantMessage = new ChatMessage("assistant", string.Empty);
-
-        DataState.ChatMessages.Add(newAssistantMessage);
-        DataState.IsAwaitingResponseStream = true;
-        DataState.IsAwaitingResponse = true;
-        StateHasChanged();
-
-        await JsScrollMessageListToBottom();
-
-        var resultStream = SignalR.RequestNewCompletionMessage(
-            DataState.ChatMessages,
-            DataState.OpenAiApiKey,
-            DataState.SelectedGptModel,
-            DataState.CancellationTokenSource.Token);
-
-        await JsScrollMessageListToBottom();
-        await foreach (var result in resultStream.WithCancellation(DataState.CancellationTokenSource.Token))
-        {
-            DataState.IsAwaitingResponseStream = false;
-            newAssistantMessage.Content += result?.Content;
-
-            StateHasChanged();
-            _= NotifierService.Update();
-            await Js.InvokeVoidAsync("highlightCode");
-            await JsScrollMessageListToBottom();
-        }
-        DataState.IsAwaitingResponseStream = false;
-        DataState.IsAwaitingResponse = false;
-        DataState.CancellationTokenSource.Dispose();
-        DataState.CancellationTokenSource = new CancellationTokenSource();
-    }
-
-    async Task MessageTextFieldHandleEnterKey(KeyboardEventArgs args)
-    {
-        if (args is { Key: "Enter", ShiftKey: false })
-        {
-            await SendMessage();
-        }
-    }
-
-    public async Task OnNotify()
-    {
-        await InvokeAsync(() => { StateHasChanged(); });
-    }
-
-    public async Task OnCancelMessageStream()
-    {
-        await InvokeAsync(() => { CancelStreamingResponse(); });
-    }
-    
-    public void Dispose()
-    {
-        NotifierService.Notify -= OnNotify;
-        NotifierService.CancelMessageStreamEvent -= OnCancelMessageStream;
-    }
-
-    private async Task JsScrollMessageListToBottom()
-    {
-        await Js.InvokeVoidAsync("scrollLatestMessageIntoView");
-    }
-
-    private async Task CancelStreamingResponse()
-    {
-        DataState.CancellationTokenSource.Cancel();
-        DataState.CancellationTokenSource.Dispose();
-        var lastAssistantMessage = DataState.ChatMessages.LastOrDefault(s => s.Role == "assistant");
-        if (lastAssistantMessage is not null && string.IsNullOrWhiteSpace(lastAssistantMessage?.Content))
-        {
-            DataState.ChatMessages.Remove(lastAssistantMessage);
-        }
-        DataState.IsAwaitingResponse = false;
-        DataState.IsAwaitingResponseStream = false;
-        DataState.CancellationTokenSource = new CancellationTokenSource();
-    }
-
-}
