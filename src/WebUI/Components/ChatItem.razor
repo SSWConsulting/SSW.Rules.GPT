@@ -19,30 +19,34 @@
 <MudListItem>
     @if (isUser)
     {
-        <MudStack Class="mx-4" Row="true">
-            <MudSpacer/>
-            <MudStack Spacing="1" Class="chat-box">
-                <MudText Typo="Typo.body1" Align="Align.Right">
-                    <b>You</b>
-                </MudText>
-                <MudStack Row="true">
-                    @if(!DataState.IsAwaitingResponse)
-                    {
-                        <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="OnEditClicked"/>
-                    }
-                    <MudPaper Elevation="1" Class="px-4 py-3" Style=@(!isDarkMode ? "color: white; background: #323332;" : "")>
-                        <MudText Typo="Typo.body1">@Message.Content</MudText>
-                    </MudPaper>
+        <div class="item-root">
+            <MudStack Class="mx-4" Row="true">
+                <MudSpacer/>
+                <MudStack Spacing="1" Class="chat-box">
+                    <MudText Typo="Typo.body1" Align="Align.Right">
+                        <b>You</b>
+                    </MudText>
+                    <MudStack Row="true">
+                        @if (!DataState.IsAwaitingResponse)
+                        {
+                            <div class="edit-button">
+                                <MudIconButton Class="edit-button" Icon="@Icons.Material.Filled.Edit" OnClick="OnEditClicked"/>
+                            </div>
+                        }
+                        <MudPaper Elevation="1" Class="px-4 py-3" Style=@(!isDarkMode ? "color: white; background: #323332;" : "")>
+                            <MudText Typo="Typo.body1">@Message.Content</MudText>
+                        </MudPaper>
+                    </MudStack>
                 </MudStack>
+                <MudAvatar>
+                    <MudIcon Icon="@Icons.Material.Filled.Person"></MudIcon>
+                </MudAvatar>
             </MudStack>
-            <MudAvatar>
-                <MudIcon Icon="@Icons.Material.Filled.Person"></MudIcon>
-            </MudAvatar>
-        </MudStack>
+        </div>
     }
     else
     {
-        <MudStack Class=@(DataState.IsAwaitingResponse && DataState.ChatMessages.Last() == Message ? "mb-12 mx-4" : "mx-4") Row="true">
+        <MudStack Class=@(DataState.IsAwaitingResponse && DataState.CurrentMessageThread.Last().Message == Message ? "mb-12 mx-4" : "mx-4") Row="true">
             <MudAvatar>
                 <MudImage Src="images/chatgpt-icon.svg"></MudImage>
             </MudAvatar>
@@ -91,20 +95,20 @@
         {
             return;
         }
-        
+
         if (!string.IsNullOrEmpty(DataState.NewMessageString))
         {
             var result = await SswRulesGptDialogService.EditMessageDialog();
             if (!result)
             {
                 return;
-            }   
+            }
         }
 
         DataState.NewMessageString = Message.Content;
-        _= NotifierService.Update();
+        _ = NotifierService.Update();
     }
-    
+
     public void Dispose()
     {
         NotifierService.Notify -= OnNotify;
