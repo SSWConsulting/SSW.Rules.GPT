@@ -1,5 +1,5 @@
-﻿<div class="container">
-    <textarea @oninput="HandleInput" @onkeydown="HandleSubmit">@message</textarea>     
+﻿<div class="container" data-replicated-value="@message">
+    <textarea rows="1" @oninput="HandleInput" @onkeydown="HandleSubmit">@message</textarea>     
 </div>
 
 @code {
