@@ -37,41 +37,45 @@ public class RulesBotChatBase : ComponentBase, IDisposable
         await SendMessage();
     }
 
-    protected async Task Move(ChatLinkedListItem item, Direction direction)
+    protected async Task Move((ChatLinkedListItem item, Direction direction) args)
     {
-        var target = direction == Direction.Left 
-            ? item.Left
-            : item.Right;
+        var target = args.direction == Direction.Left 
+            ? args.item.Left
+            : args.item.Right;
         
         if (target is null)
             return;
         
+        DataState.ChatMessages.Move(args.item, args.direction);
         DataState.CurrentMessageThread = DataState.ChatMessages.GetThread(target);
         StateHasChanged();
     }
 
-    protected async Task SendMessage()
+    protected async Task SendEditedMessage((ChatLinkedListItem item, string message) args)
     {
-        if (string.IsNullOrWhiteSpace(DataState.NewMessageString))
+        if (!await CheckConnection())
         {
             return;
         }
+        
+        var newChatMessage = new ChatMessage("user", args.message);
+        var newAssistantMessage = new ChatMessage("assistant", string.Empty);
+        
+        var target = DataState.ChatMessages.AddRight(newChatMessage, args.item);
+        
+        DataState.ChatMessages.AddAfter(newAssistantMessage, target);
+        DataState.CurrentMessageThread = DataState.ChatMessages.GetThread(target);
+        
+        await SendMessage(newChatMessage, newAssistantMessage);
+    }
 
-        if (SignalR.GetConnectionState() == SignalRClient.StatusHubConnectionState.Disconnected)
+    protected async Task SendMessage()
+    {
+        if (string.IsNullOrWhiteSpace(DataState.NewMessageString) || !await CheckConnection())
         {
-            try
-            {
-                await SignalR.StartAsync(DataState.CancellationTokenSource.Token);
-            }
-            catch (HttpRequestException e)
-            {
-                Snackbar.Add("Unable to connect to SSW RulesGPT", Severity.Error);
-                return;
-            }
+            return;
         }
-
-        _ = Analytics.TrackEvent("SendMessage", new { message = DataState.NewMessageString, ownKey = DataState.OpenAiApiKey != null });
-
+        
         var newChatMessage = new ChatMessage("user", DataState.NewMessageString);
         var newAssistantMessage = new ChatMessage("assistant", string.Empty);
 
@@ -85,8 +89,15 @@ public class RulesBotChatBase : ComponentBase, IDisposable
         
         DataState.CurrentMessageThread.Add(userLinkedListItem);
         DataState.CurrentMessageThread.Add(assistantLinkedListItem);
-        
         DataState.NewMessageString = string.Empty;
+        
+        await SendMessage(newChatMessage, newAssistantMessage);
+    }
+
+    private async Task SendMessage(ChatMessage chatMessage, ChatMessage assistantMessage)
+    {
+        _ = Analytics.TrackEvent("SendMessage", new { message = DataState.NewMessageString, ownKey = DataState.OpenAiApiKey != null });
+        
         DataState.IsAwaitingResponseStream = true;
         DataState.IsAwaitingResponse = true;
         
@@ -104,17 +115,36 @@ public class RulesBotChatBase : ComponentBase, IDisposable
         await foreach (var result in resultStream.WithCancellation(DataState.CancellationTokenSource.Token))
         {
             DataState.IsAwaitingResponseStream = false;
-            newAssistantMessage.Content += result?.Content;
+            assistantMessage.Content += result?.Content;
 
             StateHasChanged();
             _= NotifierService.Update();
             await Js.InvokeVoidAsync("highlightCode");
             await JsScrollMessageListToBottom();
         }
+        
         DataState.IsAwaitingResponseStream = false;
         DataState.IsAwaitingResponse = false;
         DataState.CancellationTokenSource.Dispose();
         DataState.CancellationTokenSource = new CancellationTokenSource();
+    }
+
+    private async Task<bool> CheckConnection()
+    {
+        if (SignalR.GetConnectionState() == SignalRClient.StatusHubConnectionState.Disconnected)
+        {
+            try
+            {
+                await SignalR.StartAsync(DataState.CancellationTokenSource.Token);
+            }
+            catch (HttpRequestException e)
+            {
+                Snackbar.Add("Unable to connect to SSW RulesGPT", Severity.Error);
+                return false;
+            }
+        }
+
+        return true;
     }
 
     protected async Task MessageTextFieldHandleEnterKey(KeyboardEventArgs args)

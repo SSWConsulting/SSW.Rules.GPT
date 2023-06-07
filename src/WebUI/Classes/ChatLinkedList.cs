@@ -35,26 +35,45 @@ public class ChatLinkedList : List<ChatLinkedListItem>
         {
             target = target.Right;
         }
+        
+        var newItem = new ChatLinkedListItem(newMessage, item.Previous, target);
 
-        var newItem = new ChatLinkedListItem(newMessage, null, target);
+        newItem.Left = target;
         target.Right = newItem;
-        Add(newItem);
 
-        return target;
+        Add(newItem);
+        Move(item, Direction.Right);
+
+        return newItem;
+    }
+    
+    public void Move(ChatLinkedListItem item, Direction direction)
+    {
+        if (!Contains(item))
+            throw new ArgumentException("Item is not in the list");
+        
+        var target = direction == Direction.Left 
+            ? item.Left
+            : item.Right;
+
+        if (target == null)
+        {
+            return;
+        }
+
+        if (item.Previous != null)
+        {
+            item.Previous.Next = target;
+        }
     }
 
     public List<ChatLinkedListItem> GetThread(ChatLinkedListItem item)
     {
-        var head = item;
-        
-        while (item.Previous is not null)
-        {
-            head = item.Previous;
-        }
-
+        var head = GetHead(item);
         var thread = new List<ChatLinkedListItem>();
         var target = head;
 
+        //Move from top of list to bottom
         while (target is not null)
         {
             thread.Add(target);
@@ -62,5 +81,15 @@ public class ChatLinkedList : List<ChatLinkedListItem>
         }
 
         return thread;
+    }
+
+    private ChatLinkedListItem GetHead(ChatLinkedListItem item)
+    {
+        var head = item;
+        
+        while (head.Previous is not null)
+            head = head.Previous;
+
+        return head;
     }
 }

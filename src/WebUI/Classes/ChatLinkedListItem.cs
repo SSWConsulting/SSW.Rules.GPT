@@ -16,7 +16,7 @@ public class ChatLinkedListItem
         Previous = previous;
     }
     
-    public ChatLinkedListItem(ChatMessage message, ChatLinkedListItem previous, ChatLinkedListItem left)
+    public ChatLinkedListItem(ChatMessage message, ChatLinkedListItem? previous, ChatLinkedListItem left)
     {
         Message = message;
         Previous = previous;
