@@ -72,7 +72,7 @@
                         }
                         else
                         {
-                            <MudStack Class=@(IsAwaitingResponse && DataState.ChatMessages.Last() == message ? "mb-12 mt-4 mx-4" : "mx-4") Row="true">
+                            <MudStack Class=@(DataState.ChatMessages.Last() == message ? "mb-12 mt-4 mx-4" : "mx-4") Row="true">
                                 <MudAvatar>
                                     <MudImage Src="images/chatgpt-icon.svg"></MudImage>
                                 </MudAvatar>
@@ -98,9 +98,16 @@
                 </MudList>
             }
         </MudContainer>
-        <MudPopover Open="IsAwaitingResponse" OverflowBehavior="OverflowBehavior.FlipNever" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.BottomCenter" Paper="false">
+        <MudPopover Open="@DataState.ChatMessages.Any()" OverflowBehavior="OverflowBehavior.FlipNever" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.BottomCenter" Paper="false">
+            @if (IsAwaitingResponse)
+            {
                 <MudButton Class="mb-3" OnClick="CancelStreamingResponse" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Primary">Cancel Request</MudButton>
-        	</MudPopover>
+            }
+            else
+            {
+                <MudButton Class="mb-3" OnClick="DataState.ClearHistory" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Refresh" Color="Color.Primary">New Chat</MudButton>
+            }
+        </MudPopover>
     </MudPaper>
     <MudStack Row="true" Class="mt-3">
         <MudTextField Style="height: 100%;" Clearable="true" Disabled="IsAwaitingResponse" Class="mt-0" @bind-Value="NewMessageString" OnKeyDown="MessageTextFieldHandleEnterKey" Immediate="true" Label="Ask a question!" Variant="Variant.Outlined"></MudTextField>
@@ -115,6 +122,8 @@
     [CascadingParameter] protected MudTheme Theme { get; set; } 
     [CascadingParameter] protected bool isDarkMode { get; set; }
     
+    [Parameter] public EventCallback OnClearHistoryEvent { get; set; }
+
     public string NewMessageString { get; set; } = string.Empty;
     public bool IsAwaitingResponseStream { get; set; } = false;
     private bool IsAwaitingResponse { get; set; } = false;
@@ -127,6 +136,8 @@
         //DataState.ChatMessages.Add(new ChatMessage("user", "Hello, I'm a user"));
         //DataState.ChatMessages.Add(new ChatMessage("assistant", "1. hello there https://ssw.com.au \r\n 2. hello there \r\n \r\n How are you? \r\n Things are going well \r\n * hi there \r\n * how are you doing? \r\n \r\n | Tables | Are | Cool | \r\n | ------------- | :-----------: | -----: | \r\n | col 3 is | right-aligned | $1600 | \r\n | col 2 is | centered | $12 | \r\n | zebra stripes | are neat | $1 |"));
     }
+
+    private async Task OnClearHistoryClicked() => await OnClearHistoryEvent.InvokeAsync();
 
     private async Task OnExampleClicked(string message)
     {
