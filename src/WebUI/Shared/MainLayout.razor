@@ -21,7 +21,7 @@
     <MudAppBar Elevation="0">
         @*<MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />*@
         <MudStack Justify="Justify.Center" Class="pr-2">
-            <MudLink OnClick="DataState.ClearHistory">
+            <MudLink OnClick="ClearMessageHistory">
                 <MudImage Src="images/SSWlogo-DarkMode.svg" Height="40" ObjectFit="ObjectFit.ScaleDown"></MudImage>
             </MudLink>
         </MudStack>
@@ -49,6 +49,7 @@
             <MudIconButton Icon="@(_isDarkMode ? @Icons.Material.Rounded.LightMode : @Icons.Material.Outlined.DarkMode)" Color="Color.Inherit" OnClick="@ToggleDarkMode"/>
         </MudTooltip>
         <MudMenu Icon="@Icons.Material.Filled.Settings" Dense="false" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+            <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Refresh" OnTouch="ClearMessageHistory" OnClick="ClearMessageHistory">New Chat</MudMenuItem>
             <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Edit" OnTouch="OpenApiKeyDialog" OnClick="OpenApiKeyDialog">API Key</MudMenuItem>
             <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.SettingsSuggest" Target="_blank" Href="https://github.com/SSWConsulting/SSW.Rules.GPT.Blazor/issues">Suggestions</MudMenuItem>
             <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Info" OnTouch="OpenAboutRulesGptDialog" OnClick="OpenAboutRulesGptDialog">About</MudMenuItem>
@@ -151,4 +152,12 @@
     {
         var success = await SswRulesGptDialogService.AboutRulesGptDialog();
     }
+
+    private async Task ClearMessageHistory()
+    {
+        await NotifierService.CancelMessageStream();
+        DataState.ChatMessages.Clear();
+        await NotifierService.Update();
+    }
+
 }
