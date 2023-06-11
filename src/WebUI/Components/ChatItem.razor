@@ -1,0 +1,165 @@
+﻿@using OpenAI.GPT3.ObjectModels.RequestModels
+@using WebUI.Classes
+@using Direction = WebUI.Classes.Direction
+@implements IDisposable
+@inject DataState DataState
+@inject NotifierService NotifierService
+@inject SswRulesGptDialogService SswRulesGptDialogService
+
+<style>
+    .chat-box {
+        max-width: 70%;
+    }
+
+    @@media screen and (max-width: 600px) {
+        .chat-box {
+            max-width: 85%;
+        }
+    }
+</style>
+
+<MudListItem>
+    @if (isUser)
+    {
+        <div class="item-root">
+            <MudStack Class="mx-4" Row="true">
+                <MudSpacer/>
+                <MudStack Spacing="1" Class="chat-box">
+                    <MudText Typo="Typo.body1" Align="Align.Right">
+                        <b>You</b>
+                    </MudText>
+                    <MudStack Row="true">
+                        @if (!DataState.IsAwaitingResponse)
+                        {
+                            <div class="edit-button">
+                                <MudIconButton Class="edit-button" Icon="@Icons.Material.Filled.Edit" OnClick="(() => SetEditState(true))"/>
+                            </div>
+                        }
+                        else
+                        {
+                            <MudSpacer/>
+                        }
+                        <MudPaper Elevation="1" Class="px-4 py-3" Style=@(!isDarkMode ? "color: white; background: #323332;" : "")>
+                            @if (isEditing)
+                            {
+                                <MudStack>
+                                    <MultilineInput @ref="multilineInput" Data="@MessageThreadItem.Message.Content" OnSubmitted="SubmitEdit"/>
+                                    <MudStack Row="true" Spacing="1">
+                                        <MudIconButton Size="Size.Small" Color="Color.Success" Icon="@Icons.Material.Filled.Done" OnClick="OnEditDoneClicked"/>
+                                        <MudIconButton Size="Size.Small" Color="Color.Error" Icon="@Icons.Material.Filled.Cancel" OnClick="(() => SetEditState(false))"/>
+                                        <MudSpacer/>
+                                    </MudStack>
+                                </MudStack>
+                            }
+                            else
+                            {
+                                <MudText Style="white-space: pre-wrap" Typo="Typo.body1">@MessageThreadItem.Message.Content</MudText>
+                            }
+                        </MudPaper>
+                    </MudStack>
+                    @if (MessageThreadItem.LeftCount + MessageThreadItem.RightCount > 0)
+                    {
+                        var total = MessageThreadItem.LeftCount + MessageThreadItem.RightCount + 1;
+                        var position = MessageThreadItem.LeftCount + 1;
+
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                            <MudSpacer/>
+                            <MudIconButton Icon="@Icons.Material.Rounded.ChevronLeft" Size="Size.Small" Disabled="@(position == 1)" OnClick="(() => OnMoveClicked(Direction.Left))"/>
+                            <MudText>
+                                @position
+                                <span style="color: #BDBDBD">/</span>
+                                @total
+                            </MudText>
+                            <MudIconButton Icon="@Icons.Material.Rounded.ChevronRight" Size="Size.Small" Disabled="@(position == total)" OnClick="(() => OnMoveClicked(Direction.Right))"/>
+                        </MudStack>
+                    }
+                </MudStack>
+                <MudAvatar>
+                    <MudIcon Icon="@Icons.Material.Filled.Person"></MudIcon>
+                </MudAvatar>
+            </MudStack>
+        </div>
+    }
+    else
+    {
+        <MudStack Class=@(DataState.IsAwaitingResponse && DataState.CurrentMessageThread.Last().Message == MessageThreadItem.Message ? "mb-12 mx-4" : "mx-4") Row="true">
+            <MudAvatar>
+                <MudImage Src="images/chatgpt-icon.svg"></MudImage>
+            </MudAvatar>
+            <MudStack Spacing="1" Class="chat-box">
+                <MudText Typo="Typo.body1">
+                    <b>RulesGPT</b>
+                </MudText>
+                @if (DataState.IsAwaitingResponseStream && string.IsNullOrWhiteSpace(MessageThreadItem.Message.Content))
+                {
+                    <MudPaper Elevation="1" Class="px-4 py-3" Style="text-align: center;">
+                        <MudProgressCircular Size="Size.Small" Color="Color.Secondary" Indeterminate="true" Style="vertical-align: bottom;"/>
+                    </MudPaper>
+                }
+                else
+                {
+                    <MudPaper Elevation="1" Class="px-4 py-3" Style=@(isDarkMode ? "color: white;" : "")>
+                        <Markdown Content=@MessageThreadItem.Message.Content/>
+                    </MudPaper>
+                }
+            </MudStack>
+        </MudStack>
+    }
+</MudListItem>
+
+@code{
+    [CascadingParameter] public bool isDarkMode { get; set; }
+
+    [Parameter] public ChatLinkedListItem MessageThreadItem { get; set; } = default!;
+    [Parameter] public EventCallback<(ChatLinkedListItem, string)> OnEditSubmittedEvent { get; set; }
+    [Parameter] public EventCallback<(ChatLinkedListItem, Direction)> OnMoveClickedEvent { get; set; }
+
+    private bool isUser;
+    private bool isEditing;
+    private MultilineInput multilineInput;
+
+    protected override async Task OnInitializedAsync()
+    {
+        NotifierService.Notify += OnNotify;
+        isUser = MessageThreadItem.Message.Role == "user";
+    }
+
+    private async Task OnNotify()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task SetEditState(bool editing)
+    {
+        isEditing = editing;
+        StateHasChanged();
+    }
+
+    private async Task OnEditDoneClicked()
+    {
+        await multilineInput.Submit();
+    }
+
+    private async Task SubmitEdit(string message)
+    {
+        isEditing = false;
+        
+        if (message == MessageThreadItem.Message.Content)
+        {
+            return;
+        }
+        
+        await OnEditSubmittedEvent.InvokeAsync((MessageThreadItem, message));
+        //StateHasChanged();
+    }
+    
+    private async Task OnMoveClicked(Direction direction)
+    {
+        await OnMoveClickedEvent.InvokeAsync((MessageThreadItem, direction));
+    }
+
+    public void Dispose()
+    {
+        NotifierService.Notify -= OnNotify;
+    }
+}
