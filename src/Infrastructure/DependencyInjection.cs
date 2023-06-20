@@ -28,7 +28,11 @@ public static class DependencyInjection
         );
 
         var openAiApiKey = config["OpenAiApiKey"];
-        var rateLimitPolicy = Policy.RateLimitAsync(3, TimeSpan.FromMinutes(5));
+        var maxRequestsPerMinute = int.TryParse(config["MaxRequestsPerMinute"], out var result)
+            ? result
+            : 50;
+        
+        var rateLimitPolicy = Policy.RateLimitAsync(maxRequestsPerMinute, TimeSpan.FromSeconds(60));
 
         services.AddOpenAIService(settings =>
         {

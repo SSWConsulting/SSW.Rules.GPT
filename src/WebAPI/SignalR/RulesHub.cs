@@ -52,7 +52,7 @@ public class RulesHub : Hub<IRulesClient>
     public async Task OnRateLimited(RateLimitRejectedException e)
     {
         var retryAfter = Math.Round(e.RetryAfter.TotalSeconds, MidpointRounding.AwayFromZero);
-        await Clients.All.ReceiveRateLimitedWarning(retryAfter);
+        await Clients.Caller.ReceiveRateLimitedWarning(retryAfter);
     }
     
     // Server methods that a client can invoke - connection.invoke(...)
