@@ -51,9 +51,9 @@
             else
             {
                 <MudList Class="py-0 chatContainer" DisableGutters="true">
-                @foreach (var message in DataState.ChatMessages.Where(s => s.Role != "system"))
+                @foreach (var message in DataState.ChatMessages.Where(s => s.Message.Role != "system"))
                 {
-                    var isUser = message.Role == "user";
+                    var isUser = message.Message.Role == "user";
                     <MudListItem>
                         @if (isUser)
                         {
@@ -62,7 +62,7 @@
                                 <MudStack Spacing="1" Class="chat-box">
                                     <MudText Typo="Typo.body1" Align="Align.Right"><b>You</b></MudText>
                                     <MudPaper Elevation="1" Class="px-4 py-3" Style=@(!isDarkMode ? "color: white; background: #323332;" : "")>
-                                        <MudText Typo="Typo.body1">@message.Content</MudText>
+                                        <MudText Typo="Typo.body1">@message.Message.Content</MudText>
                                     </MudPaper>
                                 </MudStack>
                                 <MudAvatar>
@@ -78,7 +78,7 @@
                                 </MudAvatar>
                                 <MudStack Spacing="1" Class="chat-box">
                                     <MudText Typo="Typo.body1"><b>RulesGPT</b></MudText>
-                                        @if (IsAwaitingResponseStream && string.IsNullOrWhiteSpace(message.Content))
+                                        @if (IsAwaitingResponseStream && string.IsNullOrWhiteSpace(message.Message.Content))
                                         {
                                             <MudPaper Elevation="1" Class="px-4 py-3" Style="text-align: center;">
                                                 <MudProgressCircular Size="Size.Small" Color="Color.Secondary" Indeterminate="true" Style="vertical-align: bottom;"/>
@@ -87,7 +87,7 @@
                                         else
                                         {
                                             <MudPaper Elevation="1" Class="px-4 py-3" Style=@(isDarkMode ? "color: white;" : "")>
-                                                <Markdown Content=@message.Content/>
+                                                <Markdown Content=@message.Message.Content/>
                                             </MudPaper>
                                         }
                                     </MudStack>
@@ -171,7 +171,7 @@
         await JsScrollMessageListToBottom();
 
         var resultStream = SignalR.RequestNewCompletionMessage(
-            DataState.ChatMessages,
+            DataState.ChatMessages.Select(s => s.Message).ToList(),
             DataState.OpenAiApiKey,
             DataState.SelectedGptModel,
             DataState.CancellationTokenSource.Token );
@@ -231,8 +231,8 @@
     {
         DataState.CancellationTokenSource.Cancel();
         DataState.CancellationTokenSource.Dispose();
-        var lastAssistantMessage = DataState.ChatMessages.LastOrDefault(s => s.Role == "assistant");
-        if (lastAssistantMessage is not null && string.IsNullOrWhiteSpace(lastAssistantMessage?.Content))
+        var lastAssistantMessage = DataState.ChatMessages.LastOrDefault(s => s.Message.Role == "assistant");
+        if (lastAssistantMessage is not null && string.IsNullOrWhiteSpace(lastAssistantMessage.Message.Content))
         {
             DataState.ChatMessages.Remove(lastAssistantMessage);
         }

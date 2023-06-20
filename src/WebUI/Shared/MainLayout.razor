@@ -48,8 +48,10 @@
         <MudTooltip Duration="1000" Text="@(_isDarkMode ? "Switch to Light Theme" : "Switch to Dark Theme")">
             <MudIconButton Icon="@(_isDarkMode ? @Icons.Material.Rounded.LightMode : @Icons.Material.Outlined.DarkMode)" Color="Color.Inherit" OnClick="@ToggleDarkMode"/>
         </MudTooltip>
+        <MudTooltip Duration="1000" Text="Start a New Chat">
+            <MudIconButton Icon="@Icons.Material.Rounded.Refresh" Color="Color.Inherit" OnClick="@ClearMessageHistory"/>
+        </MudTooltip>
         <MudMenu Icon="@Icons.Material.Filled.Settings" Dense="false" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
-            <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Refresh" OnTouch="ClearMessageHistory" OnClick="ClearMessageHistory">New Chat</MudMenuItem>
             <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Edit" OnTouch="OpenApiKeyDialog" OnClick="OpenApiKeyDialog">API Key</MudMenuItem>
             <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.SettingsSuggest" Target="_blank" Href="https://github.com/SSWConsulting/SSW.Rules.GPT.Blazor/issues">Suggestions</MudMenuItem>
             <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Info" OnTouch="OpenAboutRulesGptDialog" OnClick="OpenAboutRulesGptDialog">About</MudMenuItem>
@@ -134,10 +136,9 @@
         Snackbar.Add($"Too many messages sent! Try again in {retryAfter} seconds.", Severity.Error);
         await NotifierService.CancelMessageStream();
 
-        var lastMessage = DataState.ChatMessages.Last(s => s.Role == "user");
+        var lastMessage = DataState.ChatMessages.Last(s => s.Message.Role == "user");
         DataState.ChatMessages.Remove(lastMessage);
-        //TODO: Add last message to datastate when #55 pr is merged
-        
+
         StateHasChanged();
     }
     
