@@ -45,7 +45,7 @@
         </MudPopover>
     </MudPaper>
     <MudStack Row="true" Class="mt-3">
-        <MudTextField Style="height: 100%;" Clearable="true" Disabled="DataState.IsAwaitingResponse" Class="mt-0" @bind-Value="DataState.NewMessageString" OnKeyDown="MessageTextFieldHandleEnterKey" Immediate="true" Label="Ask a question!" Variant="Variant.Outlined"></MudTextField>
+        <MudTextField Lines="5" Style="height: 100%;" Clearable="true" Disabled="DataState.IsAwaitingResponse" Class="mt-0 chat-input" @bind-Value="DataState.NewMessageString" OnKeyDown="MessageTextFieldHandleEnterKey" Immediate="true" Label="Ask a question!" Variant="Variant.Outlined"></MudTextField>
         <MudButton Color="Color.Secondary" Variant="Variant.Filled" OnClick="SendMessage">
             <MudIcon Icon="@Icons.Material.Filled.Send"></MudIcon>
         </MudButton>

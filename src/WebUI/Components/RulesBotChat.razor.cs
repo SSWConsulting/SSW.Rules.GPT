@@ -31,6 +31,16 @@ public class RulesBotChatBase : ComponentBase, IDisposable
         NotifierService.CancelMessageStreamEvent += OnCancelMessageStream;
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        
+        if (firstRender)
+        {
+            await Js.InvokeVoidAsync("initInputHeight");
+        }
+    }
+    
     protected async Task OnExampleClicked(string message)
     {
         DataState.NewMessageString = message;
@@ -104,6 +114,7 @@ public class RulesBotChatBase : ComponentBase, IDisposable
         StateHasChanged();
 
         await JsScrollMessageListToBottom();
+        await Js.InvokeVoidAsync("setInputHeight");
 
         var resultStream = SignalR.RequestNewCompletionMessage(
             DataState.CurrentMessageThread.Select(s => s.Message).ToList(),
@@ -149,6 +160,7 @@ public class RulesBotChatBase : ComponentBase, IDisposable
 
     protected async Task MessageTextFieldHandleEnterKey(KeyboardEventArgs args)
     {
+        
         if (args is { Key: "Enter", ShiftKey: false })
         {
             await SendMessage();

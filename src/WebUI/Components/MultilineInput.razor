@@ -5,7 +5,7 @@
 @code {
     [Parameter] public string Data { get; set; } = default!;
     [Parameter] public EventCallback<string> OnSubmitted { get; set; }
-    
+
     private string message = "";
 
     public async Task Submit()
