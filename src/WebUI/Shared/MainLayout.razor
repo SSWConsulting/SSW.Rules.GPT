@@ -1,11 +1,12 @@
-﻿@inherits LayoutComponentBase
+﻿@using WebUI.Classes
+@inherits LayoutComponentBase
 
 @inject SswRulesGptDialogService SswRulesGptDialogService
 @inject DataState DataState
 @inject NotifierService NotifierService
 @inject SignalRClient SignalRClient
 @inject ISnackbar Snackbar
-
+@inject ILocalStorageService Storage
 
 <MudThemeProvider @ref="@_mudThemeProvider" Theme="_theme" @bind-IsDarkMode="@_isDarkMode"/>
 <MudDialogProvider Position="DialogPosition.Center"/>
@@ -45,9 +46,32 @@
         </MudStack>
         <MudSpacer/>
         <MudLink Color="Color.Primary" Variant="Variant.Filled" Class="powered-by-link mr-2" Target="_blank" Href="https://ssw.com.au/rules">Powered by SSW Rules</MudLink>
-        <MudTooltip Duration="1000" Text="@(_isDarkMode ? "Switch to Light Theme" : "Switch to Dark Theme")">
-            <MudIconButton Icon="@(_isDarkMode ? @Icons.Material.Rounded.LightMode : @Icons.Material.Outlined.DarkMode)" Color="Color.Inherit" OnClick="@ToggleDarkMode"/>
-        </MudTooltip>
+        @switch (themePreference)
+        {
+            case ThemePreference.Light:
+                <MudTooltip Duration="1000" Text="Switch to Dark Theme">
+                    <MudIconButton Icon="@Icons.Material.Rounded.DarkMode" Color="Color.Inherit" OnClick="@(() => SetThemePreference(ThemePreference.Dark))"/>
+                </MudTooltip>
+
+                break;
+
+            case ThemePreference.Dark:
+                <MudTooltip Duration="1000" Text="Switch to System Theme">
+                    <MudIconButton Icon="@Icons.Material.Rounded.Devices" Color="Color.Inherit" OnClick="@(() => SetThemePreference(ThemePreference.System))"/>
+                </MudTooltip>
+
+                break;
+
+            case ThemePreference.System:
+                <MudTooltip Duration="1000" Text="Switch to Light Theme">
+                    <MudIconButton Icon="@Icons.Material.Rounded.LightMode" Color="Color.Inherit" OnClick="@(() => SetThemePreference(ThemePreference.Light))"/>
+                </MudTooltip>
+
+                break;
+
+            default:
+                goto case ThemePreference.Light;
+        }
         <MudTooltip Duration="1000" Text="Start a New Chat">
             <MudIconButton Icon="@Icons.Material.Rounded.Refresh" Color="Color.Inherit" OnClick="@ClearMessageHistory"/>
         </MudTooltip>
@@ -81,8 +105,11 @@
 
 @code {
     //bool _drawerOpen = true;
-    bool _isDarkMode = false;
     private MudThemeProvider _mudThemeProvider;
+    bool _isDarkMode;
+    bool systemIsDarkMode;
+
+    ThemePreference themePreference;
 
     private MudTheme _theme = new MudTheme
     {
@@ -111,13 +138,28 @@
     //    _drawerOpen = !_drawerOpen;
     //}
 
-    private void ToggleDarkMode()
+    private void SetThemePreference(ThemePreference preference)
     {
-        _isDarkMode = !_isDarkMode;
+        themePreference = preference;
+        Storage.SetItemAsync("DarkModePreference", preference);
+
+        _isDarkMode = preference switch 
+        {        
+            ThemePreference.Light => false,
+            ThemePreference.Dark => true,
+            ThemePreference.System => systemIsDarkMode,
+            _ => true
+            };
+
+        StateHasChanged();
     }
 
     protected override async Task OnInitializedAsync()
     {
+        //Will default to 'light' if no stored value is found
+        themePreference = await Storage.GetItemAsync<ThemePreference>("DarkModePreference");
+        SetThemePreference(themePreference);
+
         try
         {
             await SignalRClient.StartAsync(DataState.CancellationTokenSource.Token);
@@ -145,20 +187,21 @@
         StateHasChanged();
         await NotifierService.Update();
     }
-    
-    // protected override async Task OnAfterRenderAsync(bool firstRender)
-    // {
-    //     if (firstRender)
-    //     {
-    //         _isDarkMode = await _mudThemeProvider.GetSystemPreference();
-    //         await _mudThemeProvider.WatchSystemPreference(OnSystemPreferenceChanged);
-    //         StateHasChanged();
-    //     }
-    // }
-    
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            systemIsDarkMode = await _mudThemeProvider.GetSystemPreference();
+            await _mudThemeProvider.WatchSystemPreference(OnSystemPreferenceChanged);
+            StateHasChanged();
+        }
+    }
+
     private async Task OnSystemPreferenceChanged(bool newValue)
     {
-        _isDarkMode = newValue;
+        systemIsDarkMode = newValue;
+        SetThemePreference(themePreference);
         StateHasChanged();
     }
 
@@ -178,5 +221,4 @@
         DataState.ChatMessages.Clear();
         await NotifierService.Update();
     }
-
 }
