@@ -94,6 +94,25 @@
             }
         };
     </script>
+    <script>
+        let input;
+        
+        window.initInputHeight = () => {
+            input = document.getElementById("chat-input");
+            input.addEventListener('input', window.setInputHeight);
+            setInputHeight();
+        };
+        
+        window.setInputHeight = () => {
+            let text = input.value;
+            let number = text.split(/\r\n|\r|\n/).length;
+            
+            //Constrain number between 1 and 5
+            number = Math.min(Math.max(number, 1), 5);
+            
+            input.setAttribute('rows', number.toString());
+        };
+    </script>
 </body>
 
 </html>

@@ -1,5 +1,6 @@
 ﻿.container {
     display: grid;
+    width: 100%;
 }
 
 .container:after {
