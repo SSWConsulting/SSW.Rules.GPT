@@ -46,6 +46,19 @@ public class ChatLinkedList : List<ChatLinkedListItem>
 
         return newItem;
     }
+
+    public new void Remove(ChatLinkedListItem item)
+    {
+        var previous = item.Previous;
+        var next = item.Next;
+
+        if (previous != null)
+        {
+            previous.Next = next;
+        }
+        
+        base.Remove(item);
+    }
     
     public void Move(ChatLinkedListItem item, Direction direction)
     {

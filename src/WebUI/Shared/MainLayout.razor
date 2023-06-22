@@ -127,6 +127,23 @@
             // Display error message
             Snackbar.Add("Unable to connect to SSW RulesGPT", Severity.Error);
         }
+
+        NotifierService.OnRateLimited += OnRateLimited;
+    }
+
+    private async Task OnRateLimited(double retryAfter)
+    {
+        Snackbar.Add($"Too many messages sent! Try again in {retryAfter} seconds.", Severity.Error);
+        await NotifierService.CancelMessageStream();
+
+        var lastMessage = DataState.CurrentMessageThread.Last(s => s.Message.Role == "user");
+        
+        DataState.NewMessageString = lastMessage.Message.Content;
+        DataState.ChatMessages.Remove(lastMessage);
+        DataState.CurrentMessageThread.Remove(lastMessage);
+        
+        StateHasChanged();
+        await NotifierService.Update();
     }
     
     // protected override async Task OnAfterRenderAsync(bool firstRender)

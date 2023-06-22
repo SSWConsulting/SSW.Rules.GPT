@@ -5,12 +5,15 @@ using OpenAI.GPT3.Managers;
 using OpenAI.GPT3.ObjectModels;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 using OpenAI.GPT3.ObjectModels.ResponseModels;
+using Polly.RateLimit;
 
 namespace Infrastructure.Services;
 
 public class OpenAiChatCompletionsService : IOpenAiChatCompletionsService
 {
     private readonly IOpenAIService _openAiService;
+    
+    public Func<RateLimitRejectedException, Task> OnRateLimited { get; set; }
 
     public OpenAiChatCompletionsService(IOpenAIService openAiService)
     {
@@ -26,11 +29,19 @@ public class OpenAiChatCompletionsService : IOpenAiChatCompletionsService
     {
         var openAiService = GetOpenAiService(apiKey);
 
-        return openAiService.ChatCompletion.CreateCompletionAsStream(
-            chatCompletionCreateRequest,
-            gptModel.EnumToString(),
-            cancellationToken
-        );
+        try
+        {
+            return openAiService.ChatCompletion.CreateCompletionAsStream(
+                chatCompletionCreateRequest,
+                gptModel.EnumToString(),
+                cancellationToken
+            );
+        }
+        catch (RateLimitRejectedException e)
+        {
+            OnRateLimited?.Invoke(e);
+            return null;
+        }
     }
 
     private IOpenAIService GetOpenAiService(string? apiKey)
