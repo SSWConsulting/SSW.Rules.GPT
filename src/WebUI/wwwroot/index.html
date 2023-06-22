@@ -98,7 +98,7 @@
         let input;
         
         window.initInputHeight = () => {
-            input = document.querySelector('.chat-input textarea');
+            input = document.getElementById("chat-input");
             input.addEventListener('input', window.setInputHeight);
             setInputHeight();
         };
