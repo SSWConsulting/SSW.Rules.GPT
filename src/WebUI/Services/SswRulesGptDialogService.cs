@@ -42,6 +42,21 @@ public class SswRulesGptDialogService
         return success;
     }
 
+    public async Task<bool> InstallInstructionsDialog()
+    {
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            CloseButton = true,
+            DisableBackdropClick = false,
+            NoHeader = false,
+            MaxWidth = MaxWidth.Large
+        };
+        var dialog = await _dialogService.ShowAsync<InstallInstructionDialog>(string.Empty, options);
+        var success = dialog.Result.IsCompletedSuccessfully;
+        return success;
+    }
+
     public async Task<bool> EditMessageDialog()
     {
         var options = new DialogOptions
