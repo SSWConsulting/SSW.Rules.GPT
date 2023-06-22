@@ -1,6 +1,6 @@
 ﻿namespace WebUI.Classes;
 
-public enum DarkModePreference
+public enum ThemePreference
 {
     Light,
     Dark,

@@ -46,31 +46,31 @@
         </MudStack>
         <MudSpacer/>
         <MudLink Color="Color.Primary" Variant="Variant.Filled" Class="powered-by-link mr-2" Target="_blank" Href="https://ssw.com.au/rules">Powered by SSW Rules</MudLink>
-        @switch (darkModePreference)
+        @switch (themePreference)
         {
-            case DarkModePreference.Light:
+            case ThemePreference.Light:
                 <MudTooltip Duration="1000" Text="Switch to Dark Theme">
-                    <MudIconButton Icon="@Icons.Material.Rounded.DarkMode" Color="Color.Inherit" OnClick="@(() => SetDarkModePreference(DarkModePreference.Dark))"/>
+                    <MudIconButton Icon="@Icons.Material.Rounded.DarkMode" Color="Color.Inherit" OnClick="@(() => SetThemePreference(ThemePreference.Dark))"/>
                 </MudTooltip>
 
                 break;
 
-            case DarkModePreference.Dark:
+            case ThemePreference.Dark:
                 <MudTooltip Duration="1000" Text="Switch to System Theme">
-                    <MudIconButton Icon="@Icons.Material.Rounded.Devices" Color="Color.Inherit" OnClick="@(() => SetDarkModePreference(DarkModePreference.System))"/>
+                    <MudIconButton Icon="@Icons.Material.Rounded.Devices" Color="Color.Inherit" OnClick="@(() => SetThemePreference(ThemePreference.System))"/>
                 </MudTooltip>
 
                 break;
 
-            case DarkModePreference.System:
+            case ThemePreference.System:
                 <MudTooltip Duration="1000" Text="Switch to Light Theme">
-                    <MudIconButton Icon="@Icons.Material.Rounded.LightMode" Color="Color.Inherit" OnClick="@(() => SetDarkModePreference(DarkModePreference.Light))"/>
+                    <MudIconButton Icon="@Icons.Material.Rounded.LightMode" Color="Color.Inherit" OnClick="@(() => SetThemePreference(ThemePreference.Light))"/>
                 </MudTooltip>
 
                 break;
 
             default:
-                goto case DarkModePreference.Light;
+                goto case ThemePreference.Light;
         }
         <MudTooltip Duration="1000" Text="Start a New Chat">
             <MudIconButton Icon="@Icons.Material.Rounded.Refresh" Color="Color.Inherit" OnClick="@ClearMessageHistory"/>
@@ -109,7 +109,7 @@
     bool _isDarkMode;
     bool systemIsDarkMode;
 
-    DarkModePreference darkModePreference;
+    ThemePreference themePreference;
 
     private MudTheme _theme = new MudTheme
     {
@@ -138,16 +138,16 @@
     //    _drawerOpen = !_drawerOpen;
     //}
 
-    private void SetDarkModePreference(DarkModePreference preference)
+    private void SetThemePreference(ThemePreference preference)
     {
-        darkModePreference = preference;
+        themePreference = preference;
         Storage.SetItemAsync("DarkModePreference", preference);
 
         _isDarkMode = preference switch 
         {        
-            DarkModePreference.Light => false,
-            DarkModePreference.Dark => true,
-            DarkModePreference.System => systemIsDarkMode,
+            ThemePreference.Light => false,
+            ThemePreference.Dark => true,
+            ThemePreference.System => systemIsDarkMode,
             _ => true
             };
 
@@ -157,8 +157,8 @@
     protected override async Task OnInitializedAsync()
     {
         //Will default to 'light' if no stored value is found
-        darkModePreference = await Storage.GetItemAsync<DarkModePreference>("DarkModePreference");
-        SetDarkModePreference(darkModePreference);
+        themePreference = await Storage.GetItemAsync<ThemePreference>("DarkModePreference");
+        SetThemePreference(themePreference);
 
         try
         {
@@ -184,7 +184,7 @@
     private async Task OnSystemPreferenceChanged(bool newValue)
     {
         systemIsDarkMode = newValue;
-        SetDarkModePreference(darkModePreference);
+        SetThemePreference(themePreference);
         StateHasChanged();
     }
 
