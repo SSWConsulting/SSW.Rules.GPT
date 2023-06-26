@@ -1,5 +1,6 @@
 ﻿@inject DataState DataState
 @inject ApiKeyValidationService ApiKeyValidationService
+@inject ILocalStorageService Storage
 
 <MudDialog>
     <DialogContent>
@@ -24,6 +25,10 @@
                 <MudText Style="font-style: italic">Slow and smart</MudText>
             }
             <MudTextField Disabled="!UsingByoApiKey" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="ToggleShowPassword" @bind-Value="ApiKeyString" OnKeyDown="ResetValidationErrors" Label="Enter your key" Variant="Variant.Text"></MudTextField>
+            @if (UsingByoApiKey)
+            {
+                <MudCheckBox @bind-Checked="@saveAPIKeyToLocalStorage"  Label="Save API key to LocalStorage"></MudCheckBox>
+            }
             @if (validationState == ValidationState.Invalid)
             {
                 <MudAlert Severity="Severity.Error" Dense="true" Class="my-2">@KeyValidationErrorMessage</MudAlert>
@@ -76,6 +81,7 @@
     private string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
     private bool ShowPassword { get; set; } = false;
 
+    private bool saveAPIKeyToLocalStorage;
 
     protected override async Task OnInitializedAsync()
     {
@@ -83,6 +89,13 @@
         {
             ApiKeyString = DataState.OpenAiApiKey;
         }
+        
+        var savedAPIKey = await Storage.GetItemAsync<string>("userAPIKey");
+        if (savedAPIKey != null)
+        {
+            saveAPIKeyToLocalStorage = true;
+        }
+        
         UsingByoApiKey = DataState.UsingByoApiKey;
         SelectedGptModel = (AvailableGptModels)DataState.SelectedGptModel;
         StateHasChanged();
@@ -126,13 +139,25 @@
             return;
         }
         var success = await ApiKeyValidationService.ValidateApiKey(ApiKeyString, SelectedGptModel);
-
-        if (success is true)
+        if (success)
         {
             validationState = ValidationState.Valid;
             DataState.OpenAiApiKey = ApiKeyString;
             DataState.SelectedGptModel = (Models.Model)SelectedGptModel;
             DataState.UsingByoApiKey = true;
+
+            if (saveAPIKeyToLocalStorage)
+            {
+                await Storage.SetItemAsync("userAPIKey", ApiKeyString);
+                await Storage.SetItemAsync("userGptModel", SelectedGptModel.ToString());
+            }
+
+            else
+            {
+                await Storage.RemoveItemAsync("userAPIKey");
+                await Storage.RemoveItemAsync("userGptModel");
+            }
+            
             MudDialog.Close(DialogResult.Ok(true));
         }
         else
@@ -148,6 +173,7 @@
         DataState.OpenAiApiKey = null;
         DataState.SelectedGptModel = (Models.Model)AvailableGptModels.Gpt35Turbo;
         DataState.UsingByoApiKey = false;
+        
         MudDialog.Close(DialogResult.Ok(true));
     }
     
@@ -159,15 +185,36 @@
     private async Task UpdateByoOptionAndSelectedModel(bool usingByoApiKey)
     {
         UsingByoApiKey = usingByoApiKey;
-        SelectedGptModel = usingByoApiKey ? AvailableGptModels.Gpt4 : AvailableGptModels.Gpt35Turbo;
+
+        if (!saveAPIKeyToLocalStorage)
+        {
+            await Storage.RemoveItemAsync("userAPIKey");
+            await Storage.RemoveItemAsync("userGptModel");
+        }
+        
+        var savedAPIKey = await Storage.GetItemAsync<string>("userAPIKey");
+        var savedGPTModel = await Storage.GetItemAsync<string>("userGptModel");
+
+        if (savedAPIKey != null)
+        {
+            ApiKeyString = savedAPIKey;
+        }
+            
+        if (savedGPTModel != null)
+        {
+            SelectedGptModel = Enum.Parse<AvailableGptModels>(savedGPTModel);
+        }
+
+        else
+        {
+            SelectedGptModel = usingByoApiKey && string.IsNullOrWhiteSpace(ApiKeyString)
+                ? AvailableGptModels.Gpt4 
+                : AvailableGptModels.Gpt35Turbo;
+        }
+        
         StateHasChanged();
     }
-    
-    private string DropDownItemToString(bool usingByoApiKey)
-    {
-        return usingByoApiKey ? "BYO Key" : "SSW Key";
-    }
-    
+
     private string AvailableModelEnumToString(AvailableGptModels gptModel)
     {
         var modelString = gptModel switch
