@@ -1,0 +1,38 @@
+﻿.container {
+    display: grid;
+    width: 100%;
+}
+
+.container:after {
+    content: attr(data-replicated-value) " ";
+    white-space: pre-wrap;
+    visibility: hidden;
+}
+
+.container > textarea {
+    resize: none;
+    overflow: hidden;
+}
+
+.container > textarea, .container:after {
+    /* Style the textarea here, it must have the same styling as the .container:after to autoscale properly */
+    background: none;
+    color: inherit;
+    font: inherit;
+    
+    border: 1px solid #a3a3a3;
+    border-radius: 5px;
+    padding: 0.5rem;
+    
+    transition: border-color 0.4s ease-in-out;
+    
+    grid-area: 1 / 1 / 2 / 2;
+}
+
+.container > textarea:hover, 
+.container > textarea:focus,
+.container > textarea:hover .container:after,
+.container > textarea:focus .container:after {
+    outline: none;
+    border-color: #dadada;
+}

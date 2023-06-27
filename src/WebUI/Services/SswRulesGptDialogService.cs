@@ -23,7 +23,6 @@ public class SswRulesGptDialogService
             MaxWidth = MaxWidth.ExtraSmall
         };
         var dialog = await _dialogService.ShowAsync<ApiKeyDialog>("API Key", options);
-        var result = await dialog.Result;
         var success = dialog.Result.IsCompletedSuccessfully;
         return success;
     }
@@ -39,8 +38,19 @@ public class SswRulesGptDialogService
             MaxWidth = MaxWidth.Large
         };
         var dialog = await _dialogService.ShowAsync<AboutAppDialog>(string.Empty, options);
-        var result = await dialog.Result;
         var success = dialog.Result.IsCompletedSuccessfully;
         return success;
+    }
+
+    public async Task<bool> EditMessageDialog()
+    {
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            Position = DialogPosition.TopCenter
+        };
+        
+        var result = await _dialogService.Show<EditMessageDialog>("Are you sure?", options).Result;
+        return !result.Canceled;
     }
 }
