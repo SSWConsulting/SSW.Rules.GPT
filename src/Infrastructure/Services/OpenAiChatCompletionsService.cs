@@ -1,4 +1,5 @@
 ﻿using Application.Contracts;
+using Microsoft.Extensions.Configuration;
 using OpenAI.GPT3;
 using OpenAI.GPT3.Interfaces;
 using OpenAI.GPT3.Managers;
@@ -12,12 +13,13 @@ namespace Infrastructure.Services;
 public class OpenAiChatCompletionsService : IOpenAiChatCompletionsService
 {
     private readonly IOpenAIService _openAiService;
-    
+    private readonly IConfiguration _config;
     public Func<RateLimitRejectedException, Task> OnRateLimited { get; set; }
 
-    public OpenAiChatCompletionsService(IOpenAIService openAiService)
+    public OpenAiChatCompletionsService(IOpenAIService openAiService, IConfiguration config)
     {
         _openAiService = openAiService;
+        _config = config;
     }
 
     public IAsyncEnumerable<ChatCompletionCreateResponse> CreateCompletionAsStream(
@@ -27,13 +29,24 @@ public class OpenAiChatCompletionsService : IOpenAiChatCompletionsService
         CancellationToken cancellationToken
     )
     {
+        string gptModelStr;
+        
+        if (apiKey is null)
+        {
+            gptModelStr = _config["GPT_Model"] ?? gptModel.EnumToString();
+        }
+        else
+        {
+            gptModelStr = gptModel.EnumToString();
+        }
+
         var openAiService = GetOpenAiService(apiKey);
 
         try
         {
             return openAiService.ChatCompletion.CreateCompletionAsStream(
                 chatCompletionCreateRequest,
-                gptModel.EnumToString(),
+                gptModelStr,
                 cancellationToken
             );
         }

@@ -71,9 +71,9 @@ public class RulesBotChatBase : ComponentBase, IDisposable
         var newChatMessage = new ChatMessage("user", args.message);
         var newAssistantMessage = new ChatMessage("assistant", string.Empty);
         
-        var target = DataState.ChatMessages.AddRight(newChatMessage, args.item);
+        var target = DataState.ChatMessages.AddRight(newChatMessage, args.item, DataState.SelectedGptModel);
         
-        DataState.ChatMessages.AddAfter(newAssistantMessage, target);
+        DataState.ChatMessages.AddAfter(newAssistantMessage, target, DataState.SelectedGptModel);
         DataState.CurrentMessageThread = DataState.ChatMessages.GetThread(target);
         
         await SendMessage(newChatMessage, newAssistantMessage);
@@ -90,12 +90,12 @@ public class RulesBotChatBase : ComponentBase, IDisposable
         var newAssistantMessage = new ChatMessage("assistant", string.Empty);
 
         var userLinkedListItem = DataState.ChatMessages.Any(s => s.Message.Role != "system") 
-            ? DataState.ChatMessages.AddAfter(newChatMessage, DataState.ChatMessages.Last())
-            : DataState.ChatMessages.Add(newChatMessage);
+            ? DataState.ChatMessages.AddAfter(newChatMessage, DataState.ChatMessages.Last(), DataState.SelectedGptModel)
+            : DataState.ChatMessages.Add(newChatMessage, DataState.SelectedGptModel);
         
         var assistantLinkedListItem = DataState.ChatMessages.Any(s => s.Message.Role != "system") 
-            ? DataState.ChatMessages.AddAfter(newAssistantMessage, DataState.ChatMessages.Last())
-            : DataState.ChatMessages.Add(newAssistantMessage);
+            ? DataState.ChatMessages.AddAfter(newAssistantMessage, DataState.ChatMessages.Last(), DataState.SelectedGptModel)
+            : DataState.ChatMessages.Add(newAssistantMessage, DataState.SelectedGptModel);
         
         DataState.CurrentMessageThread.Add(userLinkedListItem);
         DataState.CurrentMessageThread.Add(assistantLinkedListItem);
@@ -119,7 +119,7 @@ public class RulesBotChatBase : ComponentBase, IDisposable
         var resultStream = SignalR.RequestNewCompletionMessage(
             DataState.CurrentMessageThread.Select(s => s.Message).ToList(),
             DataState.OpenAiApiKey,
-            DataState.SelectedGptModel,
+            (OpenAI.GPT3.ObjectModels.Models.Model)DataState.SelectedGptModel,
             DataState.CancellationTokenSource.Token);
 
         await JsScrollMessageListToBottom();

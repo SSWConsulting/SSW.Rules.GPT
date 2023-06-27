@@ -88,7 +88,7 @@
             </MudAvatar>
             <MudStack Spacing="1" Class="chat-box">
                 <MudText Typo="Typo.body1">
-                    <b>RulesGPT</b>
+                    <b>RulesGPT</b> - @(MessageThreadItem.GptModel.AvailableModelEnumToString())
                 </MudText>
                 @if (DataState.IsAwaitingResponseStream && string.IsNullOrWhiteSpace(MessageThreadItem.Message.Content))
                 {

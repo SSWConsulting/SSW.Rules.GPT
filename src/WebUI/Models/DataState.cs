@@ -9,8 +9,8 @@ public class DataState
     public ChatLinkedList ChatMessages { get; } = new();
     public List<ChatLinkedListItem> CurrentMessageThread { get; set; } = new();
     public CancellationTokenSource CancellationTokenSource { get; set; } = new();
-    public OpenAI.GPT3.ObjectModels.Models.Model SelectedGptModel { get; set; } =
-        OpenAI.GPT3.ObjectModels.Models.Model.ChatGpt3_5Turbo;
+    public AvailableGptModels SelectedGptModel { get; set; } =
+        (AvailableGptModels)OpenAI.GPT3.ObjectModels.Models.Model.ChatGpt3_5Turbo;
     public bool UsingByoApiKey { get; set; }
     public bool IsAwaitingResponse { get; set; }
     public bool IsAwaitingResponseStream { get; set; }
