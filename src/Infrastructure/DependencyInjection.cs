@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Pgvector.EntityFrameworkCore;
+using Polly;
+using Polly.Extensions.Http;
 
 namespace Infrastructure;
 
@@ -22,6 +24,24 @@ public static class DependencyInjection
         services.AddDbContext<IRulesContext, RulesContext>(
             options =>
                 options.UseNpgsql(connectionString, x => x.UseVector()).EnableSensitiveDataLogging()
+        );
+
+        var openAiApiKey = config["OpenAiApiKey"];
+        var maxRequestsPerMinute = int.TryParse(config["MaxRequestsPerMinute"], out var result)
+            ? result
+            : 50;
+        
+        var rateLimitPolicy = Policy.RateLimitAsync(maxRequestsPerMinute, TimeSpan.FromSeconds(60));
+
+        services.AddOpenAIService(settings =>
+        {
+            settings.ApiKey = openAiApiKey;
+        })
+        .AddTransientHttpErrorPolicy(policy =>
+            {
+                return policy.WaitAndRetryAsync(0, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)))
+                    .WrapAsync(rateLimitPolicy);
+            }
         );
 
         return services;

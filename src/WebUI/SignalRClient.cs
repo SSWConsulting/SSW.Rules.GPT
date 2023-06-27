@@ -4,10 +4,11 @@ using Microsoft.AspNetCore.SignalR.Client;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 using WebUI.Models;
 using WebUI.Services;
+using Polly.RateLimit;
 
 namespace WebUI;
 
-public class SignalRClient
+public class SignalRClient 
 {
     private readonly DataState _dataState;
     private readonly NotifierService _notifierService;
@@ -98,7 +99,7 @@ public class SignalRClient
             yield return message;
         }
     }
-
+    
     //Methods that the client listens for
     private void RegisterHandlers()
     {
@@ -110,5 +111,6 @@ public class SignalRClient
                 Console.WriteLine(encodedMsg);
             }
         );
+        _connection.On<double>("ReceiveRateLimitedWarning", async (retryAfter) => { await _notifierService.RaiseRateLimited(retryAfter); });
     }
 }

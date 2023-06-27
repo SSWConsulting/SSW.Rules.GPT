@@ -1,7 +1,11 @@
+using System.Diagnostics;
+using Application.Contracts;
 using Application.Services;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.SignalR;
 using OpenAI.GPT3.ObjectModels;
 using OpenAI.GPT3.ObjectModels.RequestModels;
+using Polly.RateLimit;
 
 namespace WebAPI.SignalR;
 
@@ -9,11 +13,17 @@ public class RulesHub : Hub<IRulesClient>
 {
     private readonly MessageHandler _messageHandler;
     private readonly ILogger<RulesHub> _logger;
+    private readonly IOpenAiEmbeddingService _embeddingService;
+    private readonly IOpenAiChatCompletionsService _chatCompletionsService;
 
-    public RulesHub(MessageHandler messageHandler, ILogger<RulesHub> logger)
+    public RulesHub(MessageHandler messageHandler, ILogger<RulesHub> logger, IOpenAiEmbeddingService embeddingService, IOpenAiChatCompletionsService chatCompletionsService)
     {
         _messageHandler = messageHandler;
         _logger = logger;
+        _embeddingService = embeddingService;
+        _chatCompletionsService = chatCompletionsService;
+
+        _embeddingService.OnRateLimited = OnRateLimited;
     }
 
     // override OnConnectedAsync to add user to group
@@ -30,6 +40,7 @@ public class RulesHub : Hub<IRulesClient>
             _logger.LogInformation("User disconnected: {User}", Context.ConnectionId);
             return base.OnConnectedAsync();
         }
+
         _logger.LogInformation(
             "User disconnected: {User} with error: {Error}",
             Context.ConnectionId,
@@ -38,6 +49,12 @@ public class RulesHub : Hub<IRulesClient>
         return base.OnConnectedAsync();
     }
 
+    public async Task OnRateLimited(RateLimitRejectedException e)
+    {
+        var retryAfter = Math.Round(e.RetryAfter.TotalSeconds, MidpointRounding.AwayFromZero);
+        await Clients.Caller.ReceiveRateLimitedWarning(retryAfter);
+    }
+    
     // Server methods that a client can invoke - connection.invoke(...)
     public async Task BroadcastMessage(string user, string message)
     {
