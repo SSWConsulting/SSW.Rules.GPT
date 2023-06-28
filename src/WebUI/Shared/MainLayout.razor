@@ -78,6 +78,7 @@
         <MudMenu Icon="@Icons.Material.Filled.Settings" Dense="false" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
             <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Edit" OnTouch="OpenApiKeyDialog" OnClick="OpenApiKeyDialog">API Key</MudMenuItem>
             <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.SettingsSuggest" Target="_blank" Href="https://github.com/SSWConsulting/SSW.Rules.GPT.Blazor/issues">Suggestions</MudMenuItem>
+            <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Download" OnTouch="OpenInstallInstructionsDialog" OnClick="OpenInstallInstructionsDialog">Installation Instructions</MudMenuItem>
             <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Info" OnTouch="OpenAboutRulesGptDialog" OnClick="OpenAboutRulesGptDialog">About</MudMenuItem>
         </MudMenu>
     </MudAppBar>
@@ -207,12 +208,17 @@
 
     private async Task OpenApiKeyDialog()
     {
-        var success = await SswRulesGptDialogService.ApiKeyDialog();
+        await SswRulesGptDialogService.ApiKeyDialog();
     }
 
     private async Task OpenAboutRulesGptDialog()
     {
-        var success = await SswRulesGptDialogService.AboutRulesGptDialog();
+        await SswRulesGptDialogService.AboutRulesGptDialog();
+    }
+
+    private async Task OpenInstallInstructionsDialog()
+    {
+        await SswRulesGptDialogService.InstallInstructionsDialog();
     }
 
     private async Task ClearMessageHistory()
