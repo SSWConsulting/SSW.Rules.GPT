@@ -25,10 +25,7 @@
                 <MudText Style="font-style: italic">Slow and smart</MudText>
             }
             <MudTextField Disabled="!UsingByoApiKey" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="ToggleShowPassword" @bind-Value="ApiKeyString" OnKeyDown="ResetValidationErrors" Label="Enter your key" Variant="Variant.Text"></MudTextField>
-            @if (UsingByoApiKey)
-            {
-                <MudCheckBox @bind-Checked="@saveAPIKeyToLocalStorage"  Label="Save API key to LocalStorage"></MudCheckBox>
-            }
+            <MudCheckBox @bind-Checked="@saveAPIKeyToLocalStorage" Label="Save API key to LocalStorage"></MudCheckBox>
             @if (validationState == ValidationState.Invalid)
             {
                 <MudAlert Severity="Severity.Error" Dense="true" Class="my-2">@KeyValidationErrorMessage</MudAlert>
@@ -156,8 +153,7 @@
 
             else
             {
-                await Storage.RemoveItemAsync("userAPIKey");
-                await Storage.RemoveItemAsync("userGptModel");
+                await ClearSavedKey();
             }
             
             MudDialog.Close(DialogResult.Ok(true));
@@ -177,6 +173,9 @@
         DataState.UsingByoApiKey = false;
         
         await Storage.SetItemAsync("userAPIKeyEnabled", DataState.UsingByoApiKey.ToString());
+
+        if (!saveAPIKeyToLocalStorage)
+            await ClearSavedKey();
         
         MudDialog.Close(DialogResult.Ok(true));
     }
@@ -192,8 +191,7 @@
 
         if (!saveAPIKeyToLocalStorage)
         {
-            await Storage.RemoveItemAsync("userAPIKey");
-            await Storage.RemoveItemAsync("userGptModel");
+            await ClearSavedKey();
         }
         
         var savedAPIKey = await Storage.GetItemAsync<string>("userAPIKey");
@@ -228,6 +226,12 @@
             _ => throw new ArgumentOutOfRangeException()
         };
         return modelString;
+    }
+
+    private async Task ClearSavedKey()
+    {
+        await Storage.RemoveItemAsync("userAPIKey");
+        await Storage.RemoveItemAsync("userGptModel");
     }
 }
 
