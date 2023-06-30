@@ -19,9 +19,9 @@ public class OpenAiEmbeddingService : IOpenAiEmbeddingService
     
     public Func<RateLimitRejectedException, Task> OnRateLimited { get; set; }
 
-    public OpenAiEmbeddingService(OpenAiServiceFactory openAiServiceFactory)
+    public OpenAiEmbeddingService(OpenAiServiceFactory openAiServiceFactory, IConfiguration config)
     {
-        _openAiService = openAiServiceFactory.Create("Embedding-Ada-002");
+        _openAiService = openAiServiceFactory.Create(config["Azure_Deployment_Embedding"]);
     }
 
     public async Task<List<Vector>> GetEmbeddingList(List<string> stringList, string? apiKey)

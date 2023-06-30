@@ -19,8 +19,8 @@ public class OpenAiChatCompletionsService : IOpenAiChatCompletionsService
 
     public OpenAiChatCompletionsService(OpenAiServiceFactory openAiServiceFactory, IConfiguration config)
     {
-        _openAiService = openAiServiceFactory.Create("GPT35Turbo");
         _config = config;
+        _openAiService = openAiServiceFactory.Create(_config["Azure_Deployment_Chat"]);
     }
 
     public IAsyncEnumerable<ChatCompletionCreateResponse> CreateCompletionAsStream(
