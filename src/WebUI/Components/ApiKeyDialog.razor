@@ -146,6 +146,8 @@
             DataState.SelectedGptModel = SelectedGptModel;
             DataState.UsingByoApiKey = true;
 
+            await Storage.SetItemAsync("userAPIKeyEnabled", DataState.UsingByoApiKey.ToString());
+
             if (saveAPIKeyToLocalStorage)
             {
                 await Storage.SetItemAsync("userAPIKey", ApiKeyString);
@@ -173,6 +175,8 @@
         DataState.OpenAiApiKey = null;
         DataState.SelectedGptModel = AvailableGptModels.Gpt35Turbo;
         DataState.UsingByoApiKey = false;
+        
+        await Storage.SetItemAsync("userAPIKeyEnabled", DataState.UsingByoApiKey.ToString());
         
         MudDialog.Close(DialogResult.Ok(true));
     }
