@@ -172,6 +172,21 @@
         }
 
         NotifierService.OnRateLimited += OnRateLimited;
+
+        var useSavedKey = await Storage.GetItemAsync<string>("userAPIKeyEnabled");
+        var savedAPIKey = await Storage.GetItemAsync<string>("userAPIKey");
+        var savedModel = await Storage.GetItemAsync<string>("userGptModel");
+        
+        if (!string.IsNullOrEmpty(savedAPIKey) && useSavedKey is "true") 
+        {
+            DataState.OpenAiApiKey = savedAPIKey;
+            DataState.UsingByoApiKey = true;
+        }
+        
+        if (Enum.TryParse<AvailableGptModels>(savedModel, out var parsed))
+        {
+            DataState.SelectedGptModel = parsed;
+        }
     }
 
     private async Task OnRateLimited(double retryAfter)
