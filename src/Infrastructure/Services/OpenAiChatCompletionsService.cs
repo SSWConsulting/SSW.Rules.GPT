@@ -1,4 +1,5 @@
 ﻿using Application.Contracts;
+using Application.Services;
 using Microsoft.Extensions.Configuration;
 using OpenAI.GPT3;
 using OpenAI.GPT3.Interfaces;
@@ -16,10 +17,10 @@ public class OpenAiChatCompletionsService : IOpenAiChatCompletionsService
     private readonly IConfiguration _config;
     public Func<RateLimitRejectedException, Task> OnRateLimited { get; set; }
 
-    public OpenAiChatCompletionsService(IOpenAIService openAiService, IConfiguration config)
+    public OpenAiChatCompletionsService(OpenAiServiceFactory openAiServiceFactory, IConfiguration config)
     {
-        _openAiService = openAiService;
         _config = config;
+        _openAiService = openAiServiceFactory.Create(_config["Azure_Deployment_Chat"]);
     }
 
     public IAsyncEnumerable<ChatCompletionCreateResponse> CreateCompletionAsStream(

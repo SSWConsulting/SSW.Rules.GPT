@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 using Application.Contracts;
 using Application.Services;
 using OpenAI.GPT3;
@@ -17,9 +19,9 @@ public class OpenAiEmbeddingService : IOpenAiEmbeddingService
     
     public Func<RateLimitRejectedException, Task> OnRateLimited { get; set; }
 
-    public OpenAiEmbeddingService(IOpenAIService openAiService)
+    public OpenAiEmbeddingService(OpenAiServiceFactory openAiServiceFactory, IConfiguration config)
     {
-        _openAiService = openAiService;
+        _openAiService = openAiServiceFactory.Create(config["Azure_Deployment_Embedding"]);
     }
 
     public async Task<List<Vector>> GetEmbeddingList(List<string> stringList, string? apiKey)
