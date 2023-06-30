@@ -1,30 +1,31 @@
 ﻿using OpenAI.GPT3.ObjectModels.RequestModels;
+using WebUI.Models;
 
 namespace WebUI.Classes;
 
 public class ChatLinkedList : List<ChatLinkedListItem>
 {
-    public ChatLinkedListItem Add(ChatMessage message)
+    public ChatLinkedListItem Add(ChatMessage message, AvailableGptModels? gptModel)
     {
-        var newItem = new ChatLinkedListItem(message);
+        var newItem = new ChatLinkedListItem(message, gptModel);
         Add(newItem);
         
         return newItem;
     }
     
-    public ChatLinkedListItem AddAfter(ChatMessage message, ChatLinkedListItem item)
+    public ChatLinkedListItem AddAfter(ChatMessage message, ChatLinkedListItem item, AvailableGptModels? gptModel)
     {
         if (item != null && !Contains(item))
             throw new ArgumentException("Item is not in the list");
 
-        var newItem = new ChatLinkedListItem(message, item);
+        var newItem = new ChatLinkedListItem(message, item, gptModel);
         item.Next = newItem;
         Add(newItem);
         
         return newItem;        
     }
     
-    public ChatLinkedListItem AddRight(ChatMessage newMessage, ChatLinkedListItem item)
+    public ChatLinkedListItem AddRight(ChatMessage newMessage, ChatLinkedListItem item, AvailableGptModels? gptModel)
     {
         if (!Contains(item))
             throw new ArgumentException("Item is not in the list");
@@ -36,7 +37,7 @@ public class ChatLinkedList : List<ChatLinkedListItem>
             target = target.Right;
         }
         
-        var newItem = new ChatLinkedListItem(newMessage, item.Previous, target);
+        var newItem = new ChatLinkedListItem(newMessage, item.Previous, target, gptModel);
 
         newItem.Left = target;
         target.Right = newItem;

@@ -97,7 +97,7 @@
         }
         
         UsingByoApiKey = DataState.UsingByoApiKey;
-        SelectedGptModel = (AvailableGptModels)DataState.SelectedGptModel;
+        SelectedGptModel = DataState.SelectedGptModel;
         StateHasChanged();
     }
     
@@ -143,7 +143,7 @@
         {
             validationState = ValidationState.Valid;
             DataState.OpenAiApiKey = ApiKeyString;
-            DataState.SelectedGptModel = (Models.Model)SelectedGptModel;
+            DataState.SelectedGptModel = SelectedGptModel;
             DataState.UsingByoApiKey = true;
 
             if (saveAPIKeyToLocalStorage)
@@ -171,7 +171,7 @@
     private async Task SaveWithSswKey()
     {
         DataState.OpenAiApiKey = null;
-        DataState.SelectedGptModel = (Models.Model)AvailableGptModels.Gpt35Turbo;
+        DataState.SelectedGptModel = AvailableGptModels.Gpt35Turbo;
         DataState.UsingByoApiKey = false;
         
         MudDialog.Close(DialogResult.Ok(true));

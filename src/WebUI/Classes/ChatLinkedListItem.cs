@@ -1,26 +1,39 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using OpenAI.GPT3.ObjectModels.RequestModels;
+using WebUI.Models;
 
 namespace WebUI.Classes;
 
 public class ChatLinkedListItem
 {
-    public ChatLinkedListItem(ChatMessage message)
+    public ChatLinkedListItem(ChatMessage message, AvailableGptModels? gptModel)
     {
         Message = message;
+        if (gptModel is not null)
+        {
+            GptModel = gptModel.Value;
+        }
     }
     
-    public ChatLinkedListItem(ChatMessage message, ChatLinkedListItem previous)
+    public ChatLinkedListItem(ChatMessage message, ChatLinkedListItem previous, AvailableGptModels? gptModel)
     {
         Message = message;
         Previous = previous;
+        if (gptModel is not null)
+        {
+            GptModel = gptModel.Value;
+        }
     }
     
-    public ChatLinkedListItem(ChatMessage message, ChatLinkedListItem? previous, ChatLinkedListItem left)
+    public ChatLinkedListItem(ChatMessage message, ChatLinkedListItem? previous, ChatLinkedListItem left, AvailableGptModels? gptModel)
     {
         Message = message;
         Previous = previous;
         Left = left;
+        if (gptModel is not null)
+        {
+            GptModel = gptModel.Value;
+        }
     }
 
     public int LeftCount
@@ -56,6 +69,7 @@ public class ChatLinkedListItem
     }
 
     public ChatMessage Message { get; }
+    public AvailableGptModels GptModel { get; set; } = AvailableGptModels.Gpt35Turbo;
     public ChatLinkedListItem? Previous { get; }
     public ChatLinkedListItem? Next { get; set; }
     public ChatLinkedListItem? Left { get; set; }
