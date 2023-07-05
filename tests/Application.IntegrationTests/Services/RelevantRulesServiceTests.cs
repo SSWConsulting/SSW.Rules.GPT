@@ -37,8 +37,8 @@ public class RelevantRulesServiceTests
 
         var tokenService = new TokenService();
         var pruningService = new PruningService(tokenService);
-        var openAiService = new OpenAIService(new OpenAiOptions() { ApiKey = openAiApiKey });
-        var openAiEmbeddingService = new OpenAiEmbeddingService(openAiService);
+        var openAiFactory = new OpenAiServiceFactory(mockConfig);
+        var openAiEmbeddingService = new OpenAiEmbeddingService(openAiFactory, mockConfig);
 
         // SUT
         var relevantRulesService = new RelevantRulesService(
