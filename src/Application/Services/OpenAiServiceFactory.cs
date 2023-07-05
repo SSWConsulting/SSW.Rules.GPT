@@ -20,7 +20,9 @@ public class OpenAiServiceFactory
 
         OpenAIService openAiService;
 
-        if (useAzureOpenAi && azureOpenAiApiKey is not null)
+        if (useAzureOpenAi && azureOpenAiApiKey is not null 
+            && azureOpenAiEndpoint is not null 
+            && azureOpenAiResourceName is not null )
         {
             openAiService = new OpenAIService(new OpenAiOptions()
             {

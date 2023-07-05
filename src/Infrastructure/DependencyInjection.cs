@@ -3,9 +3,9 @@ using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using OpenAI.GPT3.Extensions;
 using Pgvector.EntityFrameworkCore;
 using Polly;
-using Polly.Extensions.Http;
 
 namespace Infrastructure;
 
