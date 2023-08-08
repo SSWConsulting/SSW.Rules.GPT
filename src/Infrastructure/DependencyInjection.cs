@@ -43,7 +43,7 @@ public static class DependencyInjection
                     .WrapAsync(rateLimitPolicy);
             }
         );
-
+        
         return services;
     }
 }
