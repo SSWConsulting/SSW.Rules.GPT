@@ -39,6 +39,18 @@ builder.Services.AddMudServices(config =>
     config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
 });
 
+builder.Services.AddOidcAuthentication(options =>
+{
+    options.ProviderOptions.Authority = "https://localhost:5003";
+    options.ProviderOptions.ClientId = "ssw-rulesgpt";
+    
+    options.ProviderOptions.DefaultScopes.Add("openid");
+    options.ProviderOptions.DefaultScopes.Add("profile");
+    options.ProviderOptions.DefaultScopes.Add("email");
+
+    options.ProviderOptions.ResponseType = "code";
+});
+
 const string ApiClient = nameof(ApiClient);
 
 var apiBaseUrl = builder.HostEnvironment.IsDevelopment()

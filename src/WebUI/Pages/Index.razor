@@ -2,5 +2,14 @@
 
 <PageTitle>SSW RulesGPT</PageTitle>
 
-<RulesBotChat/>
+<AuthorizeView>
+    <Authorized>
+        <p>Authorized.</p>
+    </Authorized>
+    <NotAuthorized>
+        <p>Not authorized.</p>
+        <a href="authentication/login">Log in</a>
+    </NotAuthorized>
+</AuthorizeView>
 
+<RulesBotChat/>
