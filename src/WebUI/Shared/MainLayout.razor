@@ -1,10 +1,12 @@
 ﻿@using WebUI.Classes
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @inherits LayoutComponentBase
 
 @inject SswRulesGptDialogService SswRulesGptDialogService
 @inject DataState DataState
 @inject NotifierService NotifierService
 @inject SignalRClient SignalRClient
+@inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 @inject ILocalStorageService Storage
 
@@ -20,7 +22,6 @@
 
 <MudLayout>
     <MudAppBar Elevation="0">
-        @*<MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />*@
         <MudStack Justify="Justify.Center" Class="pr-2">
             <MudLink OnClick="ClearMessageHistory">
                 <MudImage Src="images/SSWlogo-DarkMode.svg" Height="40" ObjectFit="ObjectFit.ScaleDown"></MudImage>
@@ -81,18 +82,15 @@
             <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Download" OnTouch="OpenInstallInstructionsDialog" OnClick="OpenInstallInstructionsDialog">Installation Instructions</MudMenuItem>
             <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Info" OnTouch="OpenAboutRulesGptDialog" OnClick="OpenAboutRulesGptDialog">About</MudMenuItem>
         </MudMenu>
+        <AuthorizeView>
+            <Authorized>
+                <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="BeginSignOut">Sign Out</MudButton>
+            </Authorized>
+            <NotAuthorized>
+                <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="BeginSignIn">Sign In</MudButton>
+            </NotAuthorized>
+        </AuthorizeView>
     </MudAppBar>
-    @*
-    <MudDrawer @bind-Open="_drawerOpen" Elevation="1">
-    <MudDrawerHeader>
-    <MudStack Style="width: 100%" Justify="Justify.Center">
-    <MudImage Src="images/SSWlogo-DarkMode.svg" Height="40" ObjectFit="ObjectFit.ScaleDown"></MudImage>
-    </MudStack>
-    <MudText Typo="Typo.h6">SSW Rules Bot</MudText>
-    </MudDrawerHeader>
-    <NavMenu />
-    </MudDrawer>
-    *@
     <MudMainContent Style="height: 100%;">
         <CascadingValue Value="_theme">
             <CascadingValue Value="_isDarkMode">
@@ -105,7 +103,6 @@
 </MudLayout>
 
 @code {
-    //bool _drawerOpen = true;
     private MudThemeProvider _mudThemeProvider;
     bool _isDarkMode;
     bool systemIsDarkMode;
@@ -134,11 +131,6 @@
         }
     };
 
-    //private void DrawerToggle()
-    //{
-    //    _drawerOpen = !_drawerOpen;
-    //}
-
     private void SetThemePreference(ThemePreference preference)
     {
         themePreference = preference;
@@ -157,7 +149,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        //Will default to 'light' if no stored value is found
+    //Will default to 'light' if no stored value is found
         themePreference = await Storage.GetItemAsync<ThemePreference>("DarkModePreference");
         SetThemePreference(themePreference);
 
@@ -167,7 +159,7 @@
         }
         catch (HttpRequestException e)
         {
-            // Display error message
+    // Display error message
             Snackbar.Add("Unable to connect to SSW RulesGPT", Severity.Error);
         }
 
@@ -176,30 +168,40 @@
         var useSavedKey = await Storage.GetItemAsync<string>("userAPIKeyEnabled");
         var savedAPIKey = await Storage.GetItemAsync<string>("userAPIKey");
         var savedModel = await Storage.GetItemAsync<string>("userGptModel");
-        
-        if (!string.IsNullOrEmpty(savedAPIKey) && useSavedKey is "true") 
+
+        if (!string.IsNullOrEmpty(savedAPIKey) && useSavedKey is "true")
         {
             DataState.OpenAiApiKey = savedAPIKey;
             DataState.UsingByoApiKey = true;
         }
-        
+
         if (Enum.TryParse<AvailableGptModels>(savedModel, out var parsed))
         {
             DataState.SelectedGptModel = parsed;
         }
     }
 
+    private void BeginSignIn()
+    {
+        NavigationManager.NavigateToLogin("/authentication/login");
+    }
+    
+    private void BeginSignOut()
+    {
+        NavigationManager.NavigateToLogout("/authentication/logout");
+    }
+    
     private async Task OnRateLimited(double retryAfter)
     {
         Snackbar.Add($"Too many messages sent! Try again in {retryAfter} seconds.", Severity.Error);
         await NotifierService.CancelMessageStream();
 
         var lastMessage = DataState.CurrentMessageThread.Last(s => s.Message.Role == "user");
-        
+
         DataState.NewMessageString = lastMessage.Message.Content;
         DataState.ChatMessages.Remove(lastMessage);
         DataState.CurrentMessageThread.Remove(lastMessage);
-        
+
         StateHasChanged();
         await NotifierService.Update();
     }
@@ -242,4 +244,5 @@
         DataState.ChatMessages.Clear();
         await NotifierService.Update();
     }
+
 }
