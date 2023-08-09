@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor;
 using MudBlazor.Services;
 using WebUI;
+using WebUI.Helpers;
 using WebUI.Models;
 using WebUI.Services;
 
@@ -18,7 +19,6 @@ builder.Services.AddScoped(
 
 builder.Services.AddTransient<CookieHandler>();
 builder.Services.AddSingleton<DataState>();
-builder.Services.AddSingleton<AuthService>();
 builder.Services.AddSingleton<SignalRClient>();
 builder.Services.AddSingleton<NotifierService>();
 builder.Services.AddSingleton<MarkdigPipelineService>();

@@ -62,7 +62,6 @@ public class RulesHub : Hub<IRulesClient>
         await Clients.All.ReceiveBroadcast(user, message);
     }
 
-    [Authorize]
     public IAsyncEnumerable<ChatMessage?> RequestNewCompletionMessage(
         List<ChatMessage> messageList,
         string? apiKey,

@@ -14,19 +14,16 @@ public class SignalRClient
     private readonly NotifierService _notifierService;
     private readonly HubConnection _connection;
     private readonly ILogger<SignalRClient> _logger;
-    private readonly IAccessTokenProvider _tokenProvider;
 
     public SignalRClient(
         DataState dataState,
         IWebAssemblyHostEnvironment hostEnvironment,
         NotifierService notifierService,
-        ILogger<SignalRClient> logger,
-        IAccessTokenProvider tokenProvider)
+        ILogger<SignalRClient> logger)
     {
         _dataState = dataState;
         _notifierService = notifierService;
         _logger = logger;
-        _tokenProvider = tokenProvider;
 
         var hubeBaseUrl = hostEnvironment.IsDevelopment()
             ? "https://localhost:7104"
@@ -35,7 +32,7 @@ public class SignalRClient
         var hubUrl = $"{hubeBaseUrl}/ruleshub";
 
         _connection = new HubConnectionBuilder()
-            .WithUrl(hubUrl, options =>
+            .WithUrl(hubUrl)/*, options =>
             {
                 options.AccessTokenProvider = async () =>
                 {
@@ -49,7 +46,7 @@ public class SignalRClient
                     Console.WriteLine("[HubConnectionBuilder.WithUrl] Unauthenticated user.");
                     return await Task.FromResult("");
                 };
-            })
+            })*/
             .WithAutomaticReconnect()
             .Build();
 
