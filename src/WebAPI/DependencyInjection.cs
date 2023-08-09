@@ -11,7 +11,6 @@ public static class DependencyInjection
         string rulesGptCorsPolicy
     )
     {
-        //services.AddSingleton<IUserIdProvider, SignalRUserIdProvider>();
         services.AddSingleton<SignalRHubFilter>();
 
         services.AddSignalR(options => options.AddFilter<SignalRHubFilter>());

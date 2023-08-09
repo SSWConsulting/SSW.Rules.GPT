@@ -26,6 +26,10 @@
       <ProjectReference Include="..\Domain\Domain.csproj" />
       <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <Compile Remove="WebSocketsMiddleware.cs" />
+    </ItemGroup>
 
     <PropertyGroup>
         <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>

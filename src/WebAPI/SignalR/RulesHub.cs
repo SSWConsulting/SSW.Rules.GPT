@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Application.Contracts;
 using Application.Services;
 using Infrastructure.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using OpenAI.GPT3.ObjectModels;
 using OpenAI.GPT3.ObjectModels.RequestModels;
@@ -61,6 +62,7 @@ public class RulesHub : Hub<IRulesClient>
         await Clients.All.ReceiveBroadcast(user, message);
     }
 
+    [Authorize]
     public IAsyncEnumerable<ChatMessage?> RequestNewCompletionMessage(
         List<ChatMessage> messageList,
         string? apiKey,
@@ -68,6 +70,9 @@ public class RulesHub : Hub<IRulesClient>
         CancellationToken cancellationToken
     )
     {
+        var username = Context.User?.Identity?.Name;
+        Console.WriteLine($"[RulesHub.RequestNewCompletionMessage] User: {username}");
+        
         return _messageHandler.Handle(messageList, apiKey, gptModel, cancellationToken);
     }
 }

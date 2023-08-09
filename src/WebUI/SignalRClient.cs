@@ -1,40 +1,65 @@
 ﻿using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.SignalR.Client;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 using WebUI.Models;
 using WebUI.Services;
-using Polly.RateLimit;
 
 namespace WebUI;
 
-public class SignalRClient 
+public class SignalRClient
 {
     private readonly DataState _dataState;
     private readonly NotifierService _notifierService;
     private readonly HubConnection _connection;
     private readonly ILogger<SignalRClient> _logger;
+    private readonly IAccessTokenProvider _tokenProvider;
 
     public SignalRClient(
         DataState dataState,
         IWebAssemblyHostEnvironment hostEnvironment,
-        NotifierService notifierService, 
-        ILogger<SignalRClient> logger)
+        NotifierService notifierService,
+        ILogger<SignalRClient> logger,
+        IAccessTokenProvider tokenProvider)
     {
         _dataState = dataState;
         _notifierService = notifierService;
         _logger = logger;
+        _tokenProvider = tokenProvider;
+
         var hubeBaseUrl = hostEnvironment.IsDevelopment()
             ? "https://localhost:7104"
             : "https://ssw-rulesgpt-api.azurewebsites.net";
+
         var hubUrl = $"{hubeBaseUrl}/ruleshub";
-        _connection = new HubConnectionBuilder().WithUrl(hubUrl).WithAutomaticReconnect().Build();
+
+        _connection = new HubConnectionBuilder()
+            .WithUrl(hubUrl, options =>
+            {
+                options.AccessTokenProvider = async () =>
+                {
+                    var tokenResult = await _tokenProvider.RequestAccessToken();
+                    if (tokenResult.TryGetToken(out var token))
+                    {
+                        Console.WriteLine($"[HubConnectionBuilder.WithUrl] Authenticated user with token: {token.Value}.");
+                        return await Task.FromResult(token.Value);
+                    }
+
+                    Console.WriteLine("[HubConnectionBuilder.WithUrl] Unauthenticated user.");
+                    return await Task.FromResult("");
+                };
+            })
+            .WithAutomaticReconnect()
+            .Build();
+
         RegisterHandlers();
+
         _connection.Closed += async (exception) =>
         {
             if (exception != null)
             {
-                _logger.LogInformation("Connection closed due to an error: {Exception}", exception);        
+                _logger.LogInformation("Connection closed due to an error: {Exception}", exception);
             }
         };
     }
@@ -99,7 +124,7 @@ public class SignalRClient
             yield return message;
         }
     }
-    
+
     //Methods that the client listens for
     private void RegisterHandlers()
     {

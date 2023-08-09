@@ -11,6 +11,8 @@ using Direction = WebUI.Classes.Direction;
 
 namespace WebUI.Components;
 
+//TODO: Move some of this logic into a service
+
 public class RulesBotChatBase : ComponentBase, IDisposable
 {
     [Inject] protected DataState DataState { get; set; } = default!;
