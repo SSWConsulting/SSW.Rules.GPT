@@ -10,6 +10,7 @@ using Polly.RateLimit;
 
 namespace WebAPI.SignalR;
 
+[Authorize]
 public class RulesHub : Hub<IRulesClient>
 {
     private readonly MessageHandler _messageHandler;

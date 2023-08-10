@@ -19,7 +19,7 @@ builder.Services.AddScoped(
 
 builder.Services.AddTransient<CookieHandler>();
 builder.Services.AddSingleton<DataState>();
-builder.Services.AddSingleton<SignalRClient>();
+builder.Services.AddScoped<SignalRClient>();
 builder.Services.AddSingleton<NotifierService>();
 builder.Services.AddSingleton<MarkdigPipelineService>();
 builder.Services.AddScoped<SswRulesGptDialogService>();
@@ -50,6 +50,8 @@ builder.Services.AddOidcAuthentication(options =>
 
     options.ProviderOptions.ResponseType = "code";
 });
+
+builder.Services.AddApiAuthorization();
 
 const string ApiClient = nameof(ApiClient);
 

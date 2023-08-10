@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -14,16 +15,22 @@ public class SignalRClient
     private readonly NotifierService _notifierService;
     private readonly HubConnection _connection;
     private readonly ILogger<SignalRClient> _logger;
+    private readonly NavigationManager _navigationManager;
+    private readonly IAccessTokenProvider _tokenProvider;
 
     public SignalRClient(
         DataState dataState,
         IWebAssemblyHostEnvironment hostEnvironment,
         NotifierService notifierService,
-        ILogger<SignalRClient> logger)
+        ILogger<SignalRClient> logger,
+        NavigationManager navigationManager, 
+        IAccessTokenProvider tokenProvider)
     {
         _dataState = dataState;
         _notifierService = notifierService;
         _logger = logger;
+        _navigationManager = navigationManager;
+        _tokenProvider = tokenProvider;
 
         var hubeBaseUrl = hostEnvironment.IsDevelopment()
             ? "https://localhost:7104"
@@ -31,8 +38,24 @@ public class SignalRClient
 
         var hubUrl = $"{hubeBaseUrl}/ruleshub";
 
+        //var tokenResult = Task.FromResult(_tokenProvider.RequestAccessToken());
+        //if (tokenResult.TryGetToken(out var token))
+        //{
+        //    _connection = new HubConnectionBuilder()
+        //        .WithUrl(_navigationManager.ToAbsoluteUri(hubUrl), 
+        //            options => { options.AccessTokenProvider = () => Task.FromResult(token?.Value); })
+        //        .Build();
+        //}
+
+        //else
+        //{
+        //    _connection = new HubConnectionBuilder()
+        //        .WithUrl(_navigationManager.ToAbsoluteUri(hubUrl))
+        //        .Build();
+        //}
+
         _connection = new HubConnectionBuilder()
-            .WithUrl(hubUrl)/*, options =>
+            .WithUrl(hubUrl, options =>
             {
                 options.AccessTokenProvider = async () =>
                 {
@@ -46,7 +69,9 @@ public class SignalRClient
                     Console.WriteLine("[HubConnectionBuilder.WithUrl] Unauthenticated user.");
                     return await Task.FromResult("");
                 };
-            })*/
+                
+                Console.WriteLine($"[HubConnectionBuilder.WithUrl] options.AccessTokenProvider: {options.AccessTokenProvider}");
+            })
             .WithAutomaticReconnect()
             .Build();
 
@@ -95,8 +120,6 @@ public class SignalRClient
     }
 
     // Methods the client can call on the server
-
-
     public async Task BroadcastMessageAsync(string userName, string message)
     {
         await _connection.InvokeAsync("BroadcastMessage", userName, message);
