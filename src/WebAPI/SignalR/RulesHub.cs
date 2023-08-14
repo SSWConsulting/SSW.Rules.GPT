@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Application.Contracts;
 using Application.Services;
+using Duende.IdentityServer.Extensions;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
@@ -10,7 +11,6 @@ using Polly.RateLimit;
 
 namespace WebAPI.SignalR;
 
-[Authorize]
 public class RulesHub : Hub<IRulesClient>
 {
     private readonly MessageHandler _messageHandler;
@@ -63,6 +63,7 @@ public class RulesHub : Hub<IRulesClient>
         await Clients.All.ReceiveBroadcast(user, message);
     }
 
+    [Authorize]
     public IAsyncEnumerable<ChatMessage?> RequestNewCompletionMessage(
         List<ChatMessage> messageList,
         string? apiKey,
@@ -70,7 +71,7 @@ public class RulesHub : Hub<IRulesClient>
         CancellationToken cancellationToken
     )
     {
-        var username = Context.User?.Identity?.Name;
+        var username = Context.User;
         Console.WriteLine($"[RulesHub.RequestNewCompletionMessage] User: {username}");
         
         return _messageHandler.Handle(messageList, apiKey, gptModel, cancellationToken);

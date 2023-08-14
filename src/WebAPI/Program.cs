@@ -14,18 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 const string RulesGptCorsPolicy = nameof(RulesGptCorsPolicy);
 
-//var connectionString = builder.Configuration.GetConnectionString("LocalConnection2") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-//builder.Services.AddDbContext<ApplicationDbContext>(options =>
-//    options.UseSqlite(connectionString));
-//
-//builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
-//    .AddEntityFrameworkStores<ApplicationDbContext>();
-//
-//builder.Services.AddIdentityServer()
-//    .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
-
 string signingAuthority = builder.Configuration.GetValue<string>(nameof(signingAuthority));
-Console.WriteLine(signingAuthority);
 
 builder.Services.AddAuthentication(options =>
 {
@@ -36,7 +25,7 @@ builder.Services.AddAuthentication(options =>
 }).AddJwtBearer(options =>
 {
     options.Authority = signingAuthority;
-    //options.Audience = "rewards";
+    options.Audience = "https://localhost:5003/resources";
     options.TokenValidationParameters.ValidTypes = new[] { "at+jwt" };
 
     options.Events = new JwtBearerEvents
@@ -59,19 +48,23 @@ builder.Services.AddAuthentication(options =>
             }
 
             return Task.CompletedTask;
-        }
+        },
+        
+        //OnTokenValidated = context =>
+        //{
+        //    var t = context.SecurityToken;
+        //    
+        //    return Task.CompletedTask;
+        //},
+        //
+        //OnAuthenticationFailed = context =>
+        //{
+        //    var t = context.Exception;
+        //    
+        //    return Task.CompletedTask;
+        //}
     };
 });
-
-//builder.Services
-//    .AddAuthentication()
-//    .AddIdentityServerJwt();
-
-//builder.Services.TryAddEnumerable(
-//    ServiceDescriptor.Singleton<IPostConfigureOptions<JwtBearerOptions>,
-//        ConfigureJwtBearerOptions>());
-
-//builder.Services.AddSignalR();
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -88,7 +81,6 @@ if (app.Environment.IsDevelopment())
 app.UseCors(RulesGptCorsPolicy);
 app.UseHttpsRedirection();
 
-//app.UseIdentityServer();
 app.UseAuthentication();
 app.UseAuthorization();
 

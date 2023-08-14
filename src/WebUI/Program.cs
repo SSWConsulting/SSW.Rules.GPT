@@ -44,9 +44,8 @@ builder.Services.AddOidcAuthentication(options =>
     options.ProviderOptions.Authority = "https://localhost:5003";
     options.ProviderOptions.ClientId = "ssw-rulesgpt";
     
-    options.ProviderOptions.DefaultScopes.Add("openid");
-    options.ProviderOptions.DefaultScopes.Add("profile");
     options.ProviderOptions.DefaultScopes.Add("email");
+    options.ProviderOptions.DefaultScopes.Add("ssw-rulesgpt-api");
 
     options.ProviderOptions.ResponseType = "code";
 });
