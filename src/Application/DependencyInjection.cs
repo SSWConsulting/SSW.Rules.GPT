@@ -13,6 +13,7 @@ public static class DependencyInjection
         services.AddSingleton<TokenService>();
         services.AddScoped<MessageHandler>();
         services.AddScoped<RelevantRulesService>();
+        services.AddSingleton<OpenAiServiceFactory>();
 
         return services;
     }

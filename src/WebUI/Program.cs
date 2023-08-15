@@ -1,3 +1,5 @@
+using Blazor.Analytics;
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor;
@@ -22,6 +24,8 @@ builder.Services.AddSingleton<NotifierService>();
 builder.Services.AddSingleton<MarkdigPipelineService>();
 builder.Services.AddScoped<SswRulesGptDialogService>();
 builder.Services.AddScoped<ApiKeyValidationService>();
+builder.Services.AddGoogleAnalytics(builder.Configuration.GetValue<string>("AnalyticsID"));
+builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddMudServices(config =>
 {
     config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.TopCenter;

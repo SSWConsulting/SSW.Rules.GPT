@@ -1,14 +1,8 @@
-@implements IDisposable
 @using OpenAI.GPT3.ObjectModels.RequestModels
-@inject DataState DataState
-@inject SswRulesGptDialogService SswRulesGptDialogService
-@inject ApiKeyValidationService ApiKeyValidationService
-@inject NotifierService NotifierService
-@inject SignalRClient SignalR
-@inject IJSRuntime Js
-@inject ISnackbar Snackbar
 
-<div class="container">
+@inherits RulesBotChatBase
+
+<div style="display: grid; grid-template-rows: 1fr auto; height: 100%; padding: 24px 0;">
     <MudPaper Elevation="0" Style=@($"background: {(!isDarkMode ? Theme.Palette.BackgroundGrey : Theme.PaletteDark.BackgroundGrey)}; border: 1px solid #e6e6e6; overflow-y: auto; height: 100%")>
         <MudContainer Class="pa-0" Style="height: 100%">
             @if (DataState.ChatMessages.Count == 0)
@@ -39,180 +33,21 @@
             else
             {
                 <MudList Class="py-0 chatContainer" DisableGutters="true">
-                @foreach (var message in DataState.ChatMessages.Where(s => s.Role != "system"))
-                {
-                    var isUser = message.Role == "user";
-                    <MudListItem>
-                        @if (isUser)
-                        {
-                            <MudStack Class="mx-4" Row="true">
-                                <MudSpacer/>
-                                <MudStack Spacing="1" Class="chat-box">
-                                    <MudText Typo="Typo.body1" Align="Align.Right"><b>You</b></MudText>
-                                    <MudPaper Elevation="1" Class="px-4 py-3" Style=@(!isDarkMode ? "color: white; background: #323332;" : "")>
-                                        <MudText Typo="Typo.body1">@message.Content</MudText>
-                                    </MudPaper>
-                                </MudStack>
-                                <MudAvatar>
-                                    <MudIcon Icon="@Icons.Material.Filled.Person"></MudIcon>
-                                </MudAvatar>
-                            </MudStack>
-                        }
-                        else
-                        {
-                            <MudStack Class=@(IsAwaitingResponse && DataState.ChatMessages.Last() == message ? "mb-12 mt-4 mx-4" : "mx-4") Row="true">
-                                <MudAvatar>
-                                    <MudImage Src="images/chatgpt-icon.svg"></MudImage>
-                                </MudAvatar>
-                                <MudStack Spacing="1" Class="chat-box">
-                                    <MudText Typo="Typo.body1"><b>RulesGPT</b></MudText>
-                                        @if (IsAwaitingResponseStream && string.IsNullOrWhiteSpace(message.Content))
-                                        {
-                                            <MudPaper Elevation="1" Class="px-4 py-3" Style="text-align: center;">
-                                                <MudProgressCircular Size="Size.Small" Color="Color.Secondary" Indeterminate="true" Style="vertical-align: bottom;"/>
-                                            </MudPaper>             
-                                        }
-                                        else
-                                        {
-                                            <MudPaper Elevation="1" Class="px-4 py-3" Style=@(isDarkMode ? "color: white;" : "")>
-                                                <Markdown Content=@message.Content/>
-                                            </MudPaper>
-                                        }
-                                    </MudStack>
-                                </MudStack>
-                            }
-                        </MudListItem>
+                    @foreach (var message in DataState.CurrentMessageThread.Where(s => s.Message.Role != "system"))
+                    {
+                        <ChatItem MessageThreadItem="message" OnMoveClickedEvent="Move" OnEditSubmittedEvent="SendEditedMessage"/>
                     }
                 </MudList>
             }
         </MudContainer>
-        <MudPopover Open="IsAwaitingResponse" OverflowBehavior="OverflowBehavior.FlipNever" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.BottomCenter" Paper="false">
-                <MudButton Class="mb-3" OnClick="CancelStreamingResponse" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Primary">Cancel Request</MudButton>
-        	</MudPopover>
+        <MudPopover Open="DataState.IsAwaitingResponse" OverflowBehavior="OverflowBehavior.FlipNever" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.BottomCenter" Paper="false">
+            <MudButton Class="mb-3" OnClick="CancelStreamingResponse" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Primary">Cancel Request</MudButton>
+        </MudPopover>
     </MudPaper>
     <MudStack Row="true" Class="mt-3">
-        <MudTextField Style="height: 100%;" Clearable="true" Disabled="IsAwaitingResponse" Class="mt-0" @bind-Value="NewMessageString" OnKeyDown="MessageTextFieldHandleEnterKey" Immediate="true" Label="Hit me up with any queries" Variant="Variant.Outlined"></MudTextField>
+        <MudTextField Lines="5" Style="height: 100%;" id="chat-input" Clearable="true" Disabled="DataState.IsAwaitingResponse" @bind-Value="DataState.NewMessageString" OnKeyDown="MessageTextFieldHandleEnterKey" Immediate="true" Label="Ask a question!" Variant="Variant.Outlined"></MudTextField>
         <MudButton Color="Color.Secondary" Variant="Variant.Filled" OnClick="SendMessage">
             <MudIcon Icon="@Icons.Material.Filled.Send"></MudIcon>
         </MudButton>
     </MudStack>
 </div>
-
-@code {
-    [CascadingParameter] protected MudTheme Theme { get; set; } 
-    [CascadingParameter] protected bool isDarkMode { get; set; }
-    
-    public string NewMessageString { get; set; } = string.Empty;
-    public bool IsAwaitingResponseStream { get; set; } = false;
-    private bool IsAwaitingResponse { get; set; } = false;
-
-    protected override async Task OnInitializedAsync()
-    {
-        NotifierService.Notify += OnNotify;
-        NotifierService.CancelMessageStreamEvent += OnCancelMessageStream;
-    }
-
-    private async Task OnExampleClicked(string message)
-    {
-        NewMessageString = message;
-        await SendMessage();
-    }
-
-    public async Task SendMessage()
-    {
-        if (string.IsNullOrWhiteSpace(NewMessageString))
-        {
-            return;
-        }
-        
-        if (SignalR.GetConnectionState() == SignalRClient.StatusHubConnectionState.Disconnected)
-        {
-            try
-            {
-                await SignalR.StartAsync(DataState.CancellationTokenSource.Token);
-            }
-            catch (HttpRequestException e)
-            {
-                Snackbar.Add("Unable to connect to SSW RulesGPT", Severity.Error);
-                return;
-            }
-        }
-        var newChatMessage = new ChatMessage("user", NewMessageString);
-        NewMessageString = string.Empty;
-        DataState.ChatMessages.Add(newChatMessage);
-
-        var newAssistantMessage = new ChatMessage("assistant", string.Empty);
-
-        DataState.ChatMessages.Add(newAssistantMessage);
-        IsAwaitingResponseStream = true;
-        IsAwaitingResponse = true;
-        StateHasChanged();
-
-        await JsScrollMessageListToBottom();
-
-        var resultStream = SignalR.RequestNewCompletionMessage(
-            DataState.ChatMessages,
-            DataState.OpenAiApiKey,
-            DataState.SelectedGptModel,
-            DataState.CancellationTokenSource.Token );
-        
-        await JsScrollMessageListToBottom();
-        await foreach (var result in resultStream.WithCancellation(DataState.CancellationTokenSource.Token))
-        {
-            IsAwaitingResponseStream = false;
-            newAssistantMessage.Content += result?.Content;
-            
-            StateHasChanged();
-            await Js.InvokeVoidAsync("highlightCode");
-            await JsScrollMessageListToBottom();
-        }
-        
-        IsAwaitingResponseStream = false;
-        IsAwaitingResponse = false;
-        DataState.CancellationTokenSource.Dispose();
-        DataState.CancellationTokenSource = new CancellationTokenSource();
-    }
-
-    async Task MessageTextFieldHandleEnterKey(KeyboardEventArgs args)
-    {
-        if (args is { Key: "Enter", ShiftKey: false })
-        {
-            await SendMessage();
-        }
-    }
-
-    private async Task OnNotify()
-    {
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private async Task OnCancelMessageStream()
-    {
-        await InvokeAsync(CancelStreamingResponse);
-    }
-
-    public void Dispose()
-    {
-        NotifierService.Notify -= OnNotify;
-        NotifierService.CancelMessageStreamEvent -= OnCancelMessageStream;
-    }
-    
-    private async Task JsScrollMessageListToBottom()
-    {
-        await Js.InvokeVoidAsync("scrollLatestMessageIntoView");
-    }
-    
-    private async Task CancelStreamingResponse()
-    {
-        DataState.CancellationTokenSource.Cancel();
-        DataState.CancellationTokenSource.Dispose();
-        var lastAssistantMessage = DataState.ChatMessages.LastOrDefault(s => s.Role == "assistant");
-        if (lastAssistantMessage is not null && string.IsNullOrWhiteSpace(lastAssistantMessage?.Content))
-        {
-            DataState.ChatMessages.Remove(lastAssistantMessage);
-        }
-        IsAwaitingResponse = false;
-        IsAwaitingResponseStream = false;
-        DataState.CancellationTokenSource = new CancellationTokenSource();
-    }
-}

@@ -23,7 +23,6 @@ public class SswRulesGptDialogService
             MaxWidth = MaxWidth.ExtraSmall
         };
         var dialog = await _dialogService.ShowAsync<ApiKeyDialog>("API Key", options);
-        var result = await dialog.Result;
         var success = dialog.Result.IsCompletedSuccessfully;
         return success;
     }
@@ -40,7 +39,21 @@ public class SswRulesGptDialogService
             
         };
         var dialog = await _dialogService.ShowAsync<AboutAppDialog>(string.Empty, options);
-        var result = await dialog.Result;
+        var success = dialog.Result.IsCompletedSuccessfully;
+        return success;
+    }
+
+    public async Task<bool> InstallInstructionsDialog()
+    {
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            CloseButton = true,
+            DisableBackdropClick = false,
+            NoHeader = false,
+            MaxWidth = MaxWidth.Large
+        };
+        var dialog = await _dialogService.ShowAsync<InstallInstructionDialog>(string.Empty, options);
         var success = dialog.Result.IsCompletedSuccessfully;
         return success;
     }

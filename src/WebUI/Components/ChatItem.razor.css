@@ -1,0 +1,8 @@
+﻿.edit-button {
+    opacity: 0;
+    transition: 0.5s ease-in-out;
+}
+
+.item-root:hover .edit-button {
+    opacity: 1;
+}

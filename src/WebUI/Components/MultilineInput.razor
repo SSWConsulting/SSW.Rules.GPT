@@ -1,0 +1,34 @@
+﻿<div class="container" data-replicated-value="@message">
+    <textarea rows="1" @oninput="HandleInput" @onkeydown="HandleSubmit">@message</textarea>     
+</div>
+
+@code {
+    [Parameter] public string Data { get; set; } = default!;
+    [Parameter] public EventCallback<string> OnSubmitted { get; set; }
+
+    private string message = "";
+
+    public async Task Submit()
+    {
+        await OnSubmitted.InvokeAsync(message);
+    }
+
+    protected override void OnParametersSet()
+    {
+        message = Data;
+        base.OnParametersSet();
+    }
+
+    private async Task HandleInput(ChangeEventArgs args)
+    {
+        message = args.Value.ToString();
+    }
+    
+    private async Task HandleSubmit(KeyboardEventArgs args)
+    {
+        if (args is { Key: "Enter", ShiftKey: false })
+        {
+            await OnSubmitted.InvokeAsync(message);
+        }
+    }
+}

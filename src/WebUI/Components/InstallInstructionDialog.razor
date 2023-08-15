@@ -1,0 +1,70 @@
+﻿<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">Install RulesGPT</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTabs Rounded="true" Elevation="4" Color="Color.Error" ApplyEffectsToContainer="true">
+            <MudTabPanel Text="Windows (Edge)">
+                <ol class="ml-8 my-4">
+                    <li>
+                        <MudText>
+                            Open the
+                            <MudIcon Style="vertical-align: bottom;" Icon="@Icons.Material.Filled.MoreHoriz"/>
+                            menu in the top right corner of your browser.
+                        </MudText>
+                    </li>
+                    <li>
+                        <MudText>Open the 'Apps' menu.</MudText>
+                    </li>
+                    <li>
+                        <MudText>Click 'Install this site as an app'.</MudText>
+                    </li>
+                </ol>
+            </MudTabPanel>
+            <MudTabPanel Text="iOS (Safari)">
+                <ol class="ml-8 my-4">
+                    <li>
+                        <MudText>
+                            Open the Share
+                            <MudIcon Style="vertical-align: text-bottom;" Icon="@Icons.Material.Filled.IosShare"/>
+                            menu.
+                        </MudText>
+                    </li>
+                    <li>
+                        <MudText>Select the 'Add to Home Screen' option.</MudText>
+                    </li>
+                    <li>
+                        <MudText>Press 'Add'.</MudText>
+                    </li>
+                </ol>
+
+            </MudTabPanel>
+            <MudTabPanel Text="Android">
+                <ol class="ml-8 my-4">
+                    <li>
+                        <MudText>
+                            Open the
+                            <MudIcon Style="vertical-align: bottom;" Icon="@Icons.Material.Filled.MoreHoriz"/>
+                            menu.
+                        </MudText>
+                    </li>
+                    <li>
+                        <MudText>Press 'Add to Home screen'.</MudText>
+                    </li>
+                    <li>
+                        <MudText>Press 'Add'.</MudText>
+                    </li>
+                </ol>
+            </MudTabPanel>
+        </MudTabs>
+    </DialogContent>
+    <DialogActions>
+
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; } = default!;
+}

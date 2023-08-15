@@ -7,20 +7,17 @@ using WebUI.Services;
 
 namespace WebUI;
 
-public class SignalRClient
+public class SignalRClient 
 {
-    private readonly DataState _dataState;
     private readonly NotifierService _notifierService;
     private readonly HubConnection _connection;
     private readonly ILogger<SignalRClient> _logger;
 
     public SignalRClient(
-        DataState dataState,
         IWebAssemblyHostEnvironment hostEnvironment,
         NotifierService notifierService, 
         ILogger<SignalRClient> logger)
     {
-        _dataState = dataState;
         _notifierService = notifierService;
         _logger = logger;
         var hubeBaseUrl = hostEnvironment.IsDevelopment()
@@ -72,8 +69,7 @@ public class SignalRClient
     }
 
     // Methods the client can call on the server
-
-
+    
     public async Task BroadcastMessageAsync(string userName, string message)
     {
         await _connection.InvokeAsync("BroadcastMessage", userName, message);
@@ -98,7 +94,7 @@ public class SignalRClient
             yield return message;
         }
     }
-
+    
     //Methods that the client listens for
     private void RegisterHandlers()
     {
@@ -110,5 +106,6 @@ public class SignalRClient
                 Console.WriteLine(encodedMsg);
             }
         );
+        _connection.On<double>("ReceiveRateLimitedWarning", async (retryAfter) => { await _notifierService.RaiseRateLimited(retryAfter); });
     }
 }
