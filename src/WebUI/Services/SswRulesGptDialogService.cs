@@ -35,7 +35,8 @@ public class SswRulesGptDialogService
             CloseButton = true,
             DisableBackdropClick = false,
             NoHeader = false,
-            MaxWidth = MaxWidth.Large
+            MaxWidth = MaxWidth.Small,
+            
         };
         var dialog = await _dialogService.ShowAsync<AboutAppDialog>(string.Empty, options);
         var success = dialog.Result.IsCompletedSuccessfully;
@@ -55,17 +56,5 @@ public class SswRulesGptDialogService
         var dialog = await _dialogService.ShowAsync<InstallInstructionDialog>(string.Empty, options);
         var success = dialog.Result.IsCompletedSuccessfully;
         return success;
-    }
-
-    public async Task<bool> EditMessageDialog()
-    {
-        var options = new DialogOptions
-        {
-            CloseOnEscapeKey = true,
-            Position = DialogPosition.TopCenter
-        };
-        
-        var result = await _dialogService.Show<EditMessageDialog>("Are you sure?", options).Result;
-        return !result.Canceled;
     }
 }

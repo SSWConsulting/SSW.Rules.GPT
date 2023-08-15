@@ -1,4 +1,5 @@
 using Application.Contracts;
+using Microsoft.Extensions.Configuration;
 using Application.Services;
 using Microsoft.Extensions.Configuration;
 using OpenAI.GPT3.Interfaces;
@@ -95,16 +96,14 @@ public class OpenAiEmbeddingService : IOpenAiEmbeddingService
 
                 return vector;
             }
-            else
-            {
-                if (result.Error == null)
-                {
-                    throw new Exception("Unknown Error");
-                }
 
-                Console.WriteLine($"{result.Error.Code}: {result.Error.Message}");
-                return null;
+            if (result.Error == null)
+            {
+                throw new Exception("Unknown Error");
             }
+
+            Console.WriteLine($"{result.Error.Code}: {result.Error.Message}");
+            return null;
         }
         catch (RateLimitRejectedException e)
         {

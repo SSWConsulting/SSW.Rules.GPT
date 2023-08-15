@@ -13,15 +13,15 @@ public class RulesHub : Hub<IRulesClient>
     private readonly MessageHandler _messageHandler;
     private readonly ILogger<RulesHub> _logger;
     private readonly IOpenAiEmbeddingService _embeddingService;
-    private readonly IOpenAiChatCompletionsService _chatCompletionsService;
 
-    public RulesHub(MessageHandler messageHandler, ILogger<RulesHub> logger, IOpenAiEmbeddingService embeddingService, IOpenAiChatCompletionsService chatCompletionsService)
+    public RulesHub(
+        MessageHandler messageHandler, 
+        ILogger<RulesHub> logger, 
+        IOpenAiEmbeddingService embeddingService)
     {
         _messageHandler = messageHandler;
         _logger = logger;
         _embeddingService = embeddingService;
-        _chatCompletionsService = chatCompletionsService;
-
         _embeddingService.OnRateLimited = OnRateLimited;
     }
 

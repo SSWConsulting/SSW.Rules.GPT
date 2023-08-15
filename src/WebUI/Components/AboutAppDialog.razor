@@ -1,17 +1,29 @@
 ﻿
-<MudDialog>
+<MudDialog Class="mx-4">
     <TitleContent>
         <MudStack AlignItems="AlignItems.Center" Row="true">
             <MudImage Style="height: 40px" Src="images/SSWlogo.svg"></MudImage>
-            <MudText Style="height: min-content" Align="Align.Center" Typo="Typo.h6">About RulesGPT</MudText>
+            <MudText Style="height: min-content" Align="Align.Center" Typo="Typo.h6">RulesGPT</MudText>
             <MudSpacer/>
         </MudStack>
     </TitleContent>
     <DialogContent>
         <MudStack Class="pr-10">
-            <MudText Typo="Typo.body1">Built by SSW Engineers</MudText>
-            <MudLink Color="Color.Secondary" Href="www.ssw.com.au">www.ssw.com.au</MudLink>
-            <MudLink Color="Color.Secondary" Href="https://github.com/SSWConsulting/SSW.Rules.GPT">github.com/SSWConsulting/SSW.Rules.GPT</MudLink>
+            <MudText Typo="Typo.body1">
+                This 
+                <MudLink Class="rules-link" Target="_blank" Href="https://www.ssw.com.au" Underline="Underline.Always">SSW</MudLink>
+                project is a GPT Bot that uses OpenAI embeddings to search for matching 
+                <MudLink Class="rules-link" Target="_blank" Href="https://www.ssw.com.au/rules" Underline="Underline.Always">SSW Rules</MudLink>
+                , and then feeding the top 10 results back into the ChatGPT 3.5-turbo API, written in C# and Blazor.
+            </MudText>
+            <MudText Typo="Typo.body1">
+                Built by 
+                <MudLink Class="rules-link" Target="_blank" Href="https://www.ssw.com.au/people" Underline="Underline.Always">SSW Engineers</MudLink>
+            </MudText>
+            <MudText>
+                More on 
+                <MudLink Class="rules-link" Target="_blank" Underline="Underline.Always" Href="https://github.com/SSWConsulting/SSW.Rules.GPT">github.com/SSWConsulting/SSW.Rules.GPT</MudLink>
+            </MudText>
         </MudStack>
     </DialogContent>
     <DialogActions>
@@ -20,15 +32,6 @@
 </MudDialog>
 
 @code {
-
-    [CascadingParameter]
-    MudDialogInstance MudDialog { get; set; } = default!;
-
-    protected override Task OnInitializedAsync()
-    {
-        //MudDialog.TitleContent = "About RulesGPT";
-        return base.OnInitializedAsync();
-    }
-
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = default!;
 }
 

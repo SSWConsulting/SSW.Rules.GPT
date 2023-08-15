@@ -14,12 +14,6 @@
 <MudDialogProvider Position="DialogPosition.Center"/>
 <MudSnackbarProvider/>
 
-<style>
-    html, body, #app {
-        height: 100%;
-    }
-</style>
-
 <MudLayout>
     <MudAppBar Elevation="0">
         <MudStack Justify="Justify.Center" Class="pr-2">
@@ -32,18 +26,6 @@
         </MudStack>
         <MudStack Justify="Justify.Center" Class="pl-3">
             <MudText Class="tag-line" Color="Color.Primary" Typo="Typo.body1">Keeping Order with Intelligence</MudText>
-            <style>
-                @@media screen and (max-width: 600px) {
-                    .tag-line {
-                        display: none;
-                    }
-                }
-                @@media screen and (max-width: 432px) {
-                    .powered-by-link {
-                        display: none;
-                    }
-                }
-            </style>
         </MudStack>
         <MudSpacer/>
         <MudLink Color="Color.Primary" Variant="Variant.Filled" Class="powered-by-link mr-2" Target="_blank" Href="https://ssw.com.au/rules">Powered by SSW Rules</MudLink>

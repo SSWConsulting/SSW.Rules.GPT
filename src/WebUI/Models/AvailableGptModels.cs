@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-
-namespace WebUI.Models;
+﻿namespace WebUI.Models;
 
 public enum AvailableGptModels
 {

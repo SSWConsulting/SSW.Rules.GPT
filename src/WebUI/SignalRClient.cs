@@ -11,7 +11,6 @@ namespace WebUI;
 
 public class SignalRClient
 {
-    private readonly DataState _dataState;
     private readonly NotifierService _notifierService;
     private readonly HubConnection _connection;
     private readonly ILogger<SignalRClient> _logger;
@@ -19,14 +18,12 @@ public class SignalRClient
     private readonly IAccessTokenProvider _tokenProvider;
 
     public SignalRClient(
-        DataState dataState,
         IWebAssemblyHostEnvironment hostEnvironment,
         NotifierService notifierService,
         ILogger<SignalRClient> logger,
         NavigationManager navigationManager, 
         IAccessTokenProvider tokenProvider)
     {
-        _dataState = dataState;
         _notifierService = notifierService;
         _logger = logger;
         _navigationManager = navigationManager;
@@ -37,22 +34,6 @@ public class SignalRClient
             : "https://ssw-rulesgpt-api.azurewebsites.net";
 
         var hubUrl = $"{hubeBaseUrl}/ruleshub";
-
-        //var tokenResult = Task.FromResult(_tokenProvider.RequestAccessToken());
-        //if (tokenResult.TryGetToken(out var token))
-        //{
-        //    _connection = new HubConnectionBuilder()
-        //        .WithUrl(_navigationManager.ToAbsoluteUri(hubUrl), 
-        //            options => { options.AccessTokenProvider = () => Task.FromResult(token?.Value); })
-        //        .Build();
-        //}
-
-        //else
-        //{
-        //    _connection = new HubConnectionBuilder()
-        //        .WithUrl(_navigationManager.ToAbsoluteUri(hubUrl))
-        //        .Build();
-        //}
 
         _connection = new HubConnectionBuilder()
             .WithUrl(hubUrl, options =>
@@ -120,6 +101,7 @@ public class SignalRClient
     }
 
     // Methods the client can call on the server
+    
     public async Task BroadcastMessageAsync(string userName, string message)
     {
         await _connection.InvokeAsync("BroadcastMessage", userName, message);

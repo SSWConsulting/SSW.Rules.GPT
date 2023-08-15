@@ -1,0 +1,15 @@
+﻿::deep .tag-line {
+    margin-left: 3px;
+}
+
+@media screen and (max-width: 600px) {
+    ::deep .tag-line {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 432px) {
+    ::deep .powered-by-text {
+        display: none;
+    }
+}
