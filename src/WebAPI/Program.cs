@@ -25,7 +25,7 @@ builder.Services.AddAuthentication(options =>
 }).AddJwtBearer(options =>
 {
     options.Authority = signingAuthority;
-    options.Audience = "https://localhost:5003/resources";
+    options.Audience = "ssw-rulesgpt";
     options.TokenValidationParameters.ValidTypes = new[] { "at+jwt" };
 
     options.Events = new JwtBearerEvents
@@ -48,21 +48,7 @@ builder.Services.AddAuthentication(options =>
             }
 
             return Task.CompletedTask;
-        },
-        
-        //OnTokenValidated = context =>
-        //{
-        //    var t = context.SecurityToken;
-        //    
-        //    return Task.CompletedTask;
-        //},
-        //
-        //OnAuthenticationFailed = context =>
-        //{
-        //    var t = context.Exception;
-        //    
-        //    return Task.CompletedTask;
-        //}
+        }
     };
 });
 
