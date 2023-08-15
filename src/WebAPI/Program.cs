@@ -1,11 +1,6 @@
 using Application;
 using Infrastructure;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
 using WebAPI;
 using WebAPI.Routes;
 using WebAPI.SignalR;
