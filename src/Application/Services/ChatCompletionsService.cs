@@ -15,8 +15,7 @@ public class ChatCompletionsService
     public ChatCompletionsService(
         PruningService pruningService,
         IOpenAiChatCompletionsService openAiChatCompletionsService,
-        ILogger<ChatCompletionsService> logger
-    )
+        ILogger<ChatCompletionsService> logger)
     {
         _pruningService = pruningService;
         _openAiChatCompletionsService = openAiChatCompletionsService;
@@ -40,9 +39,7 @@ public class ChatCompletionsService
             );
             yield break;
         }
-
-        //var openAiService = GetOpenAiService(apiKey);
-
+        
         var chatCompletionCreateRequest = new ChatCompletionCreateRequest
         {
             Messages = trimResult.Messages,
@@ -62,15 +59,12 @@ public class ChatCompletionsService
             apiKey: apiKey,
             cancellationToken
         );
-
-
+        
         await foreach (var completion in completionResult.WithCancellation(cancellationToken))
         {
             if (completion.Successful)
             {
-                //Console.Write(completion.Choices.FirstOrDefault()?.Message.Content);
                 var finishReason = completion.Choices.FirstOrDefault()?.FinishReason;
-
                 if (finishReason != null && finishReason != "stop")
                 {
                     _logger.LogInformation("{FinishReason}", finishReason);
@@ -99,7 +93,9 @@ public class ChatCompletionsService
                     {
                         yield return chatMessage;
                     }
-                } else
+                } 
+                
+                else
                 {
                     yield return new ChatMessage("assistant", "❌ **OpenAI API request failed. Please try again later.**");
                 }

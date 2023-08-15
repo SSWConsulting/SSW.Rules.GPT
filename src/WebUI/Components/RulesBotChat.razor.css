@@ -1,0 +1,20 @@
+﻿.container {
+    display: grid; 
+    grid-template-rows: 1fr auto; 
+    height: 100%; 
+    padding: 24px 0;
+}
+
+::deep .chat-box {
+    max-width: 70%;
+}
+
+::deep .button-lowercase {
+    text-transform: none;
+}
+
+@media screen and (max-width: 600px) {
+    ::deep .chat-box {
+        max-width: 85%;
+    }
+}

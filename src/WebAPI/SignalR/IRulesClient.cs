@@ -1,6 +1,4 @@
-﻿using Polly.RateLimit;
-
-namespace WebAPI.SignalR;
+﻿namespace WebAPI.SignalR;
 
 public interface IRulesClient
 {

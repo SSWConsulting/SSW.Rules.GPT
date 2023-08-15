@@ -8,7 +8,7 @@
             @if (DataState.ChatMessages.Count == 0)
             {
                 <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center" Style="height: 60%">
-                    <MudStack Row="true">
+                    <MudStack Row="true" Class="pb-6">
                         <MudAvatar Size="Size.Large">
                             <MudImage Src="images/chatgpt-icon.svg"></MudImage>
                         </MudAvatar>
@@ -16,15 +16,15 @@
                             <b>RulesGPT</b>
                         </MudText>
                     </MudStack>
-                    <MudText Typo="Typo.subtitle1" Style="font-style: italic">Examples</MudText>
+                    <MudText Typo="Typo.subtitle1" Style="font-style: italic">Ask a question OR start with these examples</MudText>
                     <MudStack Class="pt-0">
-                        <MudButton Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => OnExampleClicked("How do I send a v2 email?"))">
+                        <MudButton Class="button-lowercase" Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => OnExampleClicked("How do I send a v2 email?"))">
                             How do I send a v2 email?
                         </MudButton>
-                        <MudButton Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => OnExampleClicked("How can I get better at presenting?"))">
+                        <MudButton Class="button-lowercase" Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => OnExampleClicked("How can I get better at presenting?"))">
                             How can I get better at presenting?
                         </MudButton>
-                        <MudButton Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => OnExampleClicked("Give me some rules to better GPT"))">
+                        <MudButton Class="button-lowercase" Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => OnExampleClicked("Give me some rules to better GPT"))">
                             Give me some rules to better GPT
                         </MudButton>
                     </MudStack>

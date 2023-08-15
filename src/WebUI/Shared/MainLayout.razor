@@ -12,15 +12,8 @@
 <MudDialogProvider Position="DialogPosition.Center"/>
 <MudSnackbarProvider/>
 
-<style>
-    html, body, #app {
-        height: 100%;
-    }
-</style>
-
 <MudLayout>
     <MudAppBar Elevation="0">
-        @*<MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />*@
         <MudStack Justify="Justify.Center" Class="pr-2">
             <MudLink OnClick="ClearMessageHistory">
                 <MudImage Src="images/SSWlogo-DarkMode.svg" Height="40" ObjectFit="ObjectFit.ScaleDown"></MudImage>
@@ -31,18 +24,6 @@
         </MudStack>
         <MudStack Justify="Justify.Center" Class="pl-3">
             <MudText Class="tag-line" Color="Color.Primary" Typo="Typo.body1">Keeping Order with Intelligence</MudText>
-            <style>
-                @@media screen and (max-width: 600px) {
-                    .tag-line {
-                        display: none;
-                    }
-                }
-                @@media screen and (max-width: 432px) {
-                    .powered-by-link {
-                        display: none;
-                    }
-                }
-            </style>
         </MudStack>
         <MudSpacer/>
         <MudLink Color="Color.Primary" Variant="Variant.Filled" Class="powered-by-link mr-2" Target="_blank" Href="https://ssw.com.au/rules">Powered by SSW Rules</MudLink>
@@ -82,17 +63,6 @@
             <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Info" OnTouch="OpenAboutRulesGptDialog" OnClick="OpenAboutRulesGptDialog">About</MudMenuItem>
         </MudMenu>
     </MudAppBar>
-    @*
-    <MudDrawer @bind-Open="_drawerOpen" Elevation="1">
-    <MudDrawerHeader>
-    <MudStack Style="width: 100%" Justify="Justify.Center">
-    <MudImage Src="images/SSWlogo-DarkMode.svg" Height="40" ObjectFit="ObjectFit.ScaleDown"></MudImage>
-    </MudStack>
-    <MudText Typo="Typo.h6">SSW Rules Bot</MudText>
-    </MudDrawerHeader>
-    <NavMenu />
-    </MudDrawer>
-    *@
     <MudMainContent Style="height: 100%;">
         <CascadingValue Value="_theme">
             <CascadingValue Value="_isDarkMode">
@@ -105,7 +75,6 @@
 </MudLayout>
 
 @code {
-    //bool _drawerOpen = true;
     private MudThemeProvider _mudThemeProvider;
     bool _isDarkMode;
     bool systemIsDarkMode;
@@ -133,11 +102,6 @@
             BackgroundGrey = "#3E4446",
         }
     };
-
-    //private void DrawerToggle()
-    //{
-    //    _drawerOpen = !_drawerOpen;
-    //}
 
     private void SetThemePreference(ThemePreference preference)
     {

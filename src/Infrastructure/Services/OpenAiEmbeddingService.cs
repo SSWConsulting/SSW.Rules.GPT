@@ -1,6 +1,4 @@
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using System.Diagnostics;
 using Application.Contracts;
 using Application.Services;
 using OpenAI.GPT3;
@@ -16,7 +14,7 @@ namespace Infrastructure.Services;
 public class OpenAiEmbeddingService : IOpenAiEmbeddingService
 {
     private readonly IOpenAIService _openAiService;
-    
+
     public Func<RateLimitRejectedException, Task> OnRateLimited { get; set; }
 
     public OpenAiEmbeddingService(OpenAiServiceFactory openAiServiceFactory, IConfiguration config)
@@ -88,16 +86,14 @@ public class OpenAiEmbeddingService : IOpenAiEmbeddingService
 
                 return vector;
             }
-            else
-            {
-                if (result.Error == null)
-                {
-                    throw new Exception("Unknown Error");
-                }
 
-                Console.WriteLine($"{result.Error.Code}: {result.Error.Message}");
-                return null;
+            if (result.Error == null)
+            {
+                throw new Exception("Unknown Error");
             }
+
+            Console.WriteLine($"{result.Error.Code}: {result.Error.Message}");
+            return null;
         }
         catch (RateLimitRejectedException e)
         {

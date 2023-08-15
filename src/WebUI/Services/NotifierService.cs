@@ -1,6 +1,4 @@
-﻿using Polly.RateLimit;
-
-namespace WebUI.Services;
+﻿namespace WebUI.Services;
 
 public class NotifierService
 {

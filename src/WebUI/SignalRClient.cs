@@ -4,24 +4,20 @@ using Microsoft.AspNetCore.SignalR.Client;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 using WebUI.Models;
 using WebUI.Services;
-using Polly.RateLimit;
 
 namespace WebUI;
 
 public class SignalRClient 
 {
-    private readonly DataState _dataState;
     private readonly NotifierService _notifierService;
     private readonly HubConnection _connection;
     private readonly ILogger<SignalRClient> _logger;
 
     public SignalRClient(
-        DataState dataState,
         IWebAssemblyHostEnvironment hostEnvironment,
         NotifierService notifierService, 
         ILogger<SignalRClient> logger)
     {
-        _dataState = dataState;
         _notifierService = notifierService;
         _logger = logger;
         var hubeBaseUrl = hostEnvironment.IsDevelopment()
@@ -73,8 +69,7 @@ public class SignalRClient
     }
 
     // Methods the client can call on the server
-
-
+    
     public async Task BroadcastMessageAsync(string userName, string message)
     {
         await _connection.InvokeAsync("BroadcastMessage", userName, message);
