@@ -43,7 +43,7 @@ public static class DependencyInjection
             "https://ssw.com.au/rulesgpt"
         };
 
-        var developmentCorsUrls = new string[] { "https://localhost:5001" };
+        var developmentCorsUrls = new string[] { "https://localhost:5002" };
 
         services.AddCors(
             options =>
