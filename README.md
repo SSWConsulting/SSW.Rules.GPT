@@ -57,9 +57,8 @@ Follow these simple steps to install and set up our SSW Rules GPT project:
 6. Ask SSW Rules GPT a question!
 
 ### 💻 Installation - Set Multiple Startup Projects
-Instead of manually launching the WebUI and WebAPI projects, you can set multiple startup projects in Visual Studio and Rider.
-
-TODO: Link to rule
+Instead of manually launching the WebUI and WebAPI projects, you can set multiple startup projects in Visual Studio and Rider.  
+Read [this rule](https://ssw.com.au/rules/multiple-startup-projects/) to learn how.
 
 ### 👥 Project Contributors
 
