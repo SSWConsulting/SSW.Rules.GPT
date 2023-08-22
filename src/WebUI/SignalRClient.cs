@@ -24,7 +24,7 @@ public class SignalRClient
         
         var hubeBaseUrl = hostEnvironment.IsDevelopment()
             ? "https://localhost:7104"
-            : configuration.GetValue<string>("ApiBaseUrl");
+            : configuration["ApiBaseUrl"];
         
         var hubUrl = $"{hubeBaseUrl}/ruleshub";
         

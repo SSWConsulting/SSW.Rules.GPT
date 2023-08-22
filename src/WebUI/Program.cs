@@ -43,8 +43,7 @@ const string ApiClient = nameof(ApiClient);
 
 var apiBaseUrl = builder.HostEnvironment.IsDevelopment()
     ? "https://localhost:7104"
-    : builder.Configuration.GetValue<string>("ApiBaseUrl");
-    //: "https://ssw-rulesgpt-api.azurewebsites.net";
+    : builder.Configuration["ApiBaseUrl"];
 
 builder.Services
     .AddHttpClient(
