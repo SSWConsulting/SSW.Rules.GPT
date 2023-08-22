@@ -33,7 +33,7 @@ jobs:
         with:
           files: './src/WebUI/wwwroot/appsettings.json'
         env:
-          ApiBaseUrl: 'https://ssw-rulesgpt-api-stage.azurewebsites.net/'
+          ApiBaseUrl: 'https://ssw-rulesgpt-api-stage.azurewebsites.net'
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
