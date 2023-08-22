@@ -19,8 +19,10 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: Staging
-
+    environment:
+      name: 'Staging'
+      url: ${{ steps.deploy-to-staticwebapp.outputs.static_web_app_url }}
+      
     steps:
       - uses: actions/checkout@v3.3.0
 
