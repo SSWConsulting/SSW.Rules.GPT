@@ -204,6 +204,7 @@
     {
         await NotifierService.CancelMessageStream();
         DataState.ChatMessages.Clear();
+        DataState.CurrentMessageThread.Clear();
         await NotifierService.Update();
     }
 }
