@@ -42,6 +42,14 @@ jobs:
 #      - name: Change base-tag in index.html from / to rulesgpt
 #        run: sed -i 's/<base href="\/" \/>/<base href="\/rulesgpt\/" \/>/g' ${{env.DOTNET_ROOT}}/myapp/webui/wwwroot/index.html
 
+      # https://stackoverflow.com/questions/60521929/change-variables-in-appsettings-when-deploying-with-github-actions
+      - name: App Settings Variable Substitution
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: '${{env.DOTNET_ROOT}}/myapp/webui/wwwroot/appsettings.json'
+        env:
+          ApiBaseUrl: 'https://ssw-rulesgpt-api-stage.azurewebsites.net/'
+
       - name: Upload API artifact for deployment job
         uses: actions/upload-artifact@v3.1.2
         with:

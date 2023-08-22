@@ -22,10 +22,7 @@ public class SignalRClient
         _notifierService = notifierService;
         _logger = logger;
         
-        var hubeBaseUrl = hostEnvironment.IsDevelopment()
-            ? "https://localhost:7104"
-            : configuration["ApiBaseUrl"];
-        
+        var hubeBaseUrl = configuration["ApiBaseUrl"];
         var hubUrl = $"{hubeBaseUrl}/ruleshub";
         
         _connection = new HubConnectionBuilder().WithUrl(hubUrl).WithAutomaticReconnect().Build();
