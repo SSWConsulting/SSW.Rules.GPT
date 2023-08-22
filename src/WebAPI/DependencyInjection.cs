@@ -39,7 +39,6 @@ public static class DependencyInjection
         // TODO: Set CORS in Bicep
         var productionCorsUrls = new string[]
         {
-            "https://ashy-meadow-0a2bad900.3.azurestaticapps.net",
             "https://white-desert-00e3fb600.3.azurestaticapps.net",
             "https://rulesgpt.ssw.com.au",
             "https://ssw.com.au/rulesgpt"
