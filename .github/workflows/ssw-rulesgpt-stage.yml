@@ -32,10 +32,10 @@ jobs:
         run: dotnet build --configuration Release
 
       - name: dotnet publish WebAPI
-        run: dotnet publish ./src/WebAPI -c Release --property PublishDir=${{env.DOTNET_ROOT}}/myapp/api
+        run: dotnet publish ./src/WebAPI -c Release -o ./publish/api
 
       - name: dotnet publish WebUI
-        run: dotnet publish ./src/WebUI -c Release --property PublishDir=${{env.DOTNET_ROOT}}/myapp/webui
+        run: dotnet publish ./src/WebUI -c Release -o ./publish/ui
 # TODO: Build and run unit tests
 
 # Changes the base-tag in index.html from '/' to 'rulesgpt' to match SSW subdirectory
@@ -46,7 +46,7 @@ jobs:
       - name: App Settings Variable Substitution
         uses: microsoft/variable-substitution@v1
         with:
-          files: '${{env.DOTNET_ROOT}}/myapp/webui/wwwroot/appsettings.json'
+          files: './publish/ui/wwwroot/appsettings.json'
         env:
           ApiBaseUrl: 'https://ssw-rulesgpt-api-stage.azurewebsites.net/'
 
@@ -54,13 +54,13 @@ jobs:
         uses: actions/upload-artifact@v3.1.2
         with:
           name: .net-app-api
-          path: ${{env.DOTNET_ROOT}}/myapp/api
+          path: ./publish/api
 
       - name: Upload WebUI artifact for deployment job
         uses: actions/upload-artifact@v3.1.2
         with:
           name: .net-app-webui
-          path: ${{env.DOTNET_ROOT}}/myapp/webui
+          path: ./publish/ui
 
   deploy-api:
     runs-on: ubuntu-latest
