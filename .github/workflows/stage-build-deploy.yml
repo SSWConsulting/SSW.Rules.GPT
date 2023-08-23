@@ -6,13 +6,16 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  ApiBaseUrl: ${{ vars.API_BASE_URL }}
+
 jobs:
   call-reusable-build-and-deploy:
       uses: ./.github/workflows/deploy-reusable.yml
       with:
         EnvironmentName: 'Staging'
         AzureWebAppName: 'ssw-rulesgpt-api-stage'
-        ApiBaseUrl: ${{ vars.API_BASE_URL }}
+        ApiBaseUrl: ${{ env.ApiBaseUrl }}
       
       secrets:
         AzureWebAppSecret: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_706C909B7DCB4379927A9D3AF3D8B5EF }}
