@@ -10,7 +10,7 @@ const string RulesGptCorsPolicy = nameof(RulesGptCorsPolicy);
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddWebApi(RulesGptCorsPolicy);
+builder.Services.AddWebApi(RulesGptCorsPolicy, builder.Environment);
 
 var app = builder.Build();
 
