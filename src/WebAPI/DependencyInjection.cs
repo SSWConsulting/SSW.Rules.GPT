@@ -6,10 +6,8 @@ namespace WebAPI;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddWebApi(
-        this IServiceCollection services,
-        string rulesGptCorsPolicy
-    )
+    public static IServiceCollection AddWebApi(this IServiceCollection services,
+        string rulesGptCorsPolicy, IWebHostEnvironment env)
     {
         services.AddSingleton<SignalRHubFilter>();
 
@@ -38,6 +36,7 @@ public static class DependencyInjection
         // TODO: Set CORS in Bicep
         var productionCorsUrls = new string[]
         {
+            "https://ashy-meadow-0a2bad900.3.azurestaticapps.net",
             "https://white-desert-00e3fb600.3.azurestaticapps.net",
             "https://rulesgpt.ssw.com.au",
             "https://ssw.com.au/rulesgpt"
@@ -52,8 +51,7 @@ public static class DependencyInjection
                     policy =>
                         policy
                             .WithOrigins(
-                                Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
-                                == "Development"
+                                env.IsDevelopment()
                                     ? developmentCorsUrls
                                     : productionCorsUrls
                             )

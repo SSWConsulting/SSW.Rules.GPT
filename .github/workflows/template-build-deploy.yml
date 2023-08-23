@@ -1,26 +1,34 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy - ssw-rulesgpt-prod
+name: Reusable Build and Deploy
 
 on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
-    
-env:
-  # DeploymentEnvironment: 'Production'
-  AzureWebAppName: 'ssw-rulesgpt-api' # The name of the resource in Azure
-  AzureWebAppSecret: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1FEDFC8C3C4A497399C6318E5C173C42 }}
-  AzureStaticWebAppsApiToken: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_WHITE_DESERT_00E3FB600 }}
-  GithubRepoToken: ${{ secrets.GITHUB_TOKEN }}
+  workflow_call: 
+    inputs:
+      # The environment to deploy to (Staging or Production)
+      environment: 
+        required: true
+        type: string
+      # The name of the resource in Azure
+      AzureWebAppName: 
+        required: true
+        type: string
+        
+    secrets:
+      AzureWebAppSecret:
+        required: true
+      AzureStaticWebAppsApiToken:
+        required: true
+      GithubRepoToken:
+        required: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    steps:
+    environment: ${{ inputs.environment }}
+    
+    steps:       
       - uses: actions/checkout@v3.3.0
 
       - name: Set up .NET Core
@@ -28,37 +36,41 @@ jobs:
         with:
           dotnet-version: '7.x'
 
+      # https://stackoverflow.com/questions/60521929/change-variables-in-appsettings-when-deploying-with-github-actions
+      # This will fail if done before the build step
+      - name: App Settings Variable Substitution
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: './src/WebUI/wwwroot/appsettings.json'
+        env:
+          ApiBaseUrl: ${{ vars.API_BASE_URL }}
+
       - name: Build with dotnet
         run: dotnet build --configuration Release
 
       - name: dotnet publish WebAPI
-        run: dotnet publish ./src/WebAPI -c Release --property PublishDir=${{env.DOTNET_ROOT}}/myapp/api
+        run: dotnet publish ./src/WebAPI -c Release -o ./publish/api
 
       - name: dotnet publish WebUI
-        run: dotnet publish ./src/WebUI -c Release --property PublishDir=${{env.DOTNET_ROOT}}/myapp/webui
-      # TODO: Build and run unit tests
-      
-      # Changes the base-tag in index.html from '/' to 'rulesgpt' to match SSW subdirectory
-      #      - name: Change base-tag in index.html from / to rulesgpt
-      #        run: sed -i 's/<base href="\/" \/>/<base href="\/rulesgpt\/" \/>/g' ${{env.DOTNET_ROOT}}/myapp/webui/wwwroot/index.html
-
+        run: dotnet publish ./src/WebUI -c Release -o ./publish/ui
+        
       - name: Upload API artifact for deployment job
         uses: actions/upload-artifact@v3.1.2
         with:
           name: .net-app-api
-          path: ${{env.DOTNET_ROOT}}/myapp/api
+          path: ./publish/api
 
       - name: Upload WebUI artifact for deployment job
         uses: actions/upload-artifact@v3.1.2
         with:
           name: .net-app-webui
-          path: ${{env.DOTNET_ROOT}}/myapp/webui
+          path: ./publish/ui
 
   deploy-api:
     runs-on: ubuntu-latest
     needs: build
     environment:
-      name: 'Production'
+      name: ${{ inputs.environment }}
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
@@ -71,16 +83,16 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: "${{ env.AzureWebAppName }}"
+          app-name: "${{ inputs.AzureWebAppName }}"
           slot-name: 'Production' # The environment in Azure, Production is just the name of the slot
-          publish-profile: ${{ env.AzureWebAppSecret }}
+          publish-profile: ${{ secrets.AzureWebAppSecret }}
           package: .
 
   deploy-webui:
     runs-on: ubuntu-latest
     needs: build
     environment:
-      name: 'Production'
+      name: ${{ inputs.environment }}
       url: ${{ steps.deploy-to-staticwebapp.outputs.static_web_app_url }}
     steps:
       - name: Download artifact from build job
@@ -92,8 +104,8 @@ jobs:
         id: deploy-to-staticwebapp
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ env.AzureStaticWebAppsApiToken }}
-          repo_token: ${{ env.GithubRepoToken }} # Used for Github integrations (i.e. PR comments)
+          azure_static_web_apps_api_token: ${{ secrets.AzureStaticWebAppsApiToken }}
+          repo_token: ${{ secrets.GithubRepoToken }} # Used for Github integrations (i.e. PR comments)
           skip_app_build: true
           action: "upload"
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######

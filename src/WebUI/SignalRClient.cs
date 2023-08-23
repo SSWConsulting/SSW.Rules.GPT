@@ -20,6 +20,7 @@ public class SignalRClient
     public SignalRClient(
         IWebAssemblyHostEnvironment hostEnvironment,
         NotifierService notifierService,
+        IConfiguration configuration,
         ILogger<SignalRClient> logger,
         NavigationManager navigationManager, 
         IAccessTokenProvider tokenProvider)
@@ -29,12 +30,9 @@ public class SignalRClient
         _navigationManager = navigationManager;
         _tokenProvider = tokenProvider;
 
-        var hubeBaseUrl = hostEnvironment.IsDevelopment()
-            ? "https://localhost:7104"
-            : "https://ssw-rulesgpt-api.azurewebsites.net";
-
+        var hubeBaseUrl = configuration["ApiBaseUrl"];
         var hubUrl = $"{hubeBaseUrl}/ruleshub";
-
+        
         _connection = new HubConnectionBuilder()
             .WithUrl(hubUrl, options =>
             {
