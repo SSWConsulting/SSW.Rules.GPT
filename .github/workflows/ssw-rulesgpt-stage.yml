@@ -11,7 +11,7 @@ env:
 
 jobs:
   call-reusable-build-and-deploy:
-      uses: ./.github/workflows/deploy-reusable.yml
+      uses: ./.github/workflows/build-deploy-reusable.yml
       with:
         EnvironmentName: 'Staging'
         AzureWebAppName: 'ssw-rulesgpt-api-stage'
