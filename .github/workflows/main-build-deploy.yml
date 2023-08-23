@@ -3,9 +3,6 @@
 
 name: Build and Deploy - Production
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
