@@ -32,9 +32,6 @@ builder.Services.AddAuthentication(options =>
             // If the request is for our hub...
             var path = context.HttpContext.Request.Path;
             
-            Console.WriteLine($"[AddJwtBearer.OnMessageReceived] path: {path}");
-            Console.WriteLine($"[AddJwtBearer.OnMessageReceived] accessToken: {accessToken}");
-
             if (!string.IsNullOrEmpty(accessToken) &&
                 (path.StartsWithSegments("/ruleshub")))
             {

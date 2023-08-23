@@ -43,15 +43,12 @@ public class SignalRClient
                     var tokenResult = await _tokenProvider.RequestAccessToken();
                     if (tokenResult.TryGetToken(out var token))
                     {
-                        Console.WriteLine($"[HubConnectionBuilder.WithUrl] Authenticated user with token: {token.Value}.");
                         return await Task.FromResult(token.Value);
                     }
 
-                    Console.WriteLine("[HubConnectionBuilder.WithUrl] Unauthenticated user.");
                     return await Task.FromResult("");
                 };
                 
-                Console.WriteLine($"[HubConnectionBuilder.WithUrl] options.AccessTokenProvider: {options.AccessTokenProvider}");
             })
             .WithAutomaticReconnect()
             .Build();
