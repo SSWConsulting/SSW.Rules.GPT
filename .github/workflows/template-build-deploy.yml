@@ -14,10 +14,6 @@ on:
       AzureWebAppName: 
         required: true
         type: string
-      # The URL for the relevant API
-      # ApiBaseUrl:
-      #   required: true
-      #   type: string
         
     secrets:
       AzureWebAppSecret:
@@ -87,7 +83,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: "${{ github.event.inputs['AzureWebAppName'] }}"
+          app-name: "${{ inputs.AzureWebAppName }}"
           slot-name: 'Production' # The environment in Azure, Production is just the name of the slot
           publish-profile: ${{ secrets.AzureWebAppSecret }}
           package: .
