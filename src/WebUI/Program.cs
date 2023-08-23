@@ -41,9 +41,7 @@ builder.Services.AddMudServices(config =>
 
 const string ApiClient = nameof(ApiClient);
 
-var apiBaseUrl = builder.HostEnvironment.IsDevelopment()
-    ? "https://localhost:7104"
-    : "https://ssw-rulesgpt-api.azurewebsites.net";
+var apiBaseUrl = builder.Configuration["ApiBaseUrl"];
 
 builder.Services
     .AddHttpClient(

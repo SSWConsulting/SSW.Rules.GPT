@@ -9,17 +9,56 @@
 
 ### 📝 Project Description
 
-Our project is a GPT Bot that uses OpenAI embeddings to search for matching [SSW Rules](https://www.ssw.com.au/rules), and then feeding the top 10 results back into the ChatGPT 3.5-turbo API, written in C# and Blazor.
+Our project is a GPT Bot that uses OpenAI embeddings to search for matching [SSW Rules](https://www.ssw.com.au/rules), and then feeding the top 10 results back into the ChatGPT API, written in C# and Blazor.
 
 ### 💻 Installation
 
 Follow these simple steps to install and set up our SSW Rules GPT project:
 
 1. Clone the repository
-2. Create an appsettings.json file in `src/WebAPI` and add keys
-3. Run the WebAPI (https) project
-4. Run the WebUI (https) project, and a browser window will open to https://localhost:5001
-5. Ask SSW Rules GPT a question!
+2. Create an appsettings.json file in `src/WebAPI` using the following template:
+```
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning",
+      "Microsoft.EntityFrameworkCore.Database.Command": "Information"
+    }
+  },
+  "SigningAuthority": "https://identity.ssw.com.au",
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+    "DefaultConnection": "{{ Supabase DB Connection String }}",
+    "LocalConnection": "Host=localhost;Database=SswRules;Username=postgres;Password=postgres;Include Error Detail=true",
+  },
+  "OpenAiApiKey": "{{ SSW OpenAI API Key }}"
+}
+```
+3. If you are running Identity Server locally, add the local SigningAuthority to your appsettings.Development.json:
+```
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "SigningAuthority": "https://localhost:5003"
+}
+```   
+4. Run the WebAPI (https) project
+5. Run the WebUI (https) project, and a browser window will open to https://localhost:5002
+   
+> **Warning**  
+> RulesGPT has been changed from port 5001 to 5002, if you are running Identity Server locally you **must** be running on port 5002.  
+> Double check WebUI/launchsettings.json before running the project.
+
+6. Ask SSW Rules GPT a question!
+
+### 💻 Installation - Set Multiple Startup Projects
+Instead of manually launching the WebUI and WebAPI projects, you can set multiple startup projects in Visual Studio and Rider.  
+Read [this rule](https://ssw.com.au/rules/multiple-startup-projects/) to learn how.
 
 ### 👥 Project Contributors
 
