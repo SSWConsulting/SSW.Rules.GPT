@@ -30,7 +30,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-      
+    environment: ${{ github.event.inputs['EnvironmentName'] }}
+    
     steps:
       - uses: actions/checkout@v3.3.0
 
