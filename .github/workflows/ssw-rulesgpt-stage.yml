@@ -8,12 +8,10 @@ on:
 
 jobs: 
   call-reusable-build-and-deploy:
-    environment: 'Staging'
-    uses: ./.github/workflows/build-deploy-reusable.yml
+    uses: ./.github/workflows/template-build-deploy.yml
     with:
-      EnvironmentName: 'Staging'
+      environment: 'Staging'
       AzureWebAppName: 'ssw-rulesgpt-api-stage'
-      ApiBaseUrl: ${{ vars.API_BASE_URL }}
     
     secrets:
       AzureWebAppSecret: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_706C909B7DCB4379927A9D3AF3D8B5EF }}
