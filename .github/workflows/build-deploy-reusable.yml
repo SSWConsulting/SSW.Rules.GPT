@@ -15,9 +15,9 @@ on:
         required: true
         type: string
       # The URL for the relevant API
-      ApiBaseUrl:
-        required: true
-        type: string
+      # ApiBaseUrl:
+      #   required: true
+      #   type: string
         
     secrets:
       AzureWebAppSecret:
@@ -46,7 +46,7 @@ jobs:
         with:
           files: './src/WebUI/wwwroot/appsettings.json'
         env:
-          ApiBaseUrl: ${{ github.event.inputs['ApiBaseUrl'] }}
+          ApiBaseUrl: ${{ vars.ApiBaseUrl }}
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
