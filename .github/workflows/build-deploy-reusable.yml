@@ -32,12 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs['EnvironmentName'] }}
     
-    steps:
-      - name: Output Variables
-        run: | 
-          echo ${{ github.event.inputs['EnvironmentName'] }}
-          echo ${{ github.event.inputs['ApiBaseUrl'] }}
-        
+    steps:       
       - uses: actions/checkout@v3.3.0
 
       - name: Set up .NET Core
@@ -52,7 +47,7 @@ jobs:
         with:
           files: './src/WebUI/wwwroot/appsettings.json'
         env:
-          ApiBaseUrl: ${{ vars.ApiBaseUrl }}
+          ApiBaseUrl: ${{ github.event.inputs['ApiBaseUrl'] }}
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
