@@ -15,9 +15,9 @@ on:
         required: true
         type: string
       # The URL for the relevant API
-      # ApiBaseUrl:
-      #   required: true
-      #   type: string
+      ApiBaseUrl:
+        required: true
+        type: string
         
     secrets:
       AzureWebAppSecret:
@@ -33,6 +33,11 @@ jobs:
     environment: ${{ github.event.inputs['EnvironmentName'] }}
     
     steps:
+      - name: Output Variables
+        run: | 
+          echo ${{ github.event.inputs['EnvironmentName'] }}
+          echo ${{ github.event.inputs['ApiBaseUrl'] }}
+        
       - uses: actions/checkout@v3.3.0
 
       - name: Set up .NET Core
