@@ -47,7 +47,7 @@ jobs:
         with:
           files: './src/WebUI/wwwroot/appsettings.json'
         env:
-          ApiBaseUrl: ${{ env.API_BASE_URL }}
+          ApiBaseUrl: ${{ vars.API_BASE_URL }}
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
