@@ -60,6 +60,13 @@ Follow these simple steps to install and set up our SSW Rules GPT project:
 Instead of manually launching the WebUI and WebAPI projects, you can set multiple startup projects in Visual Studio and Rider.  
 Read [this rule](https://ssw.com.au/rules/multiple-startup-projects/) to learn how.
 
+### 🚀 Deployment
+When code merged into main it will be automatically deployed to staging.
+You should test your changes in staging before manually running the production workflow.
+
+Staging Frontend URL: https://ashy-meadow-0a2bad900.3.azurestaticapps.net
+Staging API URL: https://ssw-rulesgpt-api-stage.azurewebsites.net
+
 ### 👥 Project Contributors
 
 - Calum Simpson ([@calumjs](https://github.com/calumjs))
