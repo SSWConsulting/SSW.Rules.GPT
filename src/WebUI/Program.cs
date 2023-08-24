@@ -41,7 +41,7 @@ builder.Services.AddMudServices(config =>
 
 builder.Services.AddOidcAuthentication(options =>
 {
-    options.ProviderOptions.Authority = "https://localhost:5003";
+    options.ProviderOptions.Authority = builder.Configuration["SigningAuthority"];
     options.ProviderOptions.ClientId = "ssw-rulesgpt";
     
     options.ProviderOptions.DefaultScopes.Add("email");
