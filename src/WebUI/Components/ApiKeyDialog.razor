@@ -144,11 +144,11 @@
             DataState.UsingByoApiKey = true;
 
             await Storage.SetItemAsync("userAPIKeyEnabled", DataState.UsingByoApiKey.ToString());
+            await Storage.SetItemAsync("userGptModel", SelectedGptModel.ToString());
 
             if (saveAPIKeyToLocalStorage)
             {
                 await Storage.SetItemAsync("userAPIKey", ApiKeyString);
-                await Storage.SetItemAsync("userGptModel", SelectedGptModel.ToString());
             }
 
             else
