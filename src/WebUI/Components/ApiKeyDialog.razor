@@ -4,6 +4,32 @@
 
 <MudDialog>
     <DialogContent>
+        <MudStack>
+            <MudSwitch @bind-Checked="@UsingByoApiKey" Label="Use my API Key" Color="Color.Error"></MudSwitch>
+            @if (UsingByoApiKey)
+            {
+                <MudSwitch Class="mb-6" @bind-Checked="@saveAPIKeyToLocalStorage" Label="Save to LocalStorage" Color="Color.Error"></MudSwitch>
+            }
+            <MudSelect Disabled="!UsingByoApiKey" T="AvailableGptModels" @bind-Value="@SelectedGptModel" ToStringFunc="s => AvailableModelEnumToString(s)" Label="GPT Model" AnchorOrigin="Origin.BottomCenter">
+                <MudSelectItem Value="AvailableGptModels.Gpt35Turbo"/>
+                <MudSelectItem Value="AvailableGptModels.Gpt4"/>
+            </MudSelect>
+            @if (UsingByoApiKey)
+            {
+                <MudTextField Disabled="!UsingByoApiKey" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="ToggleShowPassword" @bind-Value="ApiKeyString" OnKeyDown="ResetValidationErrors" Label="Enter your key" Variant="Variant.Text"></MudTextField>
+            }
+            @if (validationState == ValidationState.Invalid)
+            {
+                <MudAlert Severity="Severity.Error" Dense="true" Class="my-2">@KeyValidationErrorMessage</MudAlert>
+            }
+            @if (UsingByoApiKey)
+            {
+                <MudButton Class="mt-7" StartIcon="@Icons.Material.Filled.Help">Help</MudButton>
+            }
+        </MudStack>
+    </DialogContent>
+    @*
+    <DialogContent>
         <MudStack Spacing="4">
             <MudRadioGroup T="bool" SelectedOption="UsingByoApiKey" SelectedOptionChanged="UpdateByoOptionAndSelectedModel">
                 <MudStack>
@@ -11,7 +37,7 @@
                     <MudRadio Placement="Placement.End" Option="true">Use my API Key 🔑</MudRadio>
                 </MudStack>
             </MudRadioGroup>
-            
+
             <MudSelect Disabled="!UsingByoApiKey" T="AvailableGptModels" @bind-Value="@SelectedGptModel" ToStringFunc="s => AvailableModelEnumToString(s)" Label="GPT Model" AnchorOrigin="Origin.BottomCenter">
                 <MudSelectItem Value="AvailableGptModels.Gpt35Turbo"/>
                 <MudSelectItem Value="AvailableGptModels.Gpt4"/>
@@ -32,6 +58,7 @@
             }
         </MudStack>
     </DialogContent>
+*@
     <DialogActions>
         @if (UsingByoApiKey)
         {
@@ -70,10 +97,10 @@
     private bool Validating { get; set; } = false;
     private string? ApiKeyString { get; set; }
     private AvailableGptModels SelectedGptModel { get; set; } = AvailableGptModels.Gpt35Turbo;
-    
+
     public string KeyValidationErrorMessage { get; set; } = string.Empty;
     public ValidationState validationState { get; set; } = ValidationState.Initial;
-    
+
     private InputType PasswordInput = InputType.Password;
     private string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
     private bool ShowPassword { get; set; } = false;
@@ -86,18 +113,18 @@
         {
             ApiKeyString = DataState.OpenAiApiKey;
         }
-        
+
         var savedAPIKey = await Storage.GetItemAsync<string>("userAPIKey");
         if (savedAPIKey != null)
         {
             saveAPIKeyToLocalStorage = true;
         }
-        
+
         UsingByoApiKey = DataState.UsingByoApiKey;
         SelectedGptModel = DataState.SelectedGptModel;
         StateHasChanged();
     }
-    
+
     private void ToggleShowPassword()
     {
         if (ShowPassword)
@@ -116,7 +143,7 @@
         PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
         PasswordInput = InputType.Password;
     }
-    
+
     private void SetShowPasswordTrue()
     {
         ShowPassword = true;
@@ -132,10 +159,10 @@
         {
             Validating = false;
             KeyValidationErrorMessage = "Enter an API Key";
-            validationState = ValidationState.Invalid;   
+            validationState = ValidationState.Invalid;
             return;
         }
-        
+
         var validationResult = await ApiKeyValidationService.ValidateApiKey(ApiKeyString, SelectedGptModel);
         if (validationResult.Success)
         {
@@ -156,7 +183,7 @@
             {
                 await ClearSavedKey();
             }
-            
+
             MudDialog.Close(DialogResult.Ok(true));
         }
         else
@@ -166,21 +193,21 @@
             validationState = ValidationState.Invalid;
         }
     }
-    
+
     private async Task SaveWithSswKey()
     {
         DataState.OpenAiApiKey = null;
         DataState.SelectedGptModel = AvailableGptModels.Gpt35Turbo;
         DataState.UsingByoApiKey = false;
-        
+
         await Storage.SetItemAsync("userAPIKeyEnabled", DataState.UsingByoApiKey.ToString());
 
         if (!saveAPIKeyToLocalStorage)
             await ClearSavedKey();
-        
+
         MudDialog.Close(DialogResult.Ok(true));
     }
-    
+
     private async Task ResetValidationErrors()
     {
         validationState = ValidationState.Initial;
@@ -194,7 +221,7 @@
         {
             await ClearSavedKey();
         }
-        
+
         var savedAPIKey = await Storage.GetItemAsync<string>("userAPIKey");
         var savedGPTModel = await Storage.GetItemAsync<string>("userGptModel");
 
@@ -202,7 +229,7 @@
         {
             ApiKeyString = savedAPIKey;
         }
-            
+
         if (savedGPTModel != null)
         {
             SelectedGptModel = Enum.Parse<AvailableGptModels>(savedGPTModel);
@@ -211,10 +238,10 @@
         else
         {
             SelectedGptModel = usingByoApiKey && string.IsNullOrWhiteSpace(ApiKeyString)
-                ? AvailableGptModels.Gpt4 
+                ? AvailableGptModels.Gpt4
                 : AvailableGptModels.Gpt35Turbo;
         }
-        
+
         StateHasChanged();
     }
 
@@ -225,7 +252,7 @@
             AvailableGptModels.Gpt4 => "GPT-4",
             AvailableGptModels.Gpt35Turbo => "GPT-3.5 Turbo",
             _ => throw new ArgumentOutOfRangeException()
-        };
+            };
         return modelString;
     }
 
@@ -234,5 +261,5 @@
         await Storage.RemoveItemAsync("userAPIKey");
         await Storage.RemoveItemAsync("userGptModel");
     }
-}
 
+}
