@@ -135,8 +135,9 @@
             validationState = ValidationState.Invalid;   
             return;
         }
-        var success = await ApiKeyValidationService.ValidateApiKey(ApiKeyString, SelectedGptModel);
-        if (success)
+        
+        var validationResult = await ApiKeyValidationService.ValidateApiKey(ApiKeyString, SelectedGptModel);
+        if (validationResult.Success)
         {
             validationState = ValidationState.Valid;
             DataState.OpenAiApiKey = ApiKeyString;
@@ -161,7 +162,7 @@
         else
         {
             Validating = false;
-            KeyValidationErrorMessage = "Invalid API Key";
+            KeyValidationErrorMessage = validationResult.ErrorMessage;
             validationState = ValidationState.Invalid;
         }
     }
