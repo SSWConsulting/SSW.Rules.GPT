@@ -16,45 +16,27 @@ Our project is a GPT Bot that uses OpenAI embeddings to search for matching [SSW
 Follow these simple steps to install and set up our SSW Rules GPT project:
 
 1. Clone the repository
-2. Create an appsettings.json file in `src/WebAPI` using the following template:
+2. Add the following to your secrets.json file in `src/WebAPI`:
 ```
 {
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning",
-      "Microsoft.EntityFrameworkCore.Database.Command": "Information"
-    }
-  },
-  "SigningAuthority": "https://identity.ssw.com.au",
-  "AllowedHosts": "*",
+  "OpenAiApiKey": "{{ OPENAI API KEY }}",
   "ConnectionStrings": {
-    "DefaultConnection": "{{ Supabase DB Connection String }}",
-    "LocalConnection": "Host=localhost;Database=SswRules;Username=postgres;Password=postgres;Include Error Detail=true",
-  },
-  "OpenAiApiKey": "{{ SSW OpenAI API Key }}"
+    "DefaultConnection": "{{ DATABASE CONNECTION STRING }}"
+  }
 }
 ```
-3. If you are running Identity Server locally, add the local SigningAuthority to your appsettings.Development.json:
-```
-{
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning"
-    }
-  },
-  "SigningAuthority": "https://localhost:5003"
-}
-```   
-4. Run the WebAPI (https) project
-5. Run the WebUI (https) project, and a browser window will open to https://localhost:5002
+
+> **Note**  
+> You can find the key and connection string in Keeper
+
+3. Run the WebAPI (https) project
+4. Run the WebUI project, and a browser window will open to https://localhost:5002
    
 > **Warning**  
 > RulesGPT has been changed from port 5001 to 5002, if you are running Identity Server locally you **must** be running on port 5002.  
 > Double check WebUI/launchsettings.json before running the project.
 
-6. Ask SSW Rules GPT a question!
+5. Ask SSW Rules GPT a question!
 
 ### 💻 Installation - Set Multiple Startup Projects
 Instead of manually launching the WebUI and WebAPI projects, you can set multiple startup projects in Visual Studio and Rider.  
