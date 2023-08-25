@@ -25,6 +25,10 @@ Follow these simple steps to install and set up our SSW Rules GPT project:
   }
 }
 ```
+
+> **Note**  
+> You can find the key and connection string in Keeper
+
 3. Run the WebAPI (https) project
 4. Run the WebUI project, and a browser window will open to https://localhost:5002
    
