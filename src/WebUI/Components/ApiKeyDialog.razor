@@ -5,12 +5,12 @@
 <MudDialog>
     <DialogContent>
         <MudStack>
-            <MudSwitch @bind-Checked="@UsingByoApiKey" Label="Use my API Key" Color="Color.Error"></MudSwitch>
+            <MudSwitch CheckedChanged="@((bool state) => UpdateByoOptionAndSelectedModel(state))" Label="Use my API Key" Color="Color.Error"></MudSwitch>
             @if (UsingByoApiKey)
             {
                 <MudSwitch Class="mb-2" @bind-Checked="@saveAPIKeyToLocalStorage" Label="Save to LocalStorage" Color="Color.Error"></MudSwitch>
             }
-            <MudSelect Disabled="!UsingByoApiKey" T="AvailableGptModels" @bind-Value="@SelectedGptModel" ToStringFunc="s => AvailableModelEnumToString(s)" Label="GPT Model" AnchorOrigin="Origin.BottomCenter">
+            <MudSelect Disabled="!UsingByoApiKey" T="AvailableGptModels" @bind-Value="@SelectedGptModel" ToStringFunc="s => s.AvailableModelEnumToString()" Label="GPT Model" AnchorOrigin="Origin.BottomCenter">
                 <MudSelectItem Value="AvailableGptModels.Gpt35Turbo"/>
                 <MudSelectItem Value="AvailableGptModels.Gpt4"/>
             </MudSelect>
@@ -28,37 +28,6 @@
             }
         </MudStack>
     </DialogContent>
-    @*
-    <DialogContent>
-        <MudStack Spacing="4">
-            <MudRadioGroup T="bool" SelectedOption="UsingByoApiKey" SelectedOptionChanged="UpdateByoOptionAndSelectedModel">
-                <MudStack>
-                    <MudRadio Placement="Placement.End" Option="false">Use SSW's gpt-3.5-turbo API Key 🔑</MudRadio>
-                    <MudRadio Placement="Placement.End" Option="true">Use my API Key 🔑</MudRadio>
-                </MudStack>
-            </MudRadioGroup>
-
-            <MudSelect Disabled="!UsingByoApiKey" T="AvailableGptModels" @bind-Value="@SelectedGptModel" ToStringFunc="s => AvailableModelEnumToString(s)" Label="GPT Model" AnchorOrigin="Origin.BottomCenter">
-                <MudSelectItem Value="AvailableGptModels.Gpt35Turbo"/>
-                <MudSelectItem Value="AvailableGptModels.Gpt4"/>
-            </MudSelect>
-            @if (SelectedGptModel == AvailableGptModels.Gpt35Turbo)
-            {
-                <MudText Style="font-style: italic">Fast but prone to hallucination</MudText>
-            }
-            else
-            {
-                <MudText Style="font-style: italic">Slow and smart</MudText>
-            }
-            <MudTextField Disabled="!UsingByoApiKey" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="ToggleShowPassword" @bind-Value="ApiKeyString" OnKeyDown="ResetValidationErrors" Label="Enter your key" Variant="Variant.Text"></MudTextField>
-            <MudCheckBox @bind-Checked="@saveAPIKeyToLocalStorage" Label="Save API key to LocalStorage"></MudCheckBox>
-            @if (validationState == ValidationState.Invalid)
-            {
-                <MudAlert Severity="Severity.Error" Dense="true" Class="my-2">@KeyValidationErrorMessage</MudAlert>
-            }
-        </MudStack>
-    </DialogContent>
-*@
     <DialogActions>
         @if (UsingByoApiKey)
         {
@@ -82,8 +51,7 @@
 
 @code {
 
-    [CascadingParameter]
-    MudDialogInstance MudDialog { get; set; } = default!;
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = default!;
 
     public enum ValidationState
     {
@@ -93,8 +61,8 @@
         Invalid
     }
 
-    private bool UsingByoApiKey { get; set; } = false;
-    private bool Validating { get; set; } = false;
+    private bool UsingByoApiKey { get; set; }
+    private bool Validating { get; set; }
     private string? ApiKeyString { get; set; }
     private AvailableGptModels SelectedGptModel { get; set; } = AvailableGptModels.Gpt35Turbo;
 
@@ -103,7 +71,7 @@
 
     private InputType PasswordInput = InputType.Password;
     private string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
-    private bool ShowPassword { get; set; } = false;
+    private bool ShowPassword { get; set; }
 
     private bool saveAPIKeyToLocalStorage;
 
@@ -155,6 +123,7 @@
     {
         Validating = true;
         validationState = ValidationState.Testing;
+        
         if (string.IsNullOrWhiteSpace(ApiKeyString))
         {
             Validating = false;
@@ -186,6 +155,7 @@
 
             MudDialog.Close(DialogResult.Ok(true));
         }
+        
         else
         {
             Validating = false;
@@ -243,17 +213,6 @@
         }
 
         StateHasChanged();
-    }
-
-    private string AvailableModelEnumToString(AvailableGptModels gptModel)
-    {
-        var modelString = gptModel switch
-        {
-            AvailableGptModels.Gpt4 => "GPT-4",
-            AvailableGptModels.Gpt35Turbo => "GPT-3.5 Turbo",
-            _ => throw new ArgumentOutOfRangeException()
-            };
-        return modelString;
     }
 
     private async Task ClearSavedKey()
