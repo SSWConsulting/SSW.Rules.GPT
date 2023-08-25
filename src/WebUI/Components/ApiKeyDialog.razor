@@ -8,7 +8,7 @@
             <MudSwitch @bind-Checked="@UsingByoApiKey" Label="Use my API Key" Color="Color.Error"></MudSwitch>
             @if (UsingByoApiKey)
             {
-                <MudSwitch Class="mb-6" @bind-Checked="@saveAPIKeyToLocalStorage" Label="Save to LocalStorage" Color="Color.Error"></MudSwitch>
+                <MudSwitch Class="mb-2" @bind-Checked="@saveAPIKeyToLocalStorage" Label="Save to LocalStorage" Color="Color.Error"></MudSwitch>
             }
             <MudSelect Disabled="!UsingByoApiKey" T="AvailableGptModels" @bind-Value="@SelectedGptModel" ToStringFunc="s => AvailableModelEnumToString(s)" Label="GPT Model" AnchorOrigin="Origin.BottomCenter">
                 <MudSelectItem Value="AvailableGptModels.Gpt35Turbo"/>
@@ -16,15 +16,15 @@
             </MudSelect>
             @if (UsingByoApiKey)
             {
-                <MudTextField Disabled="!UsingByoApiKey" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="ToggleShowPassword" @bind-Value="ApiKeyString" OnKeyDown="ResetValidationErrors" Label="Enter your key" Variant="Variant.Text"></MudTextField>
+                <MudTextField Disabled="!UsingByoApiKey" Class="mb-2" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="ToggleShowPassword" @bind-Value="ApiKeyString" OnKeyDown="ResetValidationErrors" Label="Enter your key" Variant="Variant.Text"></MudTextField>
             }
             @if (validationState == ValidationState.Invalid)
             {
-                <MudAlert Severity="Severity.Error" Dense="true" Class="my-2">@KeyValidationErrorMessage</MudAlert>
+                <MudAlert Severity="Severity.Error" Dense="true">@KeyValidationErrorMessage</MudAlert>
             }
             @if (UsingByoApiKey)
             {
-                <MudButton Class="mt-7" StartIcon="@Icons.Material.Filled.Help">Help</MudButton>
+                <MudButton StartIcon="@Icons.Material.Filled.Help">Help</MudButton>
             }
         </MudStack>
     </DialogContent>
