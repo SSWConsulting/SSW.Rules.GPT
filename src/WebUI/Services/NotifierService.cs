@@ -2,7 +2,7 @@
 
 public class NotifierService
 {
-    //https://learn.microsoft.com/en-us/aspnet/core/blazor/components/?view=aspnetcore-7.0#invoke-component-methods-externally-to-update-state
+    //https://learn.microsoft.com/en-us/aspnet/core/blazor/components/synchronization-context?view=aspnetcore-7.0#invoke-component-methods-externally-to-update-state
     public async Task Update()
     {
         if (Notify != null)
