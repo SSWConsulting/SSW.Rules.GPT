@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 const string RulesGptCorsPolicy = nameof(RulesGptCorsPolicy);
 
-var signingAuthority = builder.Configuration["SigningAuthority"];
+var signingAuthority = builder.Configuration.GetValue<string>("SigningAuthority");
 
 builder.Services.AddAuthentication(options =>
 {
