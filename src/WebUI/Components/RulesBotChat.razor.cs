@@ -106,7 +106,7 @@ public class RulesBotChatBase : ComponentBase, IDisposable
 
     private async Task SendMessage(ChatMessage chatMessage, ChatMessage assistantMessage)
     {
-        _ = Analytics.TrackEvent("SendMessage", new { message = DataState.NewMessageString, ownKey = DataState.OpenAiApiKey != null });
+        _ = Analytics.TrackEvent("SendMessage", new { message = DataState.NewMessageString, ownKey = DataState.ApiKeyString != null });
         
         DataState.IsAwaitingResponseStream = true;
         DataState.IsAwaitingResponse = true;
@@ -118,7 +118,7 @@ public class RulesBotChatBase : ComponentBase, IDisposable
 
         var resultStream = SignalR.RequestNewCompletionMessage(
             DataState.CurrentMessageThread.Select(s => s.Message).ToList(),
-            DataState.OpenAiApiKey,
+            DataState.ApiKeyString,
             (OpenAI.GPT3.ObjectModels.Models.Model)DataState.SelectedGptModel,
             DataState.CancellationTokenSource.Token);
 
