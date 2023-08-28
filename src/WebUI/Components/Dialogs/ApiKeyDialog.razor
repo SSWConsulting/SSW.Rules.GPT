@@ -1,0 +1,169 @@
+﻿@namespace WebUI.Components
+
+@inject DataState DataState
+@inject ApiKeyValidationService ApiKeyValidationService
+@inject ILocalStorageService Storage
+
+<MudDialog>
+    <DialogContent>
+        <MudStack>
+            <MudSwitch @bind-Checked="@UsingByoApiKey" Label="Use my API Key" Color="Color.Error"></MudSwitch>
+            @if (UsingByoApiKey)
+            {
+                <MudSwitch Class="mb-2" @bind-Checked="@SaveAPIKeyToLocalStorage" Label="Save to LocalStorage" Color="Color.Error"></MudSwitch>
+            }
+            <MudSelect Disabled="!UsingByoApiKey" T="AvailableGptModels" @bind-Value="@SelectedGptModel" ToStringFunc="s => s.AvailableModelEnumToString()" Label="GPT Model" AnchorOrigin="Origin.BottomCenter">
+                <MudSelectItem Value="AvailableGptModels.Gpt35Turbo"/>
+                <MudSelectItem Value="AvailableGptModels.Gpt4"/>
+            </MudSelect>
+            @if (UsingByoApiKey)
+            {
+                <MudTextField Disabled="!UsingByoApiKey" Class="mb-2" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="@(() => SetShowPassword(!ShowPassword))" @bind-Value="ApiKeyString" OnKeyDown="ResetValidationErrors" Label="Enter your key" Variant="Variant.Text"></MudTextField>
+            }
+            @if (ValidationState == ValidationState.Invalid)
+            {
+                <MudAlert Severity="Severity.Error" Dense="true">@KeyValidationErrorMessage</MudAlert>
+            }
+            @if (UsingByoApiKey)
+            {
+                <MudButton StartIcon="@Icons.Material.Filled.Help" OnClick="OpenHelp">Help</MudButton>
+            }
+        </MudStack>
+        <MudDialog @bind-IsVisible="HelpIsVisible">
+            <DialogContent>
+                <MudText Class="mb-2" Typo="Typo.h6">How to get an API Key</MudText>
+                <MudText>
+                    You can get an API key at <MudLink Color="Color.Error" Href="https://platform.openai.com/account/api-keys" Target="_blank">OpenAI Platform</MudLink>.
+                    You will need to sign up if you haven't already, and then you will be able to click "Create new secret key" to generate a key that RulesGPT can use.
+                </MudText>
+            </DialogContent>
+            <DialogActions>
+                <MudButton Color="Color.Primary" OnClick="CloseHelp">Close</MudButton>
+            </DialogActions>
+        </MudDialog>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Disabled="@Validating" Color="Color.Dark" OnClick="ValidateAndSaveChangesAsync">
+            @if (UsingByoApiKey && Validating)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+            }
+            else
+            {
+                <MudText Typo="Typo.button">Save</MudText>
+            }
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; } = default!;
+
+    private bool UsingByoApiKey { get; set; }
+    private bool Validating { get; set; }
+    private string? ApiKeyString { get; set; }
+    private bool SaveAPIKeyToLocalStorage { get; set; }
+    private bool HelpIsVisible { get; set; }
+
+    private AvailableGptModels SelectedGptModel { get; set; } = AvailableGptModels.Gpt35Turbo;
+    private ValidationState ValidationState { get; set; } = ValidationState.Initial;
+
+    public string KeyValidationErrorMessage { get; set; } = string.Empty;
+
+    private InputType PasswordInput = InputType.Password;
+    private string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+    private bool ShowPassword { get; set; }
+
+
+    protected override Task OnInitializedAsync()
+    {
+        UsingByoApiKey = DataState.UsingByoApiKey;
+        SaveAPIKeyToLocalStorage = DataState.SavingByoApiKey;
+        SelectedGptModel = DataState.SelectedGptModel;
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private void SetShowPassword(bool state)
+    {
+        ShowPassword = state;
+        PasswordInputIcon = state ? Icons.Material.Filled.Visibility : Icons.Material.Filled.VisibilityOff;
+        PasswordInput = state ? InputType.Text : InputType.Password;
+    }
+
+    private void OpenHelp() => HelpIsVisible = true;
+    private void CloseHelp() => HelpIsVisible = false;
+
+    private async Task ValidateAndSaveChangesAsync()
+    {
+        Validating = true;
+        ValidationState = ValidationState.Testing;
+
+        if (!UsingByoApiKey)
+        {
+            DataState.ApiKeyString = null;
+            DataState.SelectedGptModel = AvailableGptModels.Gpt35Turbo;
+            DataState.UsingByoApiKey = false;
+
+            await Storage.SetItemAsync("userAPIKeyEnabled", DataState.UsingByoApiKey.ToString());
+        }
+
+        else
+        {
+            if (string.IsNullOrWhiteSpace(ApiKeyString))
+            {
+                Validating = false;
+                KeyValidationErrorMessage = "Enter an API Key";
+                ValidationState = ValidationState.Invalid;
+                return;
+            }
+
+            var validationResult = await ApiKeyValidationService.ValidateApiKey(ApiKeyString, SelectedGptModel);
+            if (validationResult.Success)
+            {
+                ValidationState = ValidationState.Valid;
+                DataState.ApiKeyString = ApiKeyString;
+                DataState.SelectedGptModel = SelectedGptModel;
+                DataState.UsingByoApiKey = true;
+
+                await Storage.SetItemAsync("userAPIKeyEnabled", UsingByoApiKey.ToString());
+                await Storage.SetItemAsync("userGptModel", SelectedGptModel.ToString());
+            }
+
+            else
+            {
+                Validating = false;
+                KeyValidationErrorMessage = validationResult.ErrorMessage;
+                ValidationState = ValidationState.Invalid;
+                return;
+            }
+        }
+
+        if (SaveAPIKeyToLocalStorage)
+            await Storage.SetItemAsync("userAPIKey", DataState.ApiKeyString);
+
+        else
+            await ClearSavedKey();
+
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+
+    private Task ResetValidationErrors()
+    {
+        ValidationState = ValidationState.Initial;
+        return Task.CompletedTask;
+    }
+
+    private async Task ClearSavedKey()
+    {
+        DataState.ApiKeyString = null;
+        DataState.SavingByoApiKey = false;
+
+        await Storage.RemoveItemAsync("userAPIKey");
+        await Storage.RemoveItemAsync("userGptModel");
+    }
+
+}

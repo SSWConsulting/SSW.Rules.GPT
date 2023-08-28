@@ -141,20 +141,22 @@
         }
         catch (HttpRequestException e)
         {
-    // Display error message
+            // Display error message
             Snackbar.Add("Unable to connect to SSW RulesGPT", Severity.Error);
         }
 
         NotifierService.OnRateLimited += OnRateLimited;
 
-        var useSavedKey = await Storage.GetItemAsync<string>("userAPIKeyEnabled");
+        var useSavedKeyParsed = bool.TryParse(await Storage.GetItemAsync<string>("userAPIKeyEnabled"), out var useSavedKey);
         var savedAPIKey = await Storage.GetItemAsync<string>("userAPIKey");
         var savedModel = await Storage.GetItemAsync<string>("userGptModel");
-
-        if (!string.IsNullOrEmpty(savedAPIKey) && useSavedKey is "true")
+        
+        //useSavedKey should be ignored if there is no key saved
+        if (!string.IsNullOrEmpty(savedAPIKey) && useSavedKeyParsed && useSavedKey) 
         {
-            DataState.OpenAiApiKey = savedAPIKey;
+            DataState.ApiKeyString = savedAPIKey;
             DataState.UsingByoApiKey = true;
+            DataState.SavingByoApiKey = true;
         }
 
         if (Enum.TryParse<AvailableGptModels>(savedModel, out var parsed))
