@@ -1,4 +1,4 @@
-﻿@namespace WebUI.Components;
+﻿@namespace WebUI.Components
 
 @inject DataState DataState
 @inject ApiKeyValidationService ApiKeyValidationService
@@ -18,7 +18,7 @@
             </MudSelect>
             @if (UsingByoApiKey)
             {
-                <MudTextField Disabled="!UsingByoApiKey" Class="mb-2" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="@(() =>SetShowPassword(!ShowPassword))" @bind-Value="ApiKeyString" OnKeyDown="ResetValidationErrors" Label="Enter your key" Variant="Variant.Text"></MudTextField>
+                <MudTextField Disabled="!UsingByoApiKey" Class="mb-2" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="@(() => SetShowPassword(!ShowPassword))" @bind-Value="ApiKeyString" OnKeyDown="ResetValidationErrors" Label="Enter your key" Variant="Variant.Text"></MudTextField>
             }
             @if (ValidationState == ValidationState.Invalid)
             {
@@ -26,9 +26,21 @@
             }
             @if (UsingByoApiKey)
             {
-                <MudButton StartIcon="@Icons.Material.Filled.Help">Help</MudButton>
+                <MudButton StartIcon="@Icons.Material.Filled.Help" OnClick="OpenHelp">Help</MudButton>
             }
         </MudStack>
+        <MudDialog @bind-IsVisible="HelpIsVisible">
+            <DialogContent>
+                <MudText Class="mb-2" Typo="Typo.h6">How to get an API Key</MudText>
+                <MudText>
+                    You can get an API key at <MudLink Color="Color.Error" Href="https://platform.openai.com/account/api-keys" Target="_blank">OpenAI Platform</MudLink>.
+                    You will need to sign up if you haven't already, and then you will be able to click "Create new secret key" to generate a key that RulesGPT can use.
+                </MudText>
+            </DialogContent>
+            <DialogActions>
+                <MudButton Color="Color.Primary" OnClick="CloseHelp">Close</MudButton>
+            </DialogActions>
+        </MudDialog>
     </DialogContent>
     <DialogActions>
         <MudButton Disabled="@Validating" Color="Color.Dark" OnClick="ValidateAndSaveChangesAsync">
@@ -53,6 +65,7 @@
     private bool Validating { get; set; }
     private string? ApiKeyString { get; set; }
     private bool SaveAPIKeyToLocalStorage { get; set; }
+    private bool HelpIsVisible { get; set; }
 
     private AvailableGptModels SelectedGptModel { get; set; } = AvailableGptModels.Gpt35Turbo;
     private ValidationState ValidationState { get; set; } = ValidationState.Initial;
@@ -80,6 +93,9 @@
         PasswordInputIcon = state ? Icons.Material.Filled.Visibility : Icons.Material.Filled.VisibilityOff;
         PasswordInput = state ? InputType.Text : InputType.Password;
     }
+
+    private void OpenHelp() => HelpIsVisible = true;
+    private void CloseHelp() => HelpIsVisible = false;
 
     private async Task ValidateAndSaveChangesAsync()
     {
@@ -144,8 +160,9 @@
     {
         DataState.ApiKeyString = null;
         DataState.SavingByoApiKey = false;
-        
+
         await Storage.RemoveItemAsync("userAPIKey");
         await Storage.RemoveItemAsync("userGptModel");
     }
+
 }
