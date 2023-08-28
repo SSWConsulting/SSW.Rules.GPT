@@ -5,15 +5,15 @@ namespace WebUI.Classes;
 
 public class ChatLinkedList : List<ChatLinkedListItem>
 {
-    public ChatLinkedListItem Add(ChatMessage message, AvailableGptModels? gptModel)
+    public ChatLinkedListItem Add(ChatMessage message, AvailableGptModels gptModel)
     {
         var newItem = new ChatLinkedListItem(message, gptModel);
         Add(newItem);
-        
+
         return newItem;
     }
-    
-    public ChatLinkedListItem AddAfter(ChatMessage message, ChatLinkedListItem item, AvailableGptModels? gptModel)
+
+    public ChatLinkedListItem AddAfter(ChatMessage message, ChatLinkedListItem item, AvailableGptModels gptModel)
     {
         if (item != null && !Contains(item))
             throw new ArgumentException("Item is not in the list");
@@ -21,22 +21,20 @@ public class ChatLinkedList : List<ChatLinkedListItem>
         var newItem = new ChatLinkedListItem(message, item, gptModel);
         item.Next = newItem;
         Add(newItem);
-        
-        return newItem;        
+
+        return newItem;
     }
-    
-    public ChatLinkedListItem AddRight(ChatMessage newMessage, ChatLinkedListItem item, AvailableGptModels? gptModel)
+
+    public ChatLinkedListItem AddRight(ChatMessage newMessage, ChatLinkedListItem item, AvailableGptModels gptModel)
     {
         if (!Contains(item))
             throw new ArgumentException("Item is not in the list");
 
         var target = item;
-        
+
         while (target.Right is not null)
-        {
             target = target.Right;
-        }
-        
+
         var newItem = new ChatLinkedListItem(newMessage, item.Previous, target, gptModel);
 
         newItem.Left = target;
@@ -53,32 +51,23 @@ public class ChatLinkedList : List<ChatLinkedListItem>
         var previous = item.Previous;
         var next = item.Next;
 
-        if (previous != null)
-        {
-            previous.Next = next;
-        }
-        
+        if (previous != null) previous.Next = next;
+
         base.Remove(item);
     }
-    
+
     public void Move(ChatLinkedListItem item, Direction direction)
     {
         if (!Contains(item))
             throw new ArgumentException("Item is not in the list");
-        
-        var target = direction == Direction.Left 
+
+        var target = direction == Direction.Left
             ? item.Left
             : item.Right;
 
-        if (target == null)
-        {
-            return;
-        }
+        if (target == null) return;
 
-        if (item.Previous != null)
-        {
-            item.Previous.Next = target;
-        }
+        if (item.Previous != null) item.Previous.Next = target;
     }
 
     public List<ChatLinkedListItem> GetThread(ChatLinkedListItem item)
@@ -100,7 +89,7 @@ public class ChatLinkedList : List<ChatLinkedListItem>
     private ChatLinkedListItem GetHead(ChatLinkedListItem item)
     {
         var head = item;
-        
+
         while (head.Previous is not null)
             head = head.Previous;
 

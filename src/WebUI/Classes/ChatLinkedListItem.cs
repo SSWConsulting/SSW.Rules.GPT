@@ -1,39 +1,29 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using OpenAI.GPT3.ObjectModels.RequestModels;
+﻿using OpenAI.GPT3.ObjectModels.RequestModels;
 using WebUI.Models;
 
 namespace WebUI.Classes;
 
 public class ChatLinkedListItem
 {
-    public ChatLinkedListItem(ChatMessage message, AvailableGptModels? gptModel)
+    public ChatLinkedListItem(ChatMessage message, AvailableGptModels gptModel)
     {
         Message = message;
-        if (gptModel is not null)
-        {
-            GptModel = gptModel.Value;
-        }
+        GptModel = gptModel;
     }
-    
-    public ChatLinkedListItem(ChatMessage message, ChatLinkedListItem previous, AvailableGptModels? gptModel)
+
+    public ChatLinkedListItem(ChatMessage message, ChatLinkedListItem previous, AvailableGptModels gptModel)
     {
         Message = message;
         Previous = previous;
-        if (gptModel is not null)
-        {
-            GptModel = gptModel.Value;
-        }
+        GptModel = gptModel;
     }
-    
-    public ChatLinkedListItem(ChatMessage message, ChatLinkedListItem? previous, ChatLinkedListItem left, AvailableGptModels? gptModel)
+
+    public ChatLinkedListItem(ChatMessage message, ChatLinkedListItem? previous, ChatLinkedListItem left, AvailableGptModels gptModel)
     {
         Message = message;
         Previous = previous;
         Left = left;
-        if (gptModel is not null)
-        {
-            GptModel = gptModel.Value;
-        }
+        GptModel = gptModel;
     }
 
     public int LeftCount
@@ -48,7 +38,7 @@ public class ChatLinkedListItem
                 left = left.Left;
             }
 
-            return count;            
+            return count;
         }
     }
 
@@ -64,12 +54,12 @@ public class ChatLinkedListItem
                 right = right.Right;
             }
 
-            return count;            
+            return count;
         }
     }
 
     public ChatMessage Message { get; }
-    public AvailableGptModels GptModel { get; set; } = AvailableGptModels.Gpt35Turbo;
+    public AvailableGptModels GptModel { get; set; }
     public ChatLinkedListItem? Previous { get; }
     public ChatLinkedListItem? Next { get; set; }
     public ChatLinkedListItem? Left { get; set; }
