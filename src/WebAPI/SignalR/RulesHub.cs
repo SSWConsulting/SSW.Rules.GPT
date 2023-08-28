@@ -1,5 +1,6 @@
 using Application.Contracts;
 using Application.Services;
+using Duende.IdentityServer.Extensions;
 using Microsoft.AspNetCore.SignalR;
 using OpenAI.GPT3.ObjectModels;
 using OpenAI.GPT3.ObjectModels.RequestModels;
@@ -66,6 +67,11 @@ public class RulesHub : Hub<IRulesClient>
         CancellationToken cancellationToken
     )
     {
+        if (Context.User.IsAuthenticated())
+        {
+            //TODO: Track user stats
+        }
+        
         return _messageHandler.Handle(messageList, apiKey, gptModel, cancellationToken);
     }
 }

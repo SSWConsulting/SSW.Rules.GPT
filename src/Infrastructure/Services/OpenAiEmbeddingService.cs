@@ -1,9 +1,8 @@
-using Microsoft.Extensions.Configuration;
 using Application.Contracts;
+using Microsoft.Extensions.Configuration;
 using Application.Services;
-using OpenAI.GPT3;
+using Microsoft.Extensions.Configuration;
 using OpenAI.GPT3.Interfaces;
-using OpenAI.GPT3.Managers;
 using OpenAI.GPT3.ObjectModels;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 using Pgvector;
@@ -13,18 +12,20 @@ namespace Infrastructure.Services;
 
 public class OpenAiEmbeddingService : IOpenAiEmbeddingService
 {
-    private readonly IOpenAIService _openAiService;
+    private readonly OpenAiServiceFactory _openAiServiceFactory;
+    private readonly string azureDeploymentName;
 
     public Func<RateLimitRejectedException, Task> OnRateLimited { get; set; }
 
     public OpenAiEmbeddingService(OpenAiServiceFactory openAiServiceFactory, IConfiguration config)
     {
-        _openAiService = openAiServiceFactory.Create(config["Azure_Deployment_Embedding"]);
+        _openAiServiceFactory = openAiServiceFactory;
+        azureDeploymentName = config["Azure_Deployment_Embedding"];
     }
 
     public async Task<List<Vector>> GetEmbeddingList(List<string> stringList, string? apiKey)
     {
-        var openAiService = GetOpenAiService(apiKey);
+        var openAiService = _openAiServiceFactory.GetOpenAiService(apiKey);
 
         try
         {
@@ -69,7 +70,16 @@ public class OpenAiEmbeddingService : IOpenAiEmbeddingService
 
     public async Task<Vector> GetEmbedding(string inputString, string? apiKey)
     {
-        var openAiService = GetOpenAiService(apiKey);
+        IOpenAIService openAiService;
+        
+        if (string.IsNullOrEmpty(apiKey))
+        {
+            openAiService = _openAiServiceFactory.Create(azureDeploymentName);
+        }
+        else
+        {
+            openAiService = _openAiServiceFactory.GetOpenAiService(apiKey);
+        }
 
         try
         {
@@ -100,16 +110,5 @@ public class OpenAiEmbeddingService : IOpenAiEmbeddingService
             OnRateLimited?.Invoke(e);
             return null;
         }
-    }
-
-    private IOpenAIService GetOpenAiService(string? apiKey)
-    {
-        if (apiKey is null)
-        {
-            // TODO: Check Auth once implemented
-            return _openAiService;
-        }
-
-        return new OpenAIService(new OpenAiOptions() { ApiKey = apiKey });
     }
 }

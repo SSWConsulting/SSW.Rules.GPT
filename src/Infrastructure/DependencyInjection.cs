@@ -1,4 +1,5 @@
 ﻿using Application.Contracts;
+using Application.Services;
 using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -43,7 +44,7 @@ public static class DependencyInjection
                     .WrapAsync(rateLimitPolicy);
             }
         );
-
+        
         return services;
     }
 }

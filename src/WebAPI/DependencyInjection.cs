@@ -9,7 +9,6 @@ public static class DependencyInjection
     public static IServiceCollection AddWebApi(this IServiceCollection services,
         string rulesGptCorsPolicy, IWebHostEnvironment env)
     {
-        //services.AddSingleton<IUserIdProvider, SignalRUserIdProvider>();
         services.AddSingleton<SignalRHubFilter>();
 
         services.AddSignalR(options => options.AddFilter<SignalRHubFilter>());
@@ -43,7 +42,7 @@ public static class DependencyInjection
             "https://ssw.com.au/rulesgpt"
         };
 
-        var developmentCorsUrls = new string[] { "https://localhost:5001" };
+        var developmentCorsUrls = new string[] { "https://localhost:5002" };
 
         services.AddCors(
             options =>
