@@ -69,7 +69,7 @@ public class RulesHub : Hub<IRulesClient>
     {
         if (Context.User.IsAuthenticated())
         {
-            //TODO: Track user stats
+            //TODO: Track user stats - see https://github.com/SSWConsulting/SSW.Rules.GPT/issues/103
         }
         
         return _messageHandler.Handle(messageList, apiKey, gptModel, cancellationToken);

@@ -1,12 +1,12 @@
 ﻿@using WebUI.Classes
-@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @inherits LayoutComponentBase
 
 @inject SswRulesGptDialogService SswRulesGptDialogService
 @inject DataState DataState
 @inject NotifierService NotifierService
 @inject SignalRClient SignalRClient
-@inject NavigationManager NavigationManager
+@inject UserService UserService
+
 @inject ISnackbar Snackbar
 @inject ILocalStorageService Storage
 
@@ -66,10 +66,10 @@
         </MudMenu>
         <AuthorizeView>
             <Authorized>
-                <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="BeginSignOut">Sign Out</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="UserService.BeginSignOut">Sign Out</MudButton>
             </Authorized>
             <NotAuthorized>
-                <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="BeginSignIn">Sign In</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="UserService.BeginSignIn">Sign In</MudButton>
             </NotAuthorized>
         </AuthorizeView>
     </MudAppBar>
@@ -86,9 +86,9 @@
 
 @code {
     private MudThemeProvider _mudThemeProvider;
-    bool _isDarkMode;
-    bool systemIsDarkMode;
-
+    private bool _isDarkMode;
+    private bool systemIsDarkMode;
+    
     ThemePreference themePreference;
 
     private MudTheme _theme = new MudTheme
@@ -163,16 +163,6 @@
         {
             DataState.SelectedGptModel = parsed;
         }
-    }
-
-    private void BeginSignIn()
-    {
-        NavigationManager.NavigateToLogin("/authentication/login");
-    }
-    
-    private void BeginSignOut()
-    {
-        NavigationManager.NavigateToLogout("/authentication/logout");
     }
     
     private async Task OnRateLimited(double retryAfter)
