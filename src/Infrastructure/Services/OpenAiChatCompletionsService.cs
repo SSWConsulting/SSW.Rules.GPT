@@ -13,14 +13,14 @@ namespace Infrastructure.Services;
 
 public class OpenAiChatCompletionsService : IOpenAiChatCompletionsService
 {
-    private readonly IOpenAIService _openAiService;
+    private readonly OpenAiServiceFactory _openAiServiceFactory;
     private readonly IConfiguration _config;
     public Func<RateLimitRejectedException, Task> OnRateLimited { get; set; }
 
     public OpenAiChatCompletionsService(OpenAiServiceFactory openAiServiceFactory, IConfiguration config)
     {
         _config = config;
-        _openAiService = openAiServiceFactory.Create(_config["Azure_Deployment_Chat"]);
+        _openAiServiceFactory = openAiServiceFactory;
     }
 
     public IAsyncEnumerable<ChatCompletionCreateResponse> CreateCompletionAsStream(
@@ -32,16 +32,18 @@ public class OpenAiChatCompletionsService : IOpenAiChatCompletionsService
     {
         string gptModelStr;
         
+        IOpenAIService openAiService;
+        
         if (apiKey is null)
         {
+            openAiService = _openAiServiceFactory.Create(_config["Azure_Deployment_Chat"]);
             gptModelStr = _config["GPT_Model"] ?? gptModel.EnumToString();
         }
         else
         {
+            openAiService = _openAiServiceFactory.GetOpenAiService(apiKey);
             gptModelStr = gptModel.EnumToString();
         }
-
-        var openAiService = GetOpenAiService(apiKey);
 
         try
         {
@@ -56,16 +58,5 @@ public class OpenAiChatCompletionsService : IOpenAiChatCompletionsService
             OnRateLimited?.Invoke(e);
             return null;
         }
-    }
-
-    private IOpenAIService GetOpenAiService(string? apiKey)
-    {
-        if (apiKey is null)
-        {
-            // TODO: Check Auth once implemented
-            return _openAiService;
-        }
-
-        return new OpenAIService(new OpenAiOptions() { ApiKey = apiKey });
     }
 }

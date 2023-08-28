@@ -44,6 +44,7 @@ jobs:
           files: './src/WebUI/wwwroot/appsettings.json'
         env:
           ApiBaseUrl: ${{ vars.API_BASE_URL }}
+          SigningAuthority: ${{ vars.SIGNING_AUTHORITY }}
 
       - name: Build with dotnet
         run: dotnet build --configuration Release

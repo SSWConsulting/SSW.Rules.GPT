@@ -1,4 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.SignalR.Client;
 using OpenAI.GPT3.ObjectModels.RequestModels;
@@ -7,31 +9,55 @@ using WebUI.Services;
 
 namespace WebUI;
 
-public class SignalRClient 
+public class SignalRClient
 {
     private readonly NotifierService _notifierService;
     private readonly HubConnection _connection;
     private readonly ILogger<SignalRClient> _logger;
+    private readonly NavigationManager _navigationManager;
+    private readonly IAccessTokenProvider _tokenProvider;
 
     public SignalRClient(
         IWebAssemblyHostEnvironment hostEnvironment,
         NotifierService notifierService,
         IConfiguration configuration,
-        ILogger<SignalRClient> logger)
+        ILogger<SignalRClient> logger,
+        NavigationManager navigationManager, 
+        IAccessTokenProvider tokenProvider)
     {
         _notifierService = notifierService;
         _logger = logger;
-        
+        _navigationManager = navigationManager;
+        _tokenProvider = tokenProvider;
+
         var hubeBaseUrl = configuration["ApiBaseUrl"];
         var hubUrl = $"{hubeBaseUrl}/ruleshub";
         
-        _connection = new HubConnectionBuilder().WithUrl(hubUrl).WithAutomaticReconnect().Build();
+        _connection = new HubConnectionBuilder()
+            .WithUrl(hubUrl, options =>
+            {
+                options.AccessTokenProvider = async () =>
+                {
+                    var tokenResult = await _tokenProvider.RequestAccessToken();
+                    if (tokenResult.TryGetToken(out var token))
+                    {
+                        return await Task.FromResult(token.Value);
+                    }
+
+                    return await Task.FromResult("");
+                };
+                
+            })
+            .WithAutomaticReconnect()
+            .Build();
+
         RegisterHandlers();
+
         _connection.Closed += async (exception) =>
         {
             if (exception != null)
             {
-                _logger.LogInformation("Connection closed due to an error: {Exception}", exception);        
+                _logger.LogInformation("Connection closed due to an error: {Exception}", exception);
             }
         };
     }
@@ -95,7 +121,7 @@ public class SignalRClient
             yield return message;
         }
     }
-    
+
     //Methods that the client listens for
     private void RegisterHandlers()
     {
