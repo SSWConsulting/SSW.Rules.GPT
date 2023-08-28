@@ -33,7 +33,7 @@ Follow these simple steps to install and set up our SSW Rules GPT project:
 4. Run the WebUI project, and a browser window will open to https://localhost:5002
    
 > **Warning**  
-> RulesGPT has been changed from port 5001 to 5002, if you are running Identity Server locally you **must** be running on port 5002.  
+> The RulesGPT frontend has been changed from port 5001 to 5002, if you are running Identity Server locally you **must** be running RulesGPT on port 5002.  
 > Double check WebUI/launchsettings.json before running the project.
 
 5. Ask SSW Rules GPT a question!
@@ -46,7 +46,7 @@ Read [this rule](https://ssw.com.au/rules/multiple-startup-projects/) to learn h
 When code merged into main it will be automatically deployed to staging.
 You should test your changes in staging before manually running the production workflow.
 
-Staging Frontend URL: https://ashy-meadow-0a2bad900.3.azurestaticapps.net
+Staging Frontend URL: https://ashy-meadow-0a2bad900.3.azurestaticapps.net  
 Staging API URL: https://ssw-rulesgpt-api-stage.azurewebsites.net
 
 ### 👥 Project Contributors
