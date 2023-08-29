@@ -1,6 +1,5 @@
-﻿@using OpenAI.GPT3.ObjectModels.RequestModels
-@using WebUI.Classes
-@using Direction = WebUI.Classes.Direction
+﻿@using WebUI.Classes
+@using Direction = WebUI.Direction
 @implements IDisposable
 @inject DataState DataState
 @inject NotifierService NotifierService
@@ -32,7 +31,7 @@
                         @if (!DataState.IsAwaitingResponse)
                         {
                             <div class="edit-button">
-                                <MudIconButton Class="edit-button" Icon="@Icons.Material.Filled.Edit" OnClick="(() => SetEditState(true))"/>
+                                <MudIconButton Class="edit-button" Icon="@Icons.Material.Filled.Edit" OnClick="() => SetEditState(true)"/>
                             </div>
                         }
                         else
@@ -46,7 +45,7 @@
                                     <MultilineInput @ref="multilineInput" Data="@MessageThreadItem.Message.Content" OnSubmitted="SubmitEdit"/>
                                     <MudStack Row="true" Spacing="1">
                                         <MudIconButton Size="Size.Small" Color="Color.Success" Icon="@Icons.Material.Filled.Done" OnClick="OnEditDoneClicked"/>
-                                        <MudIconButton Size="Size.Small" Color="Color.Error" Icon="@Icons.Material.Filled.Cancel" OnClick="(() => SetEditState(false))"/>
+                                        <MudIconButton Size="Size.Small" Color="Color.Error" Icon="@Icons.Material.Filled.Cancel" OnClick="() => SetEditState(false)"/>
                                         <MudSpacer/>
                                     </MudStack>
                                 </MudStack>
@@ -64,13 +63,13 @@
 
                         <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
                             <MudSpacer/>
-                            <MudIconButton Icon="@Icons.Material.Rounded.ChevronLeft" Size="Size.Small" Disabled="@(position == 1)" OnClick="(() => OnMoveClicked(Direction.Left))"/>
+                            <MudIconButton Icon="@Icons.Material.Rounded.ChevronLeft" Size="Size.Small" Disabled="@(position == 1)" OnClick="() => OnMoveClicked(Direction.Left)"/>
                             <MudText>
                                 @position
                                 <span style="color: #BDBDBD">/</span>
                                 @total
                             </MudText>
-                            <MudIconButton Icon="@Icons.Material.Rounded.ChevronRight" Size="Size.Small" Disabled="@(position == total)" OnClick="(() => OnMoveClicked(Direction.Right))"/>
+                            <MudIconButton Icon="@Icons.Material.Rounded.ChevronRight" Size="Size.Small" Disabled="@(position == total)" OnClick="() => OnMoveClicked(Direction.Right)"/>
                         </MudStack>
                     }
                 </MudStack>
@@ -108,11 +107,18 @@
 </MudListItem>
 
 @code{
-    [CascadingParameter] public bool isDarkMode { get; set; }
 
-    [Parameter] public ChatLinkedListItem MessageThreadItem { get; set; } = default!;
-    [Parameter] public EventCallback<(ChatLinkedListItem, string)> OnEditSubmittedEvent { get; set; }
-    [Parameter] public EventCallback<(ChatLinkedListItem, Direction)> OnMoveClickedEvent { get; set; }
+    [CascadingParameter]
+    public bool isDarkMode { get; set; }
+
+    [Parameter]
+    public ChatLinkedListItem MessageThreadItem { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback<(ChatLinkedListItem, string)> OnEditSubmittedEvent { get; set; }
+
+    [Parameter]
+    public EventCallback<(ChatLinkedListItem, Direction)> OnMoveClickedEvent { get; set; }
 
     private bool isUser;
     private bool isEditing;
@@ -143,16 +149,15 @@
     private async Task SubmitEdit(string message)
     {
         isEditing = false;
-        
+
         if (message == MessageThreadItem.Message.Content)
         {
             return;
         }
-        
+
         await OnEditSubmittedEvent.InvokeAsync((MessageThreadItem, message));
-        //StateHasChanged();
     }
-    
+
     private async Task OnMoveClicked(Direction direction)
     {
         await OnMoveClickedEvent.InvokeAsync((MessageThreadItem, direction));
@@ -162,4 +167,5 @@
     {
         NotifierService.Notify -= OnNotify;
     }
+
 }

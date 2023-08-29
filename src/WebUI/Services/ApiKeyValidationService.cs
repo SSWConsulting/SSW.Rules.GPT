@@ -3,7 +3,6 @@ using OpenAI.GPT3.Managers;
 using OpenAI.GPT3.ObjectModels;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 using WebUI.Classes;
-using WebUI.Models;
 
 namespace WebUI.Services;
 
@@ -18,13 +17,13 @@ public class ApiKeyValidationService
             {
                 Messages = new List<ChatMessage> { new("user", "a") },
                 MaxTokens = 1,
-                Temperature = (float)0.5
+                Temperature = 0.5f
             },
             model.EnumToString()
         );
 
         return new ApiValidationResult(
-            completionResult.Successful, 
+            completionResult.Successful,
             completionResult.Error?.Message ?? "Unknown error occurred."
         );
     }

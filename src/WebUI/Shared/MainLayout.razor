@@ -1,12 +1,12 @@
 ﻿@using WebUI.Classes
-@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @inherits LayoutComponentBase
 
 @inject SswRulesGptDialogService SswRulesGptDialogService
 @inject DataState DataState
 @inject NotifierService NotifierService
 @inject SignalRClient SignalRClient
-@inject NavigationManager NavigationManager
+@inject UserService UserService
+
 @inject ISnackbar Snackbar
 @inject ILocalStorageService Storage
 
@@ -21,14 +21,14 @@
                 <MudImage Src="images/SSWlogo-DarkMode.svg" Height="40" ObjectFit="ObjectFit.ScaleDown"></MudImage>
             </MudLink>
         </MudStack>
-        <MudStack Justify="Justify.Center" Class="pl-2 border-l-2">
+        <MudStack Justify="Justify.Center" Class="border-l-2 pl-2">
             <MudText Typo="Typo.h5">RulesGPT</MudText>
         </MudStack>
         <MudStack Justify="Justify.Center" Class="pl-3">
             <MudText Class="tag-line" Color="Color.Primary" Typo="Typo.body1">Keeping Order with Intelligence</MudText>
         </MudStack>
         <MudSpacer/>
-        <MudLink Color="Color.Primary" Variant="Variant.Filled" Class="powered-by-link mr-2" Target="_blank" Href="https://ssw.com.au/rules">Powered by SSW Rules</MudLink>
+        <MudLink Color="Color.Primary" Variant="Variant.Filled" Class="mr-2 powered-by-link" Target="_blank" Href="https://ssw.com.au/rules">Powered by SSW Rules</MudLink>
         @switch (themePreference)
         {
             case ThemePreference.Light:
@@ -66,10 +66,10 @@
         </MudMenu>
         <AuthorizeView>
             <Authorized>
-                <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="BeginSignOut">Sign Out</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="UserService.BeginSignOut">Sign Out</MudButton>
             </Authorized>
             <NotAuthorized>
-                <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="BeginSignIn">Sign In</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="UserService.BeginSignIn">Sign In</MudButton>
             </NotAuthorized>
         </AuthorizeView>
     </MudAppBar>
@@ -86,14 +86,14 @@
 
 @code {
     private MudThemeProvider _mudThemeProvider;
-    bool _isDarkMode;
-    bool systemIsDarkMode;
+    private bool _isDarkMode;
+    private bool systemIsDarkMode;
 
     ThemePreference themePreference;
 
-    private MudTheme _theme = new MudTheme
+    private readonly MudTheme _theme = new()
     {
-        Palette = new PaletteLight()
+        Palette = new PaletteLight
         {
             Primary = "#AAA",
             Secondary = "#CC4141",
@@ -101,7 +101,7 @@
             AppbarBackground = "#323332",
             BackgroundGrey = "#f9fbfc"
         },
-        PaletteDark = new PaletteDark()
+        PaletteDark = new PaletteDark
         {
             Primary = "#AAA",
             Secondary = "#CC4141",
@@ -109,7 +109,7 @@
             Background = "#333333",
             AppbarBackground = "#323332",
             Surface = "#333333",
-            BackgroundGrey = "#3E4446",
+            BackgroundGrey = "#3E4446"
         }
     };
 
@@ -141,18 +141,19 @@
         }
         catch (HttpRequestException e)
         {
-            // Display error message
+    // Display error message
             Snackbar.Add("Unable to connect to SSW RulesGPT", Severity.Error);
         }
 
         NotifierService.OnRateLimited += OnRateLimited;
+        NotifierService.OnInvalidModel += OnInvalidModel;
 
         var useSavedKeyParsed = bool.TryParse(await Storage.GetItemAsync<string>("userAPIKeyEnabled"), out var useSavedKey);
         var savedAPIKey = await Storage.GetItemAsync<string>("userAPIKey");
         var savedModel = await Storage.GetItemAsync<string>("userGptModel");
-        
-        //useSavedKey should be ignored if there is no key saved
-        if (!string.IsNullOrEmpty(savedAPIKey) && useSavedKeyParsed && useSavedKey) 
+
+    //useSavedKey should be ignored if there is no key saved
+        if (!string.IsNullOrEmpty(savedAPIKey) && useSavedKeyParsed && useSavedKey)
         {
             DataState.ApiKeyString = savedAPIKey;
             DataState.UsingByoApiKey = true;
@@ -165,16 +166,6 @@
         }
     }
 
-    private void BeginSignIn()
-    {
-        NavigationManager.NavigateToLogin("/authentication/login");
-    }
-    
-    private void BeginSignOut()
-    {
-        NavigationManager.NavigateToLogout("/authentication/logout");
-    }
-    
     private async Task OnRateLimited(double retryAfter)
     {
         Snackbar.Add($"Too many messages sent! Try again in {retryAfter} seconds.", Severity.Error);
@@ -188,6 +179,16 @@
 
         StateHasChanged();
         await NotifierService.Update();
+    }
+
+    private Task OnInvalidModel()
+    {
+        Snackbar.Add("You do not have access to GPT-4! Ensure you are signed in or have provided your own key.", Severity.Error);
+        Snackbar.Add("Falling back to GPT-3.5.");
+
+        DataState.SelectedGptModel = AvailableGptModels.Gpt35Turbo;
+
+        return Task.CompletedTask;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

@@ -6,28 +6,29 @@ public class NotifierService
     public async Task Update()
     {
         if (Notify != null)
-        {
             await Notify.Invoke();
-        }
     }
 
     public async Task CancelMessageStream()
     {
         if (CancelMessageStreamEvent != null)
-        {
             await CancelMessageStreamEvent.Invoke();
-        }
     }
-    
+
     public async Task RaiseRateLimited(double retryAfter)
     {
         if (OnRateLimited != null)
-        {
             await OnRateLimited.Invoke(retryAfter);
-        }
+    }
+
+    public async Task RaiseInvalidModel()
+    {
+        if (OnInvalidModel != null)
+            await OnInvalidModel.Invoke();
     }
 
     public event Func<Task>? Notify;
     public event Func<Task>? CancelMessageStreamEvent;
     public event Func<double, Task>? OnRateLimited;
+    public event Func<Task>? OnInvalidModel;
 }

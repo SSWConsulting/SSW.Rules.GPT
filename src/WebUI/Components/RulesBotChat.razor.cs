@@ -7,7 +7,6 @@ using OpenAI.GPT3.ObjectModels.RequestModels;
 using WebUI.Classes;
 using WebUI.Models;
 using WebUI.Services;
-using Direction = WebUI.Classes.Direction;
 
 namespace WebUI.Components;
 
@@ -23,10 +22,16 @@ public class RulesBotChatBase : ComponentBase, IDisposable
     [Inject] protected IJSRuntime Js { get; set; } = default!;
     [Inject] protected ISnackbar Snackbar { get; set; } = default!;
     [Inject] protected IAnalytics Analytics { get; set; } = default!;
-    
+
     [CascadingParameter] protected MudTheme Theme { get; set; }
     [CascadingParameter] protected bool isDarkMode { get; set; }
-    
+
+    public void Dispose()
+    {
+        NotifierService.Notify -= OnNotify;
+        NotifierService.CancelMessageStreamEvent -= OnCancelMessageStream;
+    }
+
     protected override async Task OnInitializedAsync()
     {
         NotifierService.Notify += OnNotify;
@@ -36,13 +41,11 @@ public class RulesBotChatBase : ComponentBase, IDisposable
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
-        
-        if (firstRender)
-        {
+
+        if (firstRender) 
             await Js.InvokeVoidAsync("initInputHeight");
-        }
     }
-    
+
     protected async Task OnExampleClicked(string message)
     {
         DataState.NewMessageString = message;
@@ -51,13 +54,13 @@ public class RulesBotChatBase : ComponentBase, IDisposable
 
     protected async Task Move((ChatLinkedListItem item, Direction direction) args)
     {
-        var target = args.direction == Direction.Left 
+        var target = args.direction == Direction.Left
             ? args.item.Left
             : args.item.Right;
-        
+
         if (target is null)
             return;
-        
+
         DataState.ChatMessages.Move(args.item, args.direction);
         DataState.CurrentMessageThread = DataState.ChatMessages.GetThread(target);
         StateHasChanged();
@@ -65,54 +68,50 @@ public class RulesBotChatBase : ComponentBase, IDisposable
 
     protected async Task SendEditedMessage((ChatLinkedListItem item, string message) args)
     {
-        if (!await CheckConnection())
-        {
+        if (!await CheckConnection()) 
             return;
-        }
-        
+
         var newChatMessage = new ChatMessage("user", args.message);
         var newAssistantMessage = new ChatMessage("assistant", string.Empty);
-        
+
         var target = DataState.ChatMessages.AddRight(newChatMessage, args.item, DataState.SelectedGptModel);
-        
+
         DataState.ChatMessages.AddAfter(newAssistantMessage, target, DataState.SelectedGptModel);
         DataState.CurrentMessageThread = DataState.ChatMessages.GetThread(target);
-        
+
         await SendMessage(newChatMessage, newAssistantMessage);
     }
 
     protected async Task SendMessage()
     {
-        if (string.IsNullOrWhiteSpace(DataState.NewMessageString) || !await CheckConnection())
-        {
+        if (string.IsNullOrWhiteSpace(DataState.NewMessageString) || !await CheckConnection()) 
             return;
-        }
-        
+
         var newChatMessage = new ChatMessage("user", DataState.NewMessageString);
         var newAssistantMessage = new ChatMessage("assistant", string.Empty);
 
-        var userLinkedListItem = DataState.ChatMessages.Any(s => s.Message.Role != "system") 
+        var userLinkedListItem = DataState.ChatMessages.Any(s => s.Message.Role != "system")
             ? DataState.ChatMessages.AddAfter(newChatMessage, DataState.ChatMessages.Last(), DataState.SelectedGptModel)
             : DataState.ChatMessages.Add(newChatMessage, DataState.SelectedGptModel);
-        
-        var assistantLinkedListItem = DataState.ChatMessages.Any(s => s.Message.Role != "system") 
+
+        var assistantLinkedListItem = DataState.ChatMessages.Any(s => s.Message.Role != "system")
             ? DataState.ChatMessages.AddAfter(newAssistantMessage, DataState.ChatMessages.Last(), DataState.SelectedGptModel)
             : DataState.ChatMessages.Add(newAssistantMessage, DataState.SelectedGptModel);
-        
+
         DataState.CurrentMessageThread.Add(userLinkedListItem);
         DataState.CurrentMessageThread.Add(assistantLinkedListItem);
         DataState.NewMessageString = string.Empty;
-        
+
         await SendMessage(newChatMessage, newAssistantMessage);
     }
 
     private async Task SendMessage(ChatMessage chatMessage, ChatMessage assistantMessage)
     {
         _ = Analytics.TrackEvent("SendMessage", new { message = DataState.NewMessageString, ownKey = DataState.ApiKeyString != null });
-        
+
         DataState.IsAwaitingResponseStream = true;
         DataState.IsAwaitingResponse = true;
-        
+
         StateHasChanged();
 
         await JsScrollMessageListToBottom();
@@ -131,11 +130,11 @@ public class RulesBotChatBase : ComponentBase, IDisposable
             assistantMessage.Content += result?.Content;
 
             StateHasChanged();
-            _= NotifierService.Update();
+            _ = NotifierService.Update();
             await Js.InvokeVoidAsync("highlightCode");
             await JsScrollMessageListToBottom();
         }
-        
+
         DataState.IsAwaitingResponseStream = false;
         DataState.IsAwaitingResponse = false;
         DataState.CancellationTokenSource.Dispose();
@@ -144,29 +143,25 @@ public class RulesBotChatBase : ComponentBase, IDisposable
 
     private async Task<bool> CheckConnection()
     {
-        if (SignalR.GetConnectionState() == SignalRClient.StatusHubConnectionState.Disconnected)
+        if (SignalR.GetConnectionState() != StatusHubConnectionState.Disconnected)
+            return true;
+        
+        try
         {
-            try
-            {
-                await SignalR.StartAsync(DataState.CancellationTokenSource.Token);
-            }
-            catch (HttpRequestException e)
-            {
-                Snackbar.Add("Unable to connect to SSW RulesGPT", Severity.Error);
-                return false;
-            }
+            await SignalR.StartAsync(DataState.CancellationTokenSource.Token);
+            return true;
         }
-
-        return true;
+        catch (HttpRequestException e)
+        {
+            Snackbar.Add("Unable to connect to SSW RulesGPT", Severity.Error);
+            return false;
+        }
     }
 
     protected async Task MessageTextFieldHandleEnterKey(KeyboardEventArgs args)
     {
-        
-        if (args is { Key: "Enter", ShiftKey: false })
-        {
+        if (args is { Key: "Enter", ShiftKey: false }) 
             await SendMessage();
-        }
     }
 
     private async Task OnNotify()
@@ -178,12 +173,6 @@ public class RulesBotChatBase : ComponentBase, IDisposable
     {
         await InvokeAsync(CancelStreamingResponse);
     }
-    
-    public void Dispose()
-    {
-        NotifierService.Notify -= OnNotify;
-        NotifierService.CancelMessageStreamEvent -= OnCancelMessageStream;
-    }
 
     private async Task JsScrollMessageListToBottom()
     {
@@ -194,14 +183,14 @@ public class RulesBotChatBase : ComponentBase, IDisposable
     {
         DataState.CancellationTokenSource.Cancel();
         DataState.CancellationTokenSource.Dispose();
-        
+
         var lastAssistantMessage = DataState.CurrentMessageThread.LastOrDefault(s => s.Message.Role == "assistant");
-        if (lastAssistantMessage is not null && string.IsNullOrWhiteSpace(lastAssistantMessage?.Message.Content))
+        if (lastAssistantMessage is not null && string.IsNullOrWhiteSpace(lastAssistantMessage.Message.Content))
         {
             DataState.CurrentMessageThread.Remove(lastAssistantMessage);
             DataState.ChatMessages.Remove(lastAssistantMessage);
         }
-        
+
         DataState.IsAwaitingResponse = false;
         DataState.IsAwaitingResponseStream = false;
         DataState.CancellationTokenSource = new CancellationTokenSource();

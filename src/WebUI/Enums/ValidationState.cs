@@ -1,4 +1,6 @@
-﻿public enum ValidationState
+﻿namespace WebUI;
+
+public enum ValidationState
 {
     Initial,
     Testing,
