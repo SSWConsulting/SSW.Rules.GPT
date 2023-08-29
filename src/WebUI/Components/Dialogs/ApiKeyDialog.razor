@@ -77,7 +77,6 @@
     private string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
     private bool ShowPassword { get; set; }
 
-
     protected override async Task OnInitializedAsync()
     {
         UsingByoApiKey = DataState.UsingByoApiKey;
@@ -90,8 +89,12 @@
     private void SetShowPassword(bool state)
     {
         ShowPassword = state;
-        PasswordInputIcon = state ? Icons.Material.Filled.Visibility : Icons.Material.Filled.VisibilityOff;
-        PasswordInput = state ? InputType.Text : InputType.Password;
+        PasswordInputIcon = state
+            ? Icons.Material.Filled.Visibility
+            : Icons.Material.Filled.VisibilityOff;
+        PasswordInput = state
+            ? InputType.Text
+            : InputType.Password;
     }
 
     private void OpenHelp() => HelpIsVisible = true;
@@ -105,7 +108,9 @@
         if (!UsingByoApiKey)
         {
             DataState.ApiKeyString = null;
-            DataState.SelectedGptModel = AvailableGptModels.Gpt35Turbo;
+            DataState.SelectedGptModel = UserService.IsUserAuthenticated
+                ? SelectedGptModel
+                : AvailableGptModels.Gpt35Turbo;
             DataState.UsingByoApiKey = false;
 
             await Storage.SetItemAsync("userAPIKeyEnabled", DataState.UsingByoApiKey.ToString());
