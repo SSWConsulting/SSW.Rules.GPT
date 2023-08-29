@@ -21,9 +21,9 @@ builder.Services.AddTransient<CookieHandler>();
 
 builder.Services.AddSingleton<DataState>();
 builder.Services.AddSingleton<NotifierService>();
-builder.Services.AddSingleton<UserService>();
 builder.Services.AddSingleton<MarkdigPipelineService>();
 
+builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<SignalRClient>();
 builder.Services.AddScoped<SswRulesGptDialogService>();
 builder.Services.AddScoped<ApiKeyValidationService>();
