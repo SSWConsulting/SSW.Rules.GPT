@@ -10,19 +10,18 @@ namespace WebAPI.SignalR;
 
 public class RulesHub : Hub<IRulesClient>
 {
-    private readonly MessageHandler _messageHandler;
     private readonly ILogger<RulesHub> _logger;
-    private readonly IOpenAiEmbeddingService _embeddingService;
+    private readonly MessageHandler _messageHandler;
 
     public RulesHub(
-        MessageHandler messageHandler, 
-        ILogger<RulesHub> logger, 
+        MessageHandler messageHandler,
+        ILogger<RulesHub> logger,
         IOpenAiEmbeddingService embeddingService)
     {
         _messageHandler = messageHandler;
         _logger = logger;
-        _embeddingService = embeddingService;
-        _embeddingService.OnRateLimited = OnRateLimited;
+
+        embeddingService.OnRateLimited = OnRateLimited;
     }
 
     // override OnConnectedAsync to add user to group
@@ -53,12 +52,8 @@ public class RulesHub : Hub<IRulesClient>
         var retryAfter = Math.Round(e.RetryAfter.TotalSeconds, MidpointRounding.AwayFromZero);
         await Clients.Caller.ReceiveRateLimitedWarning(retryAfter);
     }
-    
+
     // Server methods that a client can invoke - connection.invoke(...)
-    public async Task BroadcastMessage(string user, string message)
-    {
-        await Clients.All.ReceiveBroadcast(user, message);
-    }
 
     public IAsyncEnumerable<ChatMessage?> RequestNewCompletionMessage(
         List<ChatMessage> messageList,
@@ -67,11 +62,19 @@ public class RulesHub : Hub<IRulesClient>
         CancellationToken cancellationToken
     )
     {
-        if (Context.User.IsAuthenticated())
+        var isAuthenticated = Context.User.IsAuthenticated();
+        if (isAuthenticated)
         {
             //TODO: Track user stats - see https://github.com/SSWConsulting/SSW.Rules.GPT/issues/103
         }
-        
+
+        //Check user has a key if they are not signed in and are trying to access GPT-4
+        else if (!isAuthenticated && string.IsNullOrWhiteSpace(apiKey) && gptModel == Models.Model.Gpt_4)
+        {
+            Clients.Caller.ReceiveInvalidModelWarning();
+            gptModel = Models.Model.ChatGpt3_5Turbo;
+        }
+
         return _messageHandler.Handle(messageList, apiKey, gptModel, cancellationToken);
     }
 }

@@ -1,64 +1,48 @@
 ﻿using System.Runtime.CompilerServices;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.SignalR.Client;
 using OpenAI.GPT3.ObjectModels.RequestModels;
-using WebUI.Models;
 using WebUI.Services;
 
 namespace WebUI;
 
 public class SignalRClient
 {
-    private readonly NotifierService _notifierService;
     private readonly HubConnection _connection;
-    private readonly ILogger<SignalRClient> _logger;
-    private readonly NavigationManager _navigationManager;
-    private readonly IAccessTokenProvider _tokenProvider;
+    private readonly NotifierService _notifierService;
 
     public SignalRClient(
-        IWebAssemblyHostEnvironment hostEnvironment,
         NotifierService notifierService,
         IConfiguration configuration,
         ILogger<SignalRClient> logger,
-        NavigationManager navigationManager, 
         IAccessTokenProvider tokenProvider)
     {
         _notifierService = notifierService;
-        _logger = logger;
-        _navigationManager = navigationManager;
-        _tokenProvider = tokenProvider;
 
         var hubeBaseUrl = configuration["ApiBaseUrl"];
         var hubUrl = $"{hubeBaseUrl}/ruleshub";
-        
+
         _connection = new HubConnectionBuilder()
             .WithUrl(hubUrl, options =>
             {
                 options.AccessTokenProvider = async () =>
                 {
-                    var tokenResult = await _tokenProvider.RequestAccessToken();
+                    var tokenResult = await tokenProvider.RequestAccessToken();
                     if (tokenResult.TryGetToken(out var token))
-                    {
                         return await Task.FromResult(token.Value);
-                    }
 
                     return await Task.FromResult("");
                 };
-                
             })
             .WithAutomaticReconnect()
             .Build();
 
         RegisterHandlers();
 
-        _connection.Closed += async (exception) =>
+        _connection.Closed += async exception =>
         {
             if (exception != null)
-            {
-                _logger.LogInformation("Connection closed due to an error: {Exception}", exception);
-            }
+                logger.LogInformation("Connection closed due to an error: {Exception}", exception);
         };
     }
 
@@ -72,19 +56,9 @@ public class SignalRClient
         await _connection.StopAsync();
     }
 
-    //TODO: Refactor to separate file
-    public enum StatusHubConnectionState
-    {
-        Disconnected,
-        Connected,
-        Connecting,
-        Reconnecting
-    }
-
     public StatusHubConnectionState GetConnectionState()
     {
-        StatusHubConnectionState state;
-        state = _connection.State switch
+        var state = _connection.State switch
         {
             HubConnectionState.Disconnected => StatusHubConnectionState.Disconnected,
             HubConnectionState.Connected => StatusHubConnectionState.Connected,
@@ -92,22 +66,17 @@ public class SignalRClient
             HubConnectionState.Reconnecting => StatusHubConnectionState.Reconnecting,
             _ => throw new ArgumentOutOfRangeException()
         };
+
         return state;
     }
 
     // Methods the client can call on the server
-    
-    public async Task BroadcastMessageAsync(string userName, string message)
-    {
-        await _connection.InvokeAsync("BroadcastMessage", userName, message);
-    }
 
     public async IAsyncEnumerable<ChatMessage?> RequestNewCompletionMessage(
         List<ChatMessage> messageList,
         string? apiKey,
         OpenAI.GPT3.ObjectModels.Models.Model gptModel,
-        [EnumeratorCancellation] CancellationToken cancellationToken
-    )
+        [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var completionResult = _connection.StreamAsync<ChatMessage?>(
             "RequestNewCompletionMessage",
@@ -116,23 +85,16 @@ public class SignalRClient
             gptModel,
             cancellationToken
         );
-        await foreach (var message in completionResult.WithCancellation(cancellationToken))
-        {
+
+        await foreach (var message in completionResult)
             yield return message;
-        }
     }
 
-    //Methods that the client listens for
+    //Methods that the client listens for from the server
+
     private void RegisterHandlers()
     {
-        _connection.On<string, string>(
-            "ReceiveBroadcast",
-            (user, message) =>
-            {
-                var encodedMsg = $"{user}: {message}";
-                Console.WriteLine(encodedMsg);
-            }
-        );
-        _connection.On<double>("ReceiveRateLimitedWarning", async (retryAfter) => { await _notifierService.RaiseRateLimited(retryAfter); });
+        _connection.On<double>("ReceiveRateLimitedWarning", async retryAfter => { await _notifierService.RaiseRateLimited(retryAfter); });
+        _connection.On("ReceiveInvalidModelWarning", async () => { await _notifierService.RaiseInvalidModel(); });
     }
 }
