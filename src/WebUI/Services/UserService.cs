@@ -44,7 +44,8 @@ public class UserService
         if (!IsUserAuthenticated)
             return;
 
-        _snackbar.Add("You are now signed in and have access to GPT-4!.", Severity.Success);
+        _snackbar.Add("You are now signed in and have access to GPT-4", Severity.Success);
+        _snackbar.Add("Your GPT model has been set to GPT-4, you can change your model in Settings | API Key");
         _dataState.SelectedGptModel = AvailableGptModels.Gpt4;
     }
 }
