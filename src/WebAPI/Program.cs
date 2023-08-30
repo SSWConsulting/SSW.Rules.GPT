@@ -20,7 +20,7 @@ builder.Services.AddAuthentication(options =>
 }).AddJwtBearer(options =>
 {
     options.Authority = signingAuthority;
-    options.Audience = "ssw-rulesgpt";
+    options.Audience = "rulesgpt";
     options.TokenValidationParameters.ValidTypes = new[] { "at+jwt" };
 
     options.Events = new JwtBearerEvents
