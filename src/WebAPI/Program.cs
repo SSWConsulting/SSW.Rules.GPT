@@ -63,6 +63,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapAuthRoutes();
+app.MapLeaderboardRoutes();
 app.MapHub<RulesHub>("/ruleshub");
 
 app.Logger.LogInformation("Starting WebAPI");

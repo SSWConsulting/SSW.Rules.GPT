@@ -24,9 +24,5 @@
 	<ItemGroup>
 	  <Compile Remove="Helpers\JwtHandler.cs" />
 	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Components\Leaderboard\" />
-	</ItemGroup>
 	
 </Project>

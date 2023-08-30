@@ -1,6 +1,40 @@
 ﻿@page "/leaderboard"
-<h3>Leaderboard</h3>
+@inject HttpClient Http
+@inject IConfiguration Configuration
+
+<div class="py-8">
+    <MudTable Items="@LeaderboardData" T="LeaderboardUserStats">
+        <HeaderContent>
+            <MudTh>Position</MudTh>
+            <MudTh>Name</MudTh>
+            <MudTh>Messages Sent</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Position">@context.Position</MudTd>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Messages Sent">@context.AllTime</MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[] { 10, 50 }"/>
+        </PagerContent>
+    </MudTable>
+</div>
 
 @code {
+    private List<LeaderboardUserStats> LeaderboardData { get; set; } = null!;
 
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await Http.GetFromJsonAsync<List<LeaderboardUserStats>>($"{Configuration.GetValue<string>("ApiBaseUrl")}/getLeaderboardStats");
+        LeaderboardData = result ?? new List<LeaderboardUserStats>();
+
+        LeaderboardData = LeaderboardData.OrderBy(s => s.AllTime).ToList();
+        
+        for (var i = 0; i < LeaderboardData.Count; i++)
+        {
+            LeaderboardData[i].Position = i + 1;
+        }
+        
+        await base.OnInitializedAsync();
+    }
 }
