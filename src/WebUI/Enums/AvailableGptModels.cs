@@ -1,4 +1,4 @@
-﻿namespace WebUI.Models;
+﻿namespace WebUI;
 
 public enum AvailableGptModels
 {

@@ -1,4 +1,3 @@
-﻿@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using WebUI.Classes
 @inherits LayoutComponentBase
 
@@ -6,7 +5,9 @@
 @inject DataState DataState
 @inject NotifierService NotifierService
 @inject SignalRClient SignalRClient
+@inject UserService UserService
 @inject NavigationManager NavigationManager
+
 @inject ISnackbar Snackbar
 @inject ILocalStorageService Storage
 
@@ -69,10 +70,10 @@
         </MudMenu>
         <AuthorizeView>
             <Authorized>
-                <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="BeginSignOut">Sign Out</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="UserService.BeginSignOut">Sign Out</MudButton>
             </Authorized>
             <NotAuthorized>
-                <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="BeginSignIn">Sign In</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="UserService.BeginSignIn">Sign In</MudButton>
             </NotAuthorized>
         </AuthorizeView>
     </MudAppBar>
@@ -89,8 +90,8 @@
 
 @code {
     private MudThemeProvider _mudThemeProvider;
-    bool _isDarkMode;
-    bool systemIsDarkMode;
+    private bool _isDarkMode;
+    private bool systemIsDarkMode;
 
     ThemePreference themePreference;
 
@@ -149,6 +150,7 @@
         }
 
         NotifierService.OnRateLimited += OnRateLimited;
+        NotifierService.OnInvalidModel += OnInvalidModel;
 
         var useSavedKeyParsed = bool.TryParse(await Storage.GetItemAsync<string>("userAPIKeyEnabled"), out var useSavedKey);
         var savedAPIKey = await Storage.GetItemAsync<string>("userAPIKey");
@@ -168,16 +170,6 @@
         }
     }
 
-    private void BeginSignIn()
-    {
-        NavigationManager.NavigateToLogin("/authentication/login");
-    }
-
-    private void BeginSignOut()
-    {
-        NavigationManager.NavigateToLogout("/authentication/logout");
-    }
-
     private async Task OnRateLimited(double retryAfter)
     {
         Snackbar.Add($"Too many messages sent! Try again in {retryAfter} seconds.", Severity.Error);
@@ -191,6 +183,16 @@
 
         StateHasChanged();
         await NotifierService.Update();
+    }
+
+    private Task OnInvalidModel()
+    {
+        Snackbar.Add("You do not have access to GPT-4! Ensure you are signed in or have provided your own key.", Severity.Error);
+        Snackbar.Add("Falling back to GPT-3.5.");
+
+        DataState.SelectedGptModel = AvailableGptModels.Gpt35Turbo;
+
+        return Task.CompletedTask;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

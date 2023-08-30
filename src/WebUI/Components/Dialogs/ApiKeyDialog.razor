@@ -2,6 +2,7 @@
 
 @inject DataState DataState
 @inject ApiKeyValidationService ApiKeyValidationService
+@inject UserService UserService
 @inject ILocalStorageService Storage
 
 <MudDialog>
@@ -12,7 +13,7 @@
             {
                 <MudSwitch Class="mb-2" @bind-Checked="@SaveAPIKeyToLocalStorage" Label="Save to LocalStorage" Color="Color.Error"></MudSwitch>
             }
-            <MudSelect Disabled="!UsingByoApiKey" T="AvailableGptModels" @bind-Value="@SelectedGptModel" ToStringFunc="s => s.AvailableModelEnumToString()" Label="GPT Model" AnchorOrigin="Origin.BottomCenter">
+            <MudSelect Disabled="@(!UsingByoApiKey && !UserService.IsUserAuthenticated)" T="AvailableGptModels" @bind-Value="@SelectedGptModel" ToStringFunc="s => s.AvailableModelEnumToString()" Label="GPT Model" AnchorOrigin="Origin.BottomCenter">
                 <MudSelectItem Value="AvailableGptModels.Gpt35Turbo"/>
                 <MudSelectItem Value="AvailableGptModels.Gpt4"/>
             </MudSelect>
@@ -77,14 +78,13 @@
     private bool ShowPassword { get; set; }
 
 
-    protected override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
         UsingByoApiKey = DataState.UsingByoApiKey;
         SaveAPIKeyToLocalStorage = DataState.SavingByoApiKey;
         SelectedGptModel = DataState.SelectedGptModel;
 
         StateHasChanged();
-        return Task.CompletedTask;
     }
 
     private void SetShowPassword(bool state)

@@ -1,4 +1,4 @@
-﻿namespace WebUI.Classes;
+﻿namespace WebUI;
 
 public enum Direction
 {

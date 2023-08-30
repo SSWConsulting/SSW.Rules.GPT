@@ -18,12 +18,16 @@ builder.Services.AddScoped(
 );
 
 builder.Services.AddTransient<CookieHandler>();
+
 builder.Services.AddSingleton<DataState>();
-builder.Services.AddScoped<SignalRClient>();
 builder.Services.AddSingleton<NotifierService>();
 builder.Services.AddSingleton<MarkdigPipelineService>();
+
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<SignalRClient>();
 builder.Services.AddScoped<SswRulesGptDialogService>();
 builder.Services.AddScoped<ApiKeyValidationService>();
+
 builder.Services.AddGoogleAnalytics(builder.Configuration.GetValue<string>("AnalyticsID"));
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddMudServices(config =>
@@ -43,7 +47,7 @@ builder.Services.AddOidcAuthentication(options =>
 {
     options.ProviderOptions.Authority = builder.Configuration["SigningAuthority"];
     options.ProviderOptions.ClientId = "ssw-rulesgpt";
-    
+
     options.ProviderOptions.DefaultScopes.Add("email");
     options.ProviderOptions.DefaultScopes.Add("ssw-rulesgpt-api");
 
