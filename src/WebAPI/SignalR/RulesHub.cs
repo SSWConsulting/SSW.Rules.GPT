@@ -1,7 +1,6 @@
-using System.IdentityModel.Tokens.Jwt;
 using Application.Contracts;
 using Application.Services;
-using Domain;
+using Domain.Entities;
 using Duende.IdentityServer.Extensions;
 using Microsoft.AspNetCore.SignalR;
 using OpenAI.GPT3.ObjectModels;
@@ -90,7 +89,7 @@ public class RulesHub : Hub<IRulesClient>
                 
                 else
                 {
-                    _ = AddUserStat(email, $"{name} {surname}");
+                    _ = TrackUserMessage(email, $"{name} {surname}");
                 }
             }
         }
@@ -105,7 +104,7 @@ public class RulesHub : Hub<IRulesClient>
         return _messageHandler.Handle(messageList, apiKey, gptModel, cancellationToken);
     }
 
-    private async Task AddUserStat(string email, string name)
+    private async Task TrackUserMessage(string email, string name)
     {
         _rulesContext.UserStats.Add(new LeaderboardModel()
         {

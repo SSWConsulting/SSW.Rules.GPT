@@ -1,5 +1,5 @@
 ﻿@page "/leaderboard"
-@inject HttpClient Http
+@inject RulesGptClient Client
 @inject UserService UserService
 @inject IConfiguration Configuration
 
@@ -41,7 +41,7 @@
                 All Time
             </MudButton>
         </MudButtonGroup>
-        <MudTable Items="@LeaderboardData" T="LeaderboardUserStats">
+        <MudTable Items="@LeaderboardData" T="OrderedLeaderboardUser">
             <HeaderContent>
                 <MudTh>Position</MudTh>
                 <MudTh>Name</MudTh>
@@ -78,14 +78,22 @@
 </div>
 
 @code {
-    private List<LeaderboardUserStats> LeaderboardData { get; set; } = null!;
+    private List<OrderedLeaderboardUser> LeaderboardData { get; set; } = null!;
     private LeaderboardFilter Filter { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await Http.GetFromJsonAsync<List<LeaderboardUserStats>>($"{Configuration.GetValue<string>("ApiBaseUrl")}/getLeaderboardStats");
+        var result = await Client.GetLeaderboardStatsAsync();
+        LeaderboardData = result.Select(s => new OrderedLeaderboardUser
+        {
+            Name = s.Name,
+            Email = s.Email,
+            LastMonth = s.LastMonth,
+            LastYear = s.LastYear,
+            AllTime = s.AllTime
+        })
+        .ToList();
 
-        LeaderboardData = result ?? new List<LeaderboardUserStats>();
         HandleFilterChanged(LeaderboardFilter.LastMonth);
 
         await base.OnInitializedAsync();
@@ -95,7 +103,7 @@
     {
         Filter = filter;
 
-        //ThenByDescending ensures that if two users have the same number of messages sent this month/year, the one with the higher all time score ranks higher
+    //ThenByDescending ensures that if two users have the same number of messages sent this month/year, the one with the higher all time score ranks higher
         LeaderboardData = Filter switch {
             LeaderboardFilter.LastMonth => LeaderboardData
                 .OrderByDescending(s => s.LastMonth)
@@ -119,4 +127,5 @@
             LeaderboardData[i].Position = i + 1;
         }
     }
+
 }

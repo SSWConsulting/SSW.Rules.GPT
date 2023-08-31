@@ -485,7 +485,7 @@ public partial class RulesContext : DbContext, IRulesContext
             
             entity.ToTable("user_stats");
             
-            entity.HasIndex(e => e.Id, "rules_id_key").IsUnique();
+            entity.HasIndex(e => e.Id, "user_stat_id_key").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Name).HasColumnName("user_name");
