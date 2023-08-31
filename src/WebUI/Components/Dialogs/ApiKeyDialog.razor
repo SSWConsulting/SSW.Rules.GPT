@@ -105,8 +105,10 @@
         if (!UsingByoApiKey)
         {
             DataState.ApiKeyString = null;
-            DataState.SelectedGptModel = AvailableGptModels.Gpt35Turbo;
             DataState.UsingByoApiKey = false;
+            DataState.SelectedGptModel = UserService.IsUserAuthenticated 
+                ? SelectedGptModel
+                : AvailableGptModels.Gpt35Turbo;
 
             await Storage.SetItemAsync("userAPIKeyEnabled", DataState.UsingByoApiKey.ToString());
         }
