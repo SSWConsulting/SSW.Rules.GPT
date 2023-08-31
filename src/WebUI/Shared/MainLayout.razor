@@ -17,14 +17,16 @@
 
 <MudLayout>
     <MudAppBar Elevation="0">
-        <MudStack Justify="Justify.Center" Class="pr-2">
-            <MudLink OnClick="ClearMessageHistory">
-                <MudImage Src="images/SSWlogo-DarkMode.svg" Height="40" ObjectFit="ObjectFit.ScaleDown"></MudImage>
-            </MudLink>
-        </MudStack>
-        <MudStack Justify="Justify.Center" Class="border-l-2 pl-2">
-            <MudText Typo="Typo.h5">RulesGPT</MudText>
-        </MudStack>
+        <a @onclick="ResetApplicationState" style="color: unset; cursor: pointer;">
+            <MudStack Row="true" Spacing="0">
+                <MudStack Justify="Justify.Center" Class="pr-2">
+                    <MudImage Src="images/SSWlogo-DarkMode.svg" Height="40" ObjectFit="ObjectFit.ScaleDown"></MudImage>
+                </MudStack>
+                <MudStack Justify="Justify.Center" Class="border-l-2 pl-2">
+                    <MudText Typo="Typo.h5">RulesGPT</MudText>
+                </MudStack>
+            </MudStack>
+        </a>
         <MudStack Justify="Justify.Center" Class="pl-3">
             <MudText Class="tag-line" Color="Color.Primary" Typo="Typo.body1">Keeping Order with Intelligence</MudText>
         </MudStack>
@@ -57,7 +59,7 @@
                 goto case ThemePreference.Light;
         }
         <MudTooltip Duration="1000" Text="Start a New Chat">
-            <MudIconButton Icon="@Icons.Material.Rounded.Refresh" Color="Color.Inherit" OnClick="@ClearMessageHistory"/>
+            <MudIconButton Icon="@Icons.Material.Rounded.Refresh" Color="Color.Inherit" OnClick="@ResetApplicationState"/>
         </MudTooltip>
         <MudTooltip Duration="1000" Text="Leaderboard">
             <MudIconButton Icon="@Icons.Material.Rounded.Leaderboard" Color="Color.Inherit" OnClick="@(() => NavigationManager.NavigateTo("/leaderboard"))"/>
@@ -227,12 +229,13 @@
         await SswRulesGptDialogService.InstallInstructionsDialog();
     }
 
-    private async Task ClearMessageHistory()
+    private async Task ResetApplicationState()
     {
         await NotifierService.CancelMessageStream();
         DataState.ChatMessages.Clear();
         DataState.CurrentMessageThread.Clear();
         await NotifierService.Update();
+        NavigationManager.NavigateTo("");
     }
 
 }
