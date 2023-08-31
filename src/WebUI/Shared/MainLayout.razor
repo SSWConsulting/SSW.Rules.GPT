@@ -1,4 +1,4 @@
-﻿@using WebUI.Classes
+@using WebUI.Classes
 @inherits LayoutComponentBase
 
 @inject SswRulesGptDialogService SswRulesGptDialogService
@@ -6,6 +6,7 @@
 @inject NotifierService NotifierService
 @inject SignalRClient SignalRClient
 @inject UserService UserService
+@inject NavigationManager NavigationManager
 
 @inject ISnackbar Snackbar
 @inject ILocalStorageService Storage
@@ -57,6 +58,9 @@
         }
         <MudTooltip Duration="1000" Text="Start a New Chat">
             <MudIconButton Icon="@Icons.Material.Rounded.Refresh" Color="Color.Inherit" OnClick="@ClearMessageHistory"/>
+        </MudTooltip>
+        <MudTooltip Duration="1000" Text="Leaderboard">
+            <MudIconButton Icon="@Icons.Material.Rounded.Leaderboard" Color="Color.Inherit" OnClick="@(() => NavigationManager.NavigateTo("/leaderboard"))"/>
         </MudTooltip>
         <MudMenu Icon="@Icons.Material.Filled.Settings" Dense="false" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
             <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Edit" OnTouch="OpenApiKeyDialog" OnClick="OpenApiKeyDialog">API Key</MudMenuItem>
@@ -131,7 +135,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-    //Will default to 'light' if no stored value is found
+        //Will default to 'light' if no stored value is found
         themePreference = await Storage.GetItemAsync<ThemePreference>("DarkModePreference");
         SetThemePreference(themePreference);
 
@@ -141,7 +145,7 @@
         }
         catch (HttpRequestException e)
         {
-    // Display error message
+            // Display error message
             Snackbar.Add("Unable to connect to SSW RulesGPT", Severity.Error);
         }
 
@@ -152,7 +156,7 @@
         var savedAPIKey = await Storage.GetItemAsync<string>("userAPIKey");
         var savedModel = await Storage.GetItemAsync<string>("userGptModel");
 
-    //useSavedKey should be ignored if there is no key saved
+        //useSavedKey should be ignored if there is no key saved
         if (!string.IsNullOrEmpty(savedAPIKey) && useSavedKeyParsed && useSavedKey)
         {
             DataState.ApiKeyString = savedAPIKey;

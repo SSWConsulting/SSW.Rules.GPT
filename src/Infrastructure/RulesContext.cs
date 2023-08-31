@@ -1,4 +1,5 @@
 ﻿using Application.Contracts;
+using Domain;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Object = Domain.Entities.Object;
@@ -38,6 +39,8 @@ public partial class RulesContext : DbContext, IRulesContext
 
     public virtual DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
 
+    public virtual DbSet<LeaderboardModel> UserStats { get; set; } = null!;
+    
     public virtual DbSet<Rule> Rules { get; set; } = null!;
 
     public virtual DbSet<SamlProvider> SamlProviders { get; set; } = null!;
@@ -474,6 +477,20 @@ public partial class RulesContext : DbContext, IRulesContext
             entity.Property(e => e.Content).HasColumnName("content");
             entity.Property(e => e.Name).HasColumnName("name");
             entity.Property(e => e.Embeddings).HasColumnName("embeddings");
+        });
+
+        modelBuilder.Entity<LeaderboardModel>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("leaderboard_pkey");
+            
+            entity.ToTable("user_stats");
+            
+            entity.HasIndex(e => e.Id, "user_stat_id_key").IsUnique();
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Name).HasColumnName("user_name");
+            entity.Property(e => e.Email).HasColumnName("user_email");
+            entity.Property(e => e.Date).HasColumnName("created_at");
         });
 
         modelBuilder.Entity<SamlProvider>(entity =>

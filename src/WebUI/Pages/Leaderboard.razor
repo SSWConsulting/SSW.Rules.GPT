@@ -1,0 +1,131 @@
+﻿@page "/leaderboard"
+@inject RulesGptClient Client
+@inject UserService UserService
+@inject IConfiguration Configuration
+
+<div class="py-8">
+    <MudStack>
+        <MudStack >
+            <MudText Typo="Typo.h4" Style="font-weight: 700">Leaderboard</MudText>
+            <AuthorizeView>
+                <Authorized>
+                    <MudText Typo="Typo.body1">You're signed in! Ask RulesGPT some questions to move up the leaderboard.</MudText>
+                </Authorized>
+                <NotAuthorized>
+                    <MudText Typo="Typo.body1">Sign in now to join the leaderboard!</MudText>
+                    <MudButton Variant="Variant.Filled" Color="Color.Success" Style="display: inline-block; max-width: 150px" OnClick="UserService.BeginSignIn">Sign In</MudButton>
+                </NotAuthorized>
+            </AuthorizeView>
+            <MudSpacer/>
+        </MudStack>
+        <MudButtonGroup OverrideStyles="false">
+            <MudButton
+                Color="Color.Error"
+                DisableElevation="true"
+                Variant="@(Filter == LeaderboardFilter.LastMonth ? Variant.Filled : Variant.Outlined)"
+                OnClick="@(() => HandleFilterChanged(LeaderboardFilter.LastMonth))">
+                Last Month
+            </MudButton>
+            <MudButton
+                Color="Color.Error"
+                DisableElevation="true"
+                Variant="@(Filter == LeaderboardFilter.LastYear ? Variant.Filled : Variant.Outlined)"
+                OnClick="@(() => HandleFilterChanged(LeaderboardFilter.LastYear))">
+                Last Year
+            </MudButton>
+            <MudButton
+                Color="Color.Error"
+                DisableElevation="true"
+                Variant="@(Filter == LeaderboardFilter.AllTime ? Variant.Filled : Variant.Outlined)"
+                OnClick="@(() => HandleFilterChanged(LeaderboardFilter.AllTime))">
+                All Time
+            </MudButton>
+        </MudButtonGroup>
+        <MudTable Items="@LeaderboardData" T="OrderedLeaderboardUser">
+            <HeaderContent>
+                <MudTh>Position</MudTh>
+                <MudTh>Name</MudTh>
+                <MudTh>Messages Sent</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Position">@context.Position</MudTd>
+                <MudTd DataLabel="Name">@context.Name</MudTd>
+                <MudTd DataLabel="Messages Sent">
+                    @switch (Filter)
+                    {
+                        case LeaderboardFilter.LastMonth:
+                            @context.LastMonth
+                            break;
+
+                        case LeaderboardFilter.LastYear:
+                            @context.LastYear
+                            break;
+
+                        case LeaderboardFilter.AllTime:
+                            @context.AllTime
+                            break;
+
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager PageSizeOptions="new int[] { 10, 50 }"/>
+            </PagerContent>
+        </MudTable>
+    </MudStack>
+</div>
+
+@code {
+    private List<OrderedLeaderboardUser> LeaderboardData { get; set; } = null!;
+    private LeaderboardFilter Filter { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await Client.GetLeaderboardStatsAsync();
+        LeaderboardData = result.Select(s => new OrderedLeaderboardUser
+        {
+            Name = s.Name,
+            Email = s.Email,
+            LastMonth = s.LastMonth,
+            LastYear = s.LastYear,
+            AllTime = s.AllTime
+        })
+        .ToList();
+
+        HandleFilterChanged(LeaderboardFilter.LastMonth);
+
+        await base.OnInitializedAsync();
+    }
+
+    private void HandleFilterChanged(LeaderboardFilter filter)
+    {
+        Filter = filter;
+
+        //ThenByDescending ensures that if two users have the same number of messages sent this month/year, the one with the higher all time score ranks higher
+        LeaderboardData = Filter switch {
+            LeaderboardFilter.LastMonth => LeaderboardData
+                .OrderByDescending(s => s.LastMonth)
+                .ThenByDescending(s => s.AllTime)
+                .ToList(),
+                
+            LeaderboardFilter.LastYear => LeaderboardData
+                .OrderByDescending(s => s.LastYear)
+                .ThenByDescending(s => s.AllTime)
+                .ToList(),
+                
+            LeaderboardFilter.AllTime => LeaderboardData
+                .OrderByDescending(s => s.AllTime)
+                .ToList(),
+                
+            _ => throw new ArgumentOutOfRangeException(nameof(filter), filter, null)
+            };
+
+        for (var i = 0; i < LeaderboardData.Count; i++)
+        {
+            LeaderboardData[i].Position = i + 1;
+        }
+    }
+
+}
