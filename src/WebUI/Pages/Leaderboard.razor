@@ -1,9 +1,23 @@
 ﻿@page "/leaderboard"
 @inject HttpClient Http
+@inject UserService UserService
 @inject IConfiguration Configuration
 
 <div class="py-8">
     <MudStack>
+        <MudStack >
+            <MudText Typo="Typo.h4" Style="font-weight: 700">Leaderboard</MudText>
+            <AuthorizeView>
+                <Authorized>
+                    <MudText Typo="Typo.body1">You're signed in! Ask RulesGPT some questions to move up the leaderboard.</MudText>
+                </Authorized>
+                <NotAuthorized>
+                    <MudText Typo="Typo.body1">Sign in now to join the leaderboard!</MudText>
+                    <MudButton Variant="Variant.Filled" Color="Color.Success" Style="display: inline-block; max-width: 150px" OnClick="UserService.BeginSignIn">Sign In</MudButton>
+                </NotAuthorized>
+            </AuthorizeView>
+            <MudSpacer/>
+        </MudStack>
         <MudButtonGroup OverrideStyles="false">
             <MudButton
                 Color="Color.Error"
