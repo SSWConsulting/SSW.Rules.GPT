@@ -8,26 +8,29 @@ public static class LeaderboardRoutes
 {
     public static void MapLeaderboardRoutes(this WebApplication app)
     {
-        var group = app.MapGroup("").WithTags("Leaderboard");
+        var routeGroup = app.MapGroup("").WithTags("Leaderboard");
 
-        group
+        routeGroup
             .MapGet(
                 "/getLeaderboardStats",
                 Ok<IEnumerable<LeaderboardUser>> (HttpContext context) =>
                 {
                     var rulesContext = context.RequestServices.GetRequiredService<IRulesContext>();
 
+                    //Needs to be universal time in order to work the database date values
+                    var oneMonth = DateTime.Now.AddMonths(-1).ToUniversalTime();
+                    var oneYear = DateTime.Now.AddYears(-1).ToUniversalTime();
+
                     var result = rulesContext.UserStats
-                        .Select(s => 
-                        new LeaderboardUser()
+                        .GroupBy(s => new { s.Name, s.Email })
+                        .Select(group => new LeaderboardUser()
                         {
-                            Name = s.Name,
-                            Email = s.Email,
-                            LastMonth = rulesContext.UserStats.Count(u => u.Email == s.Email && u.Date >= DateTime.Now.AddMonths(-1)),
-                            LastYear = rulesContext.UserStats.Count(u => u.Email == s.Email && u.Date >= DateTime.Now.AddYears(-1)),
-                            AllTime = rulesContext.UserStats.Count(u => u.Email == s.Email)
+                            Name = group.Key.Name,
+                            Email = group.Key.Email,
+                            LastMonth = group.Count(u => u.Date >= oneMonth),
+                            LastYear = group.Count(u => u.Date >= oneYear),
+                            AllTime = group.Count()
                         })
-                        .Distinct()
                         .AsEnumerable();
                     
                     return TypedResults.Ok(result);
