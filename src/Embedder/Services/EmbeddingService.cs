@@ -35,8 +35,6 @@ public class EmbeddingService
         var openaiKey = _configuration.GetValue<string>("OPENAI_KEY");
         var githubKey = _configuration.GetValue<string>("GITHUB_KEY");
         
-        Console.WriteLine("API KEY: " + _configuration.GetValue<string>("OPENAI_KEY"));
-
         _githubClient = new GitHubClient(new ProductHeaderValue("rules-embedder"));
         _githubClient.Credentials = new Credentials(githubKey);
         
