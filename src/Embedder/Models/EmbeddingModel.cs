@@ -3,6 +3,7 @@ using Postgrest.Models;
 
 namespace RulesEmbeddingFunction.Models;
 
+//TODO: Change this to "rules" when ready for production
 [Table("rules_test")]
 public class EmbeddingModel : BaseModel
 {
