@@ -32,10 +32,10 @@ public class EmbeddingService
 
         var openaiKey = configuration.GetValue<string>("OPENAI_KEY");
         var githubKey = configuration.GetValue<string>("GITHUB_KEY");
-        
+
         _githubClient = new GitHubClient(new ProductHeaderValue("rules-embedder"));
         _githubClient.Credentials = new Credentials(githubKey);
-        
+
         _openAiHttpClient = new HttpClient();
         _openAiHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", openaiKey);
     }
@@ -84,6 +84,19 @@ public class EmbeddingService
 
             if (!response.IsSuccessStatusCode)
             {
+                if (response.Headers.RetryAfter != null)
+                {
+                    var retryAfterMilliseconds = 10000;
+                    
+                    if (response.Headers.RetryAfter.Delta.HasValue)
+                        retryAfterMilliseconds = (int)Math.Ceiling(response.Headers.RetryAfter.Delta.Value.TotalSeconds) * 1000;
+                    
+                    _logger.LogInformation("Rate limited. Retrying in {retryAfterMilliseconds} milliseconds.", retryAfterMilliseconds);
+
+                    await Task.Delay(retryAfterMilliseconds);
+                    return await EmbedText(name, value);
+                }
+                
                 _logger.LogError("HTTP request to OpenAI failed with code {responseCode}.\n {message}", response.StatusCode, response.ReasonPhrase);
                 return null;
             }
