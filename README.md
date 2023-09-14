@@ -16,7 +16,8 @@ Our project is a GPT Bot that uses OpenAI embeddings to search for matching [SSW
 Follow these simple steps to install and set up our SSW Rules GPT project:
 
 1. Clone the repository
-2. Add the following to your secrets.json file in `src/WebAPI`:
+2. Open the `SSW.Rules.GPT` solution
+3. Add the following to your secrets.json file in `src/WebAPI`:
 ```
 {
   "OpenAiApiKey": "{{ OPENAI API KEY }}",
@@ -56,3 +57,40 @@ Staging API URL: https://ssw-rulesgpt-api-stage.azurewebsites.net
 - Harry Ross ([@Harry-Ross](https://github.com/Harry-Ross))
 - Jack Reimers ([@jackreimers](https://github.com/jackreimers))
 - Adam Cogan ([@adamcogan](https://github.com/adamcogan))
+
+# Rules Embedder
+The Rules Embedder is an Azure Function that runs every time a rule in SSW.Rules.Content is updated.
+The function is triggered by a webhook on the Rules content repo and only changed rules are updated.
+
+### 🛤️ Prerequisites
+
+1. To run the function locally you must have the Azure Functions Core Tools installed
+2. To deploy the function to Azure you must have the Azure CLI or Azure Powershell module installed
+
+See [this Microsoft Learn article](https://learn.microsoft.com/en-us/azure/azure-functions/create-first-function-cli-csharp?tabs=windows%2Cazure-cli) for install instructions.
+
+### 💻 Installation
+
+Follow these simple steps to install and set up our SSW Rules Embedder project:
+
+1. Clone the repository
+2. Open the `SSW.Rules.Embedder` solution
+3. Add the following to your secrets.json file in `src/Embedder`:
+```
+{
+    "DATABASE_EMAIL": "{{ DATABASE ACCOUNT EMAIL }}",
+    "DATABASE_PASSWORD": "{{ DATABASE ACCOUNT PASSWORD }}",
+    "DATABASE_URL": "{{ DATABASE URL }}",
+    "DATABASE_KEY": "{{ DATABASE KEY }}",
+
+    "GITHUB_KEY": "{{ GITHUB ACCOUNT KEY }}",
+    "OPENAI_KEY": "{{ OPENAI KEY }}"
+}
+```
+4. Open a console and `cd` into `src/Embedder`
+5. Run `func start`
+
+### 🚢 Deployment
+
+1. Open a console and `cd` into `src/Embedder`
+2. Run `func azure functionapp publish <APP_NAME>` 
