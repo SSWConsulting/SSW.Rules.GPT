@@ -1,10 +1,9 @@
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Octokit.Webhooks;
+using Octokit.Webhooks.AzureFunctions;
 using RulesEmbeddingFunction.Services;
-
-[assembly: UserSecretsId("b5c66657-f040-4c79-acc7-9679d8df5a12")]
 
 var builder = new HostBuilder();
 
@@ -19,10 +18,13 @@ builder.ConfigureAppConfiguration(config =>
 
 builder.ConfigureServices(services =>
 {
-    services.AddTransient<TokenService>();
-    services.AddTransient<EmbeddingService>();
-    services.AddTransient<DatabaseService>();
+    services.AddSingleton<TokenService>();
+    services.AddSingleton<EmbeddingService>();
+    services.AddSingleton<DatabaseService>();
+    services.AddSingleton<WebhookEventProcessor, RuleWebhookEventProcessor>();
 });
+
+builder.ConfigureGitHubWebhooks();
 
 var host = builder.Build();
 

@@ -16,7 +16,6 @@ public class EmbeddingService
     private const string OPENAI_API_URL = "https://api.openai.com/v1/embeddings";
 
     private readonly ILogger _logger;
-    private readonly IConfiguration _configuration;
     private readonly TokenService _tokenService;
 
     private readonly GitHubClient _githubClient;
@@ -28,12 +27,11 @@ public class EmbeddingService
         TokenService tokenService
     )
     {
-        _configuration = configuration;
         _tokenService = tokenService;
         _logger = loggerFactory.CreateLogger<EmbeddingService>();
 
-        var openaiKey = _configuration.GetValue<string>("OPENAI_KEY");
-        var githubKey = _configuration.GetValue<string>("GITHUB_KEY");
+        var openaiKey = configuration.GetValue<string>("OPENAI_KEY");
+        var githubKey = configuration.GetValue<string>("GITHUB_KEY");
         
         _githubClient = new GitHubClient(new ProductHeaderValue("rules-embedder"));
         _githubClient.Credentials = new Credentials(githubKey);

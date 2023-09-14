@@ -4,6 +4,7 @@
         "AzureWebJobsStorage": "UseDevelopmentStorage=true",
         "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated"
     },
+    
     "DATABASE_EMAIL": "{{ STORED IN USER SECRETS }}",
     "DATABASE_PASSWORD": "{{ STORED IN USER SECRETS }}",
     "DATABASE_URL": "{{ STORED IN USER SECRETS }}",

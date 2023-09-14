@@ -10,31 +10,38 @@ public class DatabaseService
     private readonly ILogger<DatabaseService> _logger;
     private readonly IConfiguration _configuration;
 
+    private Client _client = null!;
+
     public DatabaseService(ILoggerFactory loggerFactory, IConfiguration configuration)
     {
         _configuration = configuration;
         _logger = loggerFactory.CreateLogger<DatabaseService>();
+
+        Task.Run(() => InitialiseClient().Wait());
     }
-    
-    public async Task SaveEmbeddings(ICollection<Embedding> embeddings)
+
+    private async Task InitialiseClient()
     {
         var options = new SupabaseOptions { AutoConnectRealtime = true };
-        var client = new Client(
+        _client = new Client(
             _configuration.GetValue<string>("DATABASE_URL"),
             _configuration.GetValue<string>("DATABASE_KEY"),
             options
         );
-        
-        await client.InitializeAsync();
-        await client.Auth.SignIn(
+
+        await _client.InitializeAsync();
+        await _client.Auth.SignIn(
             _configuration.GetValue<string>("DATABASE_EMAIL"),
             _configuration.GetValue<string>("DATABASE_PASSWORD")
         );
-        
+    }
+
+    public async Task SaveEmbeddings(ICollection<Embedding> embeddings)
+    {
         //Chose to delete existing embeddings and not update as the number of chunks in the rule could change
         foreach (var embedding in embeddings)
         {
-            await client
+            await _client
                 .From<EmbeddingModel>()
                 .Where(s => s.Name == embedding.Name)
                 .Delete();
@@ -49,6 +56,17 @@ public class DatabaseService
             })
             .ToList();
 
-        await client.From<EmbeddingModel>().Insert(models);
+        await _client.From<EmbeddingModel>().Insert(models);
+    }
+
+    public async Task DeleteEmbeddings(IEnumerable<string> rules)
+    {
+        foreach (var rule in rules)
+        {
+            await _client
+                .From<EmbeddingModel>()
+                .Where(s => s.Name == rule)
+                .Delete();
+        }
     }
 }
