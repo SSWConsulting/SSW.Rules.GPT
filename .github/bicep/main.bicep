@@ -19,13 +19,13 @@ param appInsightsLocation string = 'australiaeast'
 @description('Location for Static Web App')
 param staticWebAppLocation string = 'eastasia'
 
-@description('The language worker runtime to load in the function app.')
-@allowed([
-  'node'
-  'dotnet'
-  'java'
-])
-param runtime string = 'dotnet'
+//@description('The language worker runtime to load in the function app.')
+//@allowed([
+//  'node'
+//  'dotnet'
+//  'java'
+//])
+//param runtime string = 'dotnet'
 
 //@allowed([
 //  'S0'
@@ -38,7 +38,7 @@ param runtime string = 'dotnet'
 ])
 param frontendSku string = 'Free'
 
-var functionAppName = 'azfn-${appName}'
+//var functionAppName = 'azfn-${appName}'
 var hostingPlanName = 'plan-${appName}'
 var applicationInsightsName = 'ai-${appName}'
 var storageAccountName = 'storagerulesgpt'
@@ -47,7 +47,7 @@ var storageAccountName = 'storagerulesgpt'
 var apiAppName = 'api-${appName}'
 var frontendAppName = 'frontend-${appName}'
 
-var functionWorkerRuntime = runtime
+//var functionWorkerRuntime = runtime
 
 //resource cognitiveService 'Microsoft.CognitiveServices/accounts@2021-10-01' = {
 //  name: cognitiveServiceName
@@ -94,7 +94,6 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = {
     siteConfig: {
       numberOfWorkers: 1
       netFrameworkVersion: 'v7.0'
-//      linuxFxVersion: linuxFxVersion
       alwaysOn: false
       http20Enabled: false
     }
@@ -112,17 +111,17 @@ resource staticWebApp 'Microsoft.Web/staticSites@2021-01-15' = {
   }
 }
 
-resource functionApp 'Microsoft.Web/sites@2021-03-01' = {
-  name: functionAppName
-  location: location
-  kind: 'functionapp'
-  identity: {
-    type: 'SystemAssigned'
-  }
-  properties: {
-    serverFarmId: hostingPlan.id
-  }
-}
+//resource functionApp 'Microsoft.Web/sites@2021-03-01' = {
+//  name: functionAppName
+//  location: location
+//  kind: 'functionapp'
+//  identity: {
+//    type: 'SystemAssigned'
+//  }
+//  properties: {
+//    serverFarmId: hostingPlan.id
+//  }
+//}
 
 resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
   name: applicationInsightsName
