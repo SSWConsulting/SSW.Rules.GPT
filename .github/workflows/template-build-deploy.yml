@@ -16,6 +16,13 @@ on:
         type: string
     
     secrets:
+      AZURE_CREDENTIALS:
+        required: true
+      AZURE_SUBSCRIPTION:
+        required: true
+      AZURE_RG:
+        required: true
+      
       AzureWebAppSecret:
         required: true
       AzureStaticWebAppsApiToken:
@@ -30,6 +37,22 @@ jobs:
     
     steps:
       - uses: actions/checkout@v3.3.0
+
+      # Log in to Azure
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          
+      # Run Bicep
+      - name: Deploy Bicep
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+          resourceGroupName: ${{ secrets.AZURE_RG }}
+          template: ./.github/bicep/main.bicep
+          # parameters: ''
+          failOnStdErr: false
 
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v3.0.3
