@@ -45,6 +45,7 @@ jobs:
         env:
           ApiBaseUrl: ${{ vars.API_BASE_URL }}
           SigningAuthority: ${{ vars.SIGNING_AUTHORITY }}
+          AllowedCORSOrigins: ${{ vars.ALLOWED_CORS_ORIGINS }}
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
