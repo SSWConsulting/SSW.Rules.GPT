@@ -35,9 +35,12 @@ public static class DependencyInjection
             );
         }
         
-        var allowedCors = configuration.GetSection("AllowedCORSOrigins").Get<string[]>();
+        var allowedCors = configuration.GetValue<string>("AllowedCORSOrigins");
         if (allowedCors == null)
             throw new ArgumentException("No CORS origins specified in configuration.");
+        
+        //Workaround for not being able to set arrays as variables in Azure
+        var allowedCorsList = allowedCors.Split(",");
         
         services.AddCors(
             options =>
