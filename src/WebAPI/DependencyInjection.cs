@@ -48,7 +48,7 @@ public static class DependencyInjection
                     name: rulesGptCorsPolicy,
                     policy =>
                         policy
-                            .WithOrigins(allowedCors)
+                            .WithOrigins(allowedCorsList)
                             .AllowAnyMethod()
                             .AllowAnyHeader()
                             .AllowCredentials()
