@@ -165,12 +165,26 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           
+      - name: Mask Deployment Token
+        uses: azure/CLI@v1
+        with:
+          azcliversion: latest
+          inlineScript: |
+            echo "::add-mask::$(az staticwebapp secrets list -n ${{ inputs.AzureStaticWebAppName }} | jq -r '.properties.apiKey')"  
+
+      - name: Retrieve Deployment Token
+        uses: azure/CLI@v1
+        with:
+          azcliversion: latest
+          inlineScript: |
+            echo "SWA_TOKEN=$(az staticwebapp secrets list -n ${{ inputs.AzureStaticWebAppName }} | jq -r '.properties.apiKey')" >> $GITHUB_ENV            
+
       - name: Deploy Static Web App
         id: deploy-to-staticwebapp
         uses: Azure/static-web-apps-deploy@v1
         with:
-          #azure_static_web_apps_api_token: ${{ secrets.AzureStaticWebAppsApiToken }}
-          #repo_token: ${{ secrets.GithubRepoToken }} # Used for Github integrations (i.e. PR comments)
+          azure_static_web_apps_api_token: ${{ env.SWA_TOKEN }}
+          repo_token: ${{ secrets.GithubRepoToken }} # Used for Github integrations (i.e. PR comments)
           skip_app_build: true
           action: "upload"
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
