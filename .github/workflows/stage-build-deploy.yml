@@ -12,6 +12,7 @@ jobs:
     with:
       environment: 'Staging'
       AzureWebAppName: 'api-rulesgpt-stage'
+      AzureStaticWebAppName: 'frontend-rulesgpt-stage'
     
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}

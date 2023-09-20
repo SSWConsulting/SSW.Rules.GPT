@@ -10,8 +10,14 @@ on:
       environment:
         required: true
         type: string
-      # The name of the resource in Azure
+        
+      # The name of the backend resource in Azure
       AzureWebAppName:
+        required: true
+        type: string
+        
+      # The name of the frontend resource in Azure
+      AzureStaticWebAppName:
         required: true
         type: string
     
