@@ -39,7 +39,8 @@ public static class DependencyInjection
             "https://ashy-meadow-0a2bad900.3.azurestaticapps.net",
             "https://white-desert-00e3fb600.3.azurestaticapps.net",
             "https://rulesgpt.ssw.com.au",
-            "https://ssw.com.au/rulesgpt"
+            "https://ssw.com.au/rulesgpt",
+            "https://wonderful-tree-0ff091200.3.azurestaticapps.net/"
         };
 
         var developmentCorsUrls = new string[] { "https://localhost:5002" };
