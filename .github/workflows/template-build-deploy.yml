@@ -27,8 +27,8 @@ on:
 #        required: true
 #      AzureStaticWebAppsApiToken:
 #        required: true
-#      GithubRepoToken:
-#        required: true
+      GithubRepoToken:
+        required: true
 
 jobs:
   build:
