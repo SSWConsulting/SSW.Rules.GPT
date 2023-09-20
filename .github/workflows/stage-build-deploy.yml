@@ -11,7 +11,7 @@ jobs:
     uses: ./.github/workflows/template-build-deploy.yml
     with:
       environment: 'Staging'
-      AzureWebAppName: 'ssw-rulesgpt-api-stage'
+      AzureWebAppName: 'api-rulesgpt-stage'
     
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}

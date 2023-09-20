@@ -23,12 +23,12 @@ on:
       AZURE_RG:
         required: true
       
-      AzureWebAppSecret:
-        required: true
-      AzureStaticWebAppsApiToken:
-        required: true
-      GithubRepoToken:
-        required: true
+#      AzureWebAppSecret:
+#        required: true
+#      AzureStaticWebAppsApiToken:
+#        required: true
+#      GithubRepoToken:
+#        required: true
 
 jobs:
   build:
@@ -54,11 +54,6 @@ jobs:
           # parameters: ''
           failOnStdErr: false
 
-      - name: Set up .NET Core
-        uses: actions/setup-dotnet@v3.0.3
-        with:
-          dotnet-version: '7.x'
-
       # https://stackoverflow.com/questions/60521929/change-variables-in-appsettings-when-deploying-with-github-actions
       # This will fail if done before the build step
       - name: App Settings Variable Substitution
@@ -68,6 +63,11 @@ jobs:
         env:
           ApiBaseUrl: ${{ vars.API_BASE_URL }}
           SigningAuthority: ${{ vars.SIGNING_AUTHORITY }}
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v3.0.3
+        with:
+          dotnet-version: '7.x'
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
@@ -90,59 +90,54 @@ jobs:
           name: .net-app-webui
           path: ./publish/ui
 
-      - name: Upload bicep for deployment job
-        uses: actions/upload-artifact@v3.1.2
-        with:
-          name: bicep
-          path: ./.github/bicep
           
-  deploy-bicep:
-    runs-on: ubuntu-latest
-    # update to conditionally run based on file change
-    if: ${{true == true}}
-    needs: build
-    environment:
-      name: "Production"
-    
-    steps:
-      - name: Download bicep from build job
-        uses: actions/download-artifact@v3.0.2
-        with:
-          name: bicep
-
-      - name: Azure Login
-        uses: Azure/login@v1
-        with:
-          creds: ${{ secrets.AzureWebAppSecret }}
-
-      - name: Deploy Azure Resource Manager (ARM) Template
-        uses: Azure/arm-deploy@v1
-        with:
-          resourceGroupName: StatusApp
-          template: ./azuredeploy.json
-          parameters: ./main.parameters.json
-
-#  deploy-api:
+#  deploy-bicep:
 #    runs-on: ubuntu-latest
+#    # update to conditionally run based on file change
+#    if: ${{true == true}}
 #    needs: build
 #    environment:
-#      name: ${{ inputs.environment }}
-#      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-#
+#      name: "Production"
+#    
 #    steps:
-#      - name: Download artifact from build job
+#      - name: Download bicep from build job
 #        uses: actions/download-artifact@v3.0.2
 #        with:
-#          name: .net-app-api
+#          name: bicep
 #
-#      - name: Deploy to Azure Web App
-#        id: deploy-to-webapp
-#        uses: azure/webapps-deploy@v2
+#      - name: Azure Login
+#        uses: Azure/login@v1
 #        with:
-#          app-name: "${{ inputs.AzureWebAppName }}"
-#          slot-name: 'Production' # The environment in Azure, Production is just the name of the slot
+#          creds: ${{ secrets.AzureWebAppSecret }}
+#
+#      - name: Deploy Azure Resource Manager (ARM) Template
+#        uses: Azure/arm-deploy@v1
+#        with:
+#          resourceGroupName: StatusApp
+#          template: ./azuredeploy.json
+#          parameters: ./main.parameters.json
+
+  deploy-api:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: ${{ inputs.environment }}
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v3.0.2
+        with:
+          name: .net-app-api
+
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "${{ inputs.AzureWebAppName }}"
+          slot-name: 'Production' # The environment in Azure, Production is just the name of the slot
 #          publish-profile: ${{ secrets.AzureWebAppSecret }}
-#          package: .
+          package: .
 #
 #  deploy-webui:
 #    runs-on: ubuntu-latest
