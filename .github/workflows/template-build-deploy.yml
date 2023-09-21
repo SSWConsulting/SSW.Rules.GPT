@@ -69,6 +69,11 @@ jobs:
           parameters: >
             connectionString=${{ secrets.ConnectionString }} 
             openAiApiKey=${{ secrets.OpenAiApiKey }} 
+            "environmentVariables": [
+              {"name": "AllowedCORSOrigins", "value": "${{ inputs.AllowedCors }}"},
+              {"name": "MaxRequestsPerMinute", "value": "${{ inputs.MaxRequests }}"},
+              {"name": "SigningAuthority", "value": "${{ inputs.SigningAuthority }}"},
+            ]
           failOnStdErr: false
 
       # https://stackoverflow.com/questions/60521929/change-variables-in-appsettings-when-deploying-with-github-actions
