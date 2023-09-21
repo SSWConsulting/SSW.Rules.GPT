@@ -12,9 +12,9 @@ jobs:
     with:
       environment: 'Staging'
       
-      AllowedCors: ${{ vars.AllowedCors }}
-      MaxRequests: ${{ vars.MaxRequests }}
-      SigningAuthority: ${{ vars.SigningAuthority }}
+      AllowedCors: ${{ vars.ALLOWED_CORS }}
+      MaxRequests: ${{ vars.MAX_REQUESTS }}
+      SigningAuthority: ${{ vars.SIGNING_AUTHORITY }}
       
       AzureWebAppName: 'api-rulesgpt-stage'
       AzureStaticWebAppName: 'frontend-rulesgpt-stage'
@@ -24,7 +24,7 @@ jobs:
       AZURE_SUBSCRIPTION: ${{ secrets.AZURE_SUBSCRIPTION }}
       AZURE_RG: ${{ secrets.AZURE_RG }}
       
-      ConnectionString: ${{ secrets.ConnectionString }}
-      OpenAiApiKey: ${{ secrets.OpenAiApiKey }}
+      ConnectionString: ${{ secrets.CONNECTION_STRING }}
+      OpenAiApiKey: ${{ secrets.OPENAI_API_KEY }}
       
       GithubRepoToken: ${{ secrets.GITHUB_TOKEN }}
