@@ -15,7 +15,8 @@ param objectId string = ''
 param location string = resourceGroup().location
 param staticWebAppLocation string = 'eastasia'
 
-var storageAccountName = 'store-${appName}'
+//Can't contain uppercase letters or special characters
+var storageAccountName = 'storerulesgpt'
 var hostingPlanName = 'plan-${appName}'
 var keyVaultName = 'kv-${appName}'
 var tenantId = subscription().tenantId
