@@ -23,6 +23,7 @@ jobs:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
       AZURE_SUBSCRIPTION: ${{ secrets.AZURE_SUBSCRIPTION }}
       AZURE_RG: ${{ secrets.AZURE_RG }}
+      CLIENT_ID: ${{ secrets.CLIENT_ID }}
       
       ConnectionString: ${{ secrets.CONNECTION_STRING }}
       OpenAiApiKey: ${{ secrets.OPENAI_API_KEY }}

@@ -36,6 +36,8 @@ on:
         required: true
       AZURE_RG:
         required: true
+      CLIENT_ID:
+        required: true
         
       ConnectionString:
         required: true
@@ -67,6 +69,7 @@ jobs:
           resourceGroupName: ${{ secrets.AZURE_RG }}
           template: ./.github/bicep/main.bicep
           parameters: >
+            objectId=${{ secrets.CLIENT_ID }}
             connectionString=${{ secrets.ConnectionString }} 
             openAiApiKey=${{ secrets.OpenAiApiKey }} 
             allowedCors=${{ inputs.AllowedCors }}
