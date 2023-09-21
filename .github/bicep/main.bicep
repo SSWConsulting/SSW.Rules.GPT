@@ -1,22 +1,18 @@
 param appName string = 'rulesgpt-stage'
-param environmentVariables array = []
 
 @secure()
 param connectionString string = ''
-
 @secure()
 param openAiApiKey string = ''
+
+param allowedCors string = ''
+param maxRequests string = ''
+param signingAuthority string = ''
 
 @description('Specifies the object ID of a user, service principal or security group in the Azure Active Directory tenant for the vault. The object ID must be unique for the list of access policies. Get it by using Get-AzADUser or Get-AzADServicePrincipal cmdlets.')
 param objectId string = ''
 
-@description('Location for all resources.')
 param location string = resourceGroup().location
-
-@description('Location for Application Insights')
-param appInsightsLocation string = 'australiaeast'
-
-@description('Location for Static Web App')
 param staticWebAppLocation string = 'eastasia'
 
 var storageAccountName = 'store-${appName}'
@@ -109,7 +105,20 @@ resource backendAppService 'Microsoft.Web/sites@2020-06-01' = {
       netFrameworkVersion: 'v7.0'
       alwaysOn: false
       http20Enabled: false
-      appSettings: environmentVariables
+      appSettings: [
+        {
+          name: 'AllowedCORSOrigins'
+          value: allowedCors
+        }
+        {
+          name: 'MaxRequestsPerMinute'
+          value: maxRequests
+        }
+        {
+          name: 'SigningAuthority'
+          value: signingAuthority
+        }
+      ]
     }
   }
 }
@@ -127,7 +136,7 @@ resource frontendStaticWebApp 'Microsoft.Web/staticSites@2021-01-15' = {
 
 resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
   name: applicationInsightsName
-  location: appInsightsLocation
+  location: location
   kind: 'web'
   properties: {
     Application_Type: 'web'
