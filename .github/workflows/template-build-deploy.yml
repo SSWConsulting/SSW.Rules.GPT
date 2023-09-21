@@ -68,13 +68,7 @@ jobs:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           resourceGroupName: ${{ secrets.AZURE_RG }}
           template: ./.github/bicep/main.bicep
-          parameters: >
-            objectId=${{ secrets.CLIENT_ID }}
-            connectionString=${{ secrets.ConnectionString }} 
-            openAiApiKey=${{ secrets.OpenAiApiKey }} 
-            allowedCors=${{ inputs.AllowedCors }}
-            maxRequests=${{ inputs.MaxRequests }}
-            signingAuthority=${{ inputs.SigningAuthority }}
+          parameters: 'objectId=${{ secrets.CLIENT_ID }} connectionString=${{ secrets.ConnectionString }} openAiApiKey=${{ secrets.OpenAiApiKey }} allowedCors=${{ inputs.AllowedCors }} maxRequests=${{ inputs.MaxRequests }} signingAuthority=${{ inputs.SigningAuthority }}'
           failOnStdErr: false
 
       # https://stackoverflow.com/questions/60521929/change-variables-in-appsettings-when-deploying-with-github-actions
