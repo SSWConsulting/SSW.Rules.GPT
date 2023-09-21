@@ -11,13 +11,21 @@ on:
         required: true
         type: string
         
-      # The name of the backend resource in Azure
+      # The name of the front and backend resources in Azure respectively
+      AzureStaticWebAppName:
+        required: true
+        type: string      
       AzureWebAppName:
         required: true
         type: string
         
-      # The name of the frontend resource in Azure
-      AzureStaticWebAppName:
+      AllowedCors:
+        required: true
+        type: string
+      MaxRequests:
+        required: true
+        type: string
+      SigningAuthority:
         required: true
         type: string
     
@@ -28,11 +36,12 @@ on:
         required: true
       AZURE_RG:
         required: true
+        
+      ConnectionString:
+        required: true
+      OpenAiApiKey:
+        required: true
       
-#      AzureWebAppSecret:
-#        required: true
-#      AzureStaticWebAppsApiToken:
-#        required: true
       GithubRepoToken:
         required: true
 
@@ -57,7 +66,16 @@ jobs:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           resourceGroupName: ${{ secrets.AZURE_RG }}
           template: ./.github/bicep/main.bicep
-          # parameters: ''
+          parameters: |
+            {
+              "connectionString": "${{ secrets.ConnectionString }}",
+              "openAiApiKey": "${{ secrets.OpenAiApiKey }}",
+              "environmentVariables": [
+                {"name": "AllowedCORSOrigins", "value": "${{ inputs.AllowedCors }}"},
+                {"name": "MaxRequestsPerMinute", "value": "${{ inputs.MaxRequests }}"},
+                {"name": "SigningAuthority", "value": "${{ inputs.SigningAuthority }}"},
+              ]
+            }
           failOnStdErr: false
 
       # https://stackoverflow.com/questions/60521929/change-variables-in-appsettings-when-deploying-with-github-actions
@@ -95,33 +113,6 @@ jobs:
         with:
           name: .net-app-webui
           path: ./publish/ui
-
-          
-#  deploy-bicep:
-#    runs-on: ubuntu-latest
-#    # update to conditionally run based on file change
-#    if: ${{true == true}}
-#    needs: build
-#    environment:
-#      name: "Production"
-#    
-#    steps:
-#      - name: Download bicep from build job
-#        uses: actions/download-artifact@v3.0.2
-#        with:
-#          name: bicep
-#
-#      - name: Azure Login
-#        uses: Azure/login@v1
-#        with:
-#          creds: ${{ secrets.AzureWebAppSecret }}
-#
-#      - name: Deploy Azure Resource Manager (ARM) Template
-#        uses: Azure/arm-deploy@v1
-#        with:
-#          resourceGroupName: StatusApp
-#          template: ./azuredeploy.json
-#          parameters: ./main.parameters.json
 
   deploy-api:
     runs-on: ubuntu-latest

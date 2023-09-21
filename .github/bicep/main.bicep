@@ -1,14 +1,14 @@
-@description('The name of the function app that you wish to create.')
 param appName string = 'rulesgpt-stage'
-param linuxFxVersion string = 'DOTNETCORE|7.0' 
+param environmentVariables array = []
 
-@description('Storage Account type')
-@allowed([
-  'Standard_LRS'
-  'Standard_GRS'
-  'Standard_RAGRS'
-])
-param storageAccountType string = 'Standard_LRS'
+@secure()
+param connectionString string = ''
+
+@secure()
+param openAiApiKey string = ''
+
+@description('Specifies the object ID of a user, service principal or security group in the Azure Active Directory tenant for the vault. The object ID must be unique for the list of access policies. Get it by using Get-AzADUser or Get-AzADServicePrincipal cmdlets.')
+param objectId string = ''
 
 @description('Location for all resources.')
 param location string = resourceGroup().location
@@ -19,55 +19,21 @@ param appInsightsLocation string = 'australiaeast'
 @description('Location for Static Web App')
 param staticWebAppLocation string = 'eastasia'
 
-//@description('The language worker runtime to load in the function app.')
-//@allowed([
-//  'node'
-//  'dotnet'
-//  'java'
-//])
-//param runtime string = 'dotnet'
-
-//@allowed([
-//  'S0'
-//])
-//param openaiSku string = 'S0'
-
-@allowed([
-  'Free'
-  'Standard'
-])
-param frontendSku string = 'Free'
-
-//var functionAppName = 'azfn-${appName}'
+var storageAccountName = 'store-${appName}'
 var hostingPlanName = 'plan-${appName}'
-var applicationInsightsName = 'ai-${appName}'
-var storageAccountName = 'storagerulesgpt'
+var keyVaultName = 'kv-${appName}'
+var tenantId = subscription().tenantId
 
-//var cognitiveServiceName = 'openai-${appName}'
 var apiAppName = 'api-${appName}'
 var frontendAppName = 'frontend-${appName}'
 
-//var functionWorkerRuntime = runtime
-
-//resource cognitiveService 'Microsoft.CognitiveServices/accounts@2021-10-01' = {
-//  name: cognitiveServiceName
-//  location: location
-//  sku: {
-//    name: openaiSku
-//  }
-//  kind: 'OpenAI'
-//  properties: {
-//    apiProperties: {
-//      statisticsEnabled: false
-//    }
-//  }
-//}
+var applicationInsightsName = 'ai-${appName}'
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' = {
   name: storageAccountName
   location: location
   sku: {
-    name: storageAccountType
+    name: 'Standard_LRS'
   }
   kind: 'Storage'
   properties: {
@@ -86,7 +52,54 @@ resource hostingPlan 'Microsoft.Web/serverfarms@2021-03-01' = {
   properties: {}
 }
 
-resource appService 'Microsoft.Web/sites@2020-06-01' = {
+resource kv 'Microsoft.KeyVault/vaults@2021-11-01-preview' = {
+  name: keyVaultName
+  location: location
+  properties: {
+    enabledForDeployment: false
+    enabledForDiskEncryption: false
+    enabledForTemplateDeployment: false
+    tenantId: tenantId
+    enableSoftDelete: true
+    softDeleteRetentionInDays: 90
+    accessPolicies: [
+      {
+        objectId: objectId
+        tenantId: tenantId
+        permissions: {
+          keys: [ 'list' ]
+          secrets: [ 'list' ]
+        }
+      }
+    ]
+    sku: {
+      name: 'standard'
+      family: 'A'
+    }
+    networkAcls: {
+      defaultAction: 'Allow'
+      bypass: 'AzureServices'
+    }
+  }
+}
+
+resource dbSecret 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
+  parent: kv
+  name: 'ConnectionStrings__DefaultConnection'
+  properties: {
+    value: connectionString
+  }
+}
+
+resource apiSecret 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
+  parent: kv
+  name: 'OpenAiApiKey'
+  properties: {
+    value: openAiApiKey
+  }
+}
+
+resource backendAppService 'Microsoft.Web/sites@2020-06-01' = {
   name: apiAppName
   location: location
   properties: {
@@ -96,32 +109,21 @@ resource appService 'Microsoft.Web/sites@2020-06-01' = {
       netFrameworkVersion: 'v7.0'
       alwaysOn: false
       http20Enabled: false
+      appSettings: environmentVariables
     }
   }
 }
 
-resource staticWebApp 'Microsoft.Web/staticSites@2021-01-15' = {
+resource frontendStaticWebApp 'Microsoft.Web/staticSites@2021-01-15' = {
   name: frontendAppName
   location: staticWebAppLocation
   tags: null
   properties: {}
   sku: {
-      name: frontendSku
-      size: frontendSku
+    name: 'Standard'
+    size: 'Standard'
   }
 }
-
-//resource functionApp 'Microsoft.Web/sites@2021-03-01' = {
-//  name: functionAppName
-//  location: location
-//  kind: 'functionapp'
-//  identity: {
-//    type: 'SystemAssigned'
-//  }
-//  properties: {
-//    serverFarmId: hostingPlan.id
-//  }
-//}
 
 resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
   name: applicationInsightsName
