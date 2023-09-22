@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Application;
 using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -10,6 +11,16 @@ var builder = WebApplication.CreateBuilder(args);
 const string RulesGptCorsPolicy = nameof(RulesGptCorsPolicy);
 
 var signingAuthority = builder.Configuration.GetValue<string>("SigningAuthority");
+
+builder.Configuration.AddAzureAppConfiguration(options =>
+{
+    options.Connect(
+            builder.Configuration["ConnectionStrings:AppConfig"])
+                .ConfigureKeyVault(kv =>
+                {
+                    kv.SetCredential(new DefaultAzureCredential());
+                });
+});
 
 builder.Services.AddAuthentication(options =>
 {
@@ -31,7 +42,7 @@ builder.Services.AddAuthentication(options =>
 
             // If the request is for our hub...
             var path = context.HttpContext.Request.Path;
-            
+
             if (!string.IsNullOrEmpty(accessToken) &&
                 (path.StartsWithSegments("/ruleshub")))
             {
