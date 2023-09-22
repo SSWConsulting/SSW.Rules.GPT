@@ -82,7 +82,7 @@ resource kv 'Microsoft.KeyVault/vaults@2021-11-01-preview' = {
 
 resource dbSecret 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
   parent: kv
-  name: 'ConnectionStringsDefaultConnection'
+  name: 'ConnectionStrings--DefaultConnection'
   properties: {
     value: connectionString
   }
