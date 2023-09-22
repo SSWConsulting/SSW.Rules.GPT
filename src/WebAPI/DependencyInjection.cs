@@ -6,8 +6,10 @@ namespace WebAPI;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddWebApi(this IServiceCollection services,
-        string rulesGptCorsPolicy, IWebHostEnvironment env)
+    public static IServiceCollection AddWebApi(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        string rulesGptCorsPolicy)
     {
         services.AddSingleton<SignalRHubFilter>();
 
@@ -32,29 +34,21 @@ public static class DependencyInjection
                         .AddFilter<ApplicationInsightsLoggerProvider>("", LogLevel.Information)
             );
         }
-
-        // TODO: Set CORS in Bicep
-        var productionCorsUrls = new string[]
-        {
-            "https://ashy-meadow-0a2bad900.3.azurestaticapps.net",
-            "https://white-desert-00e3fb600.3.azurestaticapps.net",
-            "https://rulesgpt.ssw.com.au",
-            "https://ssw.com.au/rulesgpt"
-        };
-
-        var developmentCorsUrls = new string[] { "https://localhost:5002" };
-
+        
+        var allowedCors = configuration.GetValue<string>("AllowedCORSOrigins");
+        if (allowedCors == null)
+            throw new ArgumentException("No CORS origins specified in configuration.");
+        
+        //Workaround for not being able to set arrays as variables in Azure
+        var allowedCorsList = allowedCors.Split(",");
+        
         services.AddCors(
             options =>
                 options.AddPolicy(
                     name: rulesGptCorsPolicy,
                     policy =>
                         policy
-                            .WithOrigins(
-                                env.IsDevelopment()
-                                    ? developmentCorsUrls
-                                    : productionCorsUrls
-                            )
+                            .WithOrigins(allowedCorsList)
                             .AllowAnyMethod()
                             .AllowAnyHeader()
                             .AllowCredentials()
