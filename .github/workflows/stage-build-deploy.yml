@@ -12,10 +12,6 @@ jobs:
     with:
       environment: 'Staging'
       
-      AllowedCors: ${{ vars.ALLOWED_CORS }}
-      MaxRequests: ${{ vars.MAX_REQUESTS }}
-      SigningAuthority: ${{ vars.SIGNING_AUTHORITY }}
-      
       AzureWebAppName: 'api-rulesgpt-stage'
       AzureStaticWebAppName: 'frontend-rulesgpt-stage'
     

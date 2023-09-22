@@ -18,16 +18,6 @@ on:
       AzureWebAppName:
         required: true
         type: string
-        
-      AllowedCors:
-        required: true
-        type: string
-      MaxRequests:
-        required: true
-        type: string
-      SigningAuthority:
-        required: true
-        type: string
     
     secrets:
       AZURE_CREDENTIALS:
