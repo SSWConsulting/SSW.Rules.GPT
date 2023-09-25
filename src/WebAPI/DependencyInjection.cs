@@ -48,7 +48,7 @@ public static class DependencyInjection
                     name: rulesGptCorsPolicy,
                     policy =>
                         policy
-                            .WithOrigins(allowedCorsList)
+                            .WithOrigins("https://black-bay-049d40300.3.azurestaticapps.net")
                             .AllowAnyMethod()
                             .AllowAnyHeader()
                             .AllowCredentials()
