@@ -57,7 +57,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddWebApi(RulesGptCorsPolicy, builder.Environment);
+builder.Services.AddWebApi(builder.Configuration, RulesGptCorsPolicy);
 
 var app = builder.Build();
 
