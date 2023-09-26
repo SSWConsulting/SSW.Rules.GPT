@@ -47,6 +47,7 @@ resource hostingPlan 'Microsoft.Web/serverfarms@2021-03-01' = {
     tier: 'Dynamic'
   }
   properties: {}
+  kind: 'linux'
 }
 
 resource kv 'Microsoft.KeyVault/vaults@2021-11-01-preview' = {
@@ -88,7 +89,7 @@ resource dbSecret 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
   }
 }
 
-resource apiSecret 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
+resource openaiApiKeySecret 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
   parent: kv
   name: 'OpenAiApiKey'
   properties: {
@@ -118,6 +119,14 @@ resource backendAppService 'Microsoft.Web/sites@2020-06-01' = {
         {
           name: 'SigningAuthority'
           value: signingAuthority
+        }
+        {
+          name: 'ConnectionStrings--DefaultConnection'
+          value: '@Microsoft.KeyVault(SecretUri=${dbSecret.properties.secretUri})'
+        }
+        {
+          name: 'OpenAiApiKey'
+          value: '@Microsoft.KeyVault(SecretUri=${openaiApiKeySecret.properties.secretUri})'
         }
       ]
     }

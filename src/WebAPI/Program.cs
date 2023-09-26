@@ -12,16 +12,6 @@ const string RulesGptCorsPolicy = nameof(RulesGptCorsPolicy);
 
 var signingAuthority = builder.Configuration.GetValue<string>("SigningAuthority");
 
-builder.Configuration.AddAzureAppConfiguration(options =>
-{
-    options.Connect(
-            builder.Configuration["ConnectionStrings:AppConfig"])
-                .ConfigureKeyVault(kv =>
-                {
-                    kv.SetCredential(new DefaultAzureCredential());
-                });
-});
-
 builder.Services.AddAuthentication(options =>
 {
     // Identity made Cookie authentication the default.
