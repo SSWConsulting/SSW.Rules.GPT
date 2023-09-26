@@ -100,6 +100,9 @@ resource openaiApiKeySecret 'Microsoft.KeyVault/vaults/secrets@2021-11-01-previe
 resource backendAppService 'Microsoft.Web/sites@2020-06-01' = {
   name: apiAppName
   location: location
+  identity: {
+    type: 'SystemAssigned'
+  }
   properties: {
     serverFarmId: hostingPlan.id
     siteConfig: {
