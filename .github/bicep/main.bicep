@@ -9,8 +9,8 @@ param allowedCors string = ''
 param maxRequests string = ''
 param signingAuthority string = ''
 
-//@description('Specifies the object ID of a user, service principal or security group in the Azure Active Directory tenant for the vault. The object ID must be unique for the list of access policies. Get it by using Get-AzADUser or Get-AzADServicePrincipal cmdlets.')
-//param objectId string = ''
+@description('Specifies the object ID of a user, service principal or security group in the Azure Active Directory tenant for the vault. The object ID must be unique for the list of access policies. Get it by using Get-AzADUser or Get-AzADServicePrincipal cmdlets.')
+param objectId string = ''
 
 param location string = resourceGroup().location
 param staticWebAppLocation string = 'eastasia'
@@ -60,16 +60,16 @@ resource kv 'Microsoft.KeyVault/vaults@2021-11-01-preview' = {
     tenantId: tenantId
     enableSoftDelete: true
     softDeleteRetentionInDays: 90
-    //accessPolicies: [
-    //{
-    //    objectId: backendAppService.outputs.appServiceManagedIdentity
-    //    tenantId: tenantId
-    //    permissions: {
-    //      keys: [ 'get', 'list' ]
-    //      secrets: [ 'get', 'list' ]
-    //    }
-    //  }
-    //]
+    accessPolicies: [
+    {
+        objectId: objectId
+        tenantId: tenantId
+        permissions: {
+          keys: [ 'get', 'list' ]
+          secrets: [ 'get', 'list' ]
+        }
+      }
+    ]
     sku: {
       name: 'standard'
       family: 'A'
