@@ -65,8 +65,8 @@ resource kv 'Microsoft.KeyVault/vaults@2021-11-01-preview' = {
         objectId: objectId
         tenantId: tenantId
         permissions: {
-          keys: [ 'list' ]
-          secrets: [ 'list' ]
+          keys: [ 'get', 'list' ]
+          secrets: [ 'get', 'list' ]
         }
       }
     ]
