@@ -60,16 +60,16 @@ resource kv 'Microsoft.KeyVault/vaults@2021-11-01-preview' = {
     tenantId: tenantId
     enableSoftDelete: true
     softDeleteRetentionInDays: 90
-    accessPolicies: [
-      {
-        objectId: objectId
-        tenantId: tenantId
-        permissions: {
-          keys: [ 'get', 'list' ]
-          secrets: [ 'get', 'list' ]
-        }
-      }
-    ]
+    //accessPolicies: [
+    //{
+    //    objectId: backendAppService.outputs.appServiceManagedIdentity
+    //    tenantId: tenantId
+    //    permissions: {
+    //      keys: [ 'get', 'list' ]
+    //      secrets: [ 'get', 'list' ]
+    //    }
+    //  }
+    //]
     sku: {
       name: 'standard'
       family: 'A'
@@ -78,6 +78,29 @@ resource kv 'Microsoft.KeyVault/vaults@2021-11-01-preview' = {
       defaultAction: 'Allow'
       bypass: 'AzureServices'
     }
+  }
+}
+
+resource keyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01' = {
+  parent: kv
+  name: 'add'
+  properties: {
+    accessPolicies: [
+      {
+        objectId: backendAppService.identity.principalId
+        tenantId: subscription().tenantId
+        permissions: {
+          secrets: [
+            'list'
+            'get'
+          ]
+          keys: [
+            'list'
+            'get'
+          ]
+        }
+      }
+    ]
   }
 }
 
