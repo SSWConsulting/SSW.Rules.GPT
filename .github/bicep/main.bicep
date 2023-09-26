@@ -1,22 +1,23 @@
 param appName string = 'rulesgpt-stage'
+param environment string = 'stage'
 
 @secure()
-param connectionString string = ''
+param connectionString string
 @secure()
-param openAiApiKey string = ''
+param openAiApiKey string
 
-param allowedCors string = ''
-param maxRequests string = ''
-param signingAuthority string = ''
+param allowedCors string
+param maxRequests string
+param signingAuthority string
 
 @description('Specifies the object ID of a user, service principal or security group in the Azure Active Directory tenant for the vault. The object ID must be unique for the list of access policies. Get it by using Get-AzADUser or Get-AzADServicePrincipal cmdlets.')
-param objectId string = ''
+param objectId string
 
 param location string = resourceGroup().location
 param staticWebAppLocation string = 'eastasia'
 
 //Can't contain uppercase letters or special characters
-var storageAccountName = 'storerulesgpt'
+var storageAccountName = 'storerulesgpt${environment}'
 var hostingPlanName = 'plan-${appName}'
 var keyVaultName = 'kv-${appName}'
 var tenantId = subscription().tenantId
