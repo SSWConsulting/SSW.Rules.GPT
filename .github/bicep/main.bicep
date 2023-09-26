@@ -121,12 +121,20 @@ resource backendAppService 'Microsoft.Web/sites@2020-06-01' = {
           value: signingAuthority
         }
         {
-          name: 'ConnectionStrings--DefaultConnection'
+          name: 'ConnectionStrings__DefaultConnection'
           value: '@Microsoft.KeyVault(SecretUri=${dbSecret.properties.secretUri})'
         }
         {
           name: 'OpenAiApiKey'
           value: '@Microsoft.KeyVault(SecretUri=${openaiApiKeySecret.properties.secretUri})'
+        }
+        {
+          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
+          value: applicationInsights.properties.InstrumentationKey
+        }
+        {
+          name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+          value: applicationInsights.properties.ConnectionString
         }
       ]
     }
@@ -144,6 +152,7 @@ resource frontendStaticWebApp 'Microsoft.Web/staticSites@2021-01-15' = {
   }
 }
 
+//TODO: Add Log Analytics - this will stop working in february 2024
 resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
   name: applicationInsightsName
   location: location
