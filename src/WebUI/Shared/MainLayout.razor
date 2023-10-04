@@ -16,7 +16,17 @@
 <MudSnackbarProvider/>
 
 <MudLayout>
+    <MudDrawer @bind-Open="isDrawerOpen" Elevation="1">
+        <MudDrawerHeader ></MudDrawerHeader>
+        <MudNavLink Href="" Icon="@Icons.Material.Filled.Chat">Conversation One</MudNavLink>
+        <MudNavLink Href="" Icon="@Icons.Material.Filled.Chat">Conversation Two</MudNavLink>
+        <MudNavLink Href="" Icon="@Icons.Material.Filled.Chat">Conversation Three</MudNavLink>
+        <MudSpacer/>
+        <MudNavLink Href="" Icon="@Icons.Material.Filled.Add">New Chat</MudNavLink>
+        <MudNavLink Href="" Icon="@Icons.Material.Filled.Delete">Clear History</MudNavLink>
+    </MudDrawer>
     <MudAppBar Elevation="0">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         <a @onclick="ResetApplicationState" style="color: unset; cursor: pointer;">
             <MudStack Row="true" Spacing="0">
                 <MudStack Justify="Justify.Center" Class="pr-2">
@@ -97,6 +107,8 @@
 
     ThemePreference themePreference;
 
+    protected bool isDrawerOpen { get; set; } = true;
+
     private readonly MudTheme _theme = new()
     {
         Palette = new PaletteLight
@@ -118,6 +130,11 @@
             BackgroundGrey = "#3E4446"
         }
     };
+    
+    private void DrawerToggle()
+    {
+        isDrawerOpen = !isDrawerOpen;
+    }
 
     private void SetThemePreference(ThemePreference preference)
     {
@@ -137,7 +154,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        //Will default to 'light' if no stored value is found
+    //Will default to 'light' if no stored value is found
         themePreference = await Storage.GetItemAsync<ThemePreference>("DarkModePreference");
         SetThemePreference(themePreference);
 
@@ -147,7 +164,7 @@
         }
         catch (HttpRequestException e)
         {
-            // Display error message
+    // Display error message
             Snackbar.Add("Unable to connect to SSW RulesGPT", Severity.Error);
         }
 
@@ -158,7 +175,7 @@
         var savedAPIKey = await Storage.GetItemAsync<string>("userAPIKey");
         var savedModel = await Storage.GetItemAsync<string>("userGptModel");
 
-        //useSavedKey should be ignored if there is no key saved
+    //useSavedKey should be ignored if there is no key saved
         if (!string.IsNullOrEmpty(savedAPIKey) && useSavedKeyParsed && useSavedKey)
         {
             DataState.ApiKeyString = savedAPIKey;
