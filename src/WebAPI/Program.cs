@@ -44,6 +44,11 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddAuthorizationBuilder().AddPolicy("chatHistoryPolicy", policy =>
+{
+    policy.RequireAuthenticatedUser();
+});
+
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddWebApi(builder.Configuration, RulesGptCorsPolicy);
@@ -62,8 +67,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapAuthRoutes();
 app.MapLeaderboardRoutes();
+app.MapConversationRoutes();
 app.MapHub<RulesHub>("/ruleshub");
 
 app.Logger.LogInformation("Starting WebAPI");

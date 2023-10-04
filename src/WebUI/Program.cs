@@ -1,6 +1,8 @@
+using System.Net.Http.Headers;
 using Blazor.Analytics;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor;
 using MudBlazor.Services;
@@ -65,8 +67,13 @@ builder.Services
         ApiClient,
         client => client.BaseAddress = new Uri(apiBaseUrl ?? throw new InvalidOperationException())
     )
-    .AddHttpMessageHandler(sp => sp.GetRequiredService<CookieHandler>());
+    .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>().ConfigureHandler(
+        authorizedUrls: new[] { apiBaseUrl }
+    ));
 
-builder.Services.AddHttpClient<RulesGptClient>(ApiClient);
+builder.Services.AddHttpClient<RulesGptClient>(ApiClient)
+    .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>().ConfigureHandler(
+        authorizedUrls: new[] { apiBaseUrl }
+    ));
 
 await builder.Build().RunAsync();

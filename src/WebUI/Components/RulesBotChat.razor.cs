@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using MudBlazor;
+using Newtonsoft.Json;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 using WebUI.Classes;
 using WebUI.Models;
@@ -15,6 +16,10 @@ namespace WebUI.Components;
 public class RulesBotChatBase : ComponentBase, IDisposable
 {
     [Inject] protected DataState DataState { get; set; } = default!;
+    [Inject] protected UserService UserService { get; set; } = default!;
+    
+    [Inject] protected RulesGptClient Client { get; set; } = default!;
+
     [Inject] protected SswRulesGptDialogService SswRulesGptDialogService { get; set; } = default!;
     [Inject] protected ApiKeyValidationService ApiKeyValidationService { get; set; } = default!;
     [Inject] protected NotifierService NotifierService { get; set; } = default!;
@@ -42,7 +47,7 @@ public class RulesBotChatBase : ComponentBase, IDisposable
     {
         await base.OnAfterRenderAsync(firstRender);
 
-        if (firstRender) 
+        if (firstRender)
             await Js.InvokeVoidAsync("initInputHeight");
     }
 
@@ -68,7 +73,7 @@ public class RulesBotChatBase : ComponentBase, IDisposable
 
     protected async Task SendEditedMessage((ChatLinkedListItem item, string message) args)
     {
-        if (!await CheckConnection()) 
+        if (!await CheckConnection())
             return;
 
         var newChatMessage = new ChatMessage("user", args.message);
@@ -84,7 +89,7 @@ public class RulesBotChatBase : ComponentBase, IDisposable
 
     protected async Task SendMessage()
     {
-        if (string.IsNullOrWhiteSpace(DataState.NewMessageString) || !await CheckConnection()) 
+        if (string.IsNullOrWhiteSpace(DataState.NewMessageString) || !await CheckConnection())
             return;
 
         var newChatMessage = new ChatMessage("user", DataState.NewMessageString);
@@ -135,6 +140,22 @@ public class RulesBotChatBase : ComponentBase, IDisposable
             await JsScrollMessageListToBottom();
         }
 
+        //if (UserService.IsUserAuthenticated)
+        //{
+        //TODO: Write message history to DB
+        var serialized = JsonConvert.SerializeObject(
+            DataState.ChatMessages, 
+            Formatting.Indented, 
+            new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore, 
+                PreserveReferencesHandling = PreserveReferencesHandling.All
+            });
+        
+        await Client.AddConversationHistoryAsync(serialized);
+        
+        //}
+
         DataState.IsAwaitingResponseStream = false;
         DataState.IsAwaitingResponse = false;
         DataState.CancellationTokenSource.Dispose();
@@ -145,7 +166,7 @@ public class RulesBotChatBase : ComponentBase, IDisposable
     {
         if (SignalR.GetConnectionState() != StatusHubConnectionState.Disconnected)
             return true;
-        
+
         try
         {
             await SignalR.StartAsync(DataState.CancellationTokenSource.Token);
@@ -160,7 +181,7 @@ public class RulesBotChatBase : ComponentBase, IDisposable
 
     protected async Task MessageTextFieldHandleEnterKey(KeyboardEventArgs args)
     {
-        if (args is { Key: "Enter", ShiftKey: false }) 
+        if (args is { Key: "Enter", ShiftKey: false })
             await SendMessage();
     }
 
