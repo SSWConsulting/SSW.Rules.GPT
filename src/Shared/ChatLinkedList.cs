@@ -1,7 +1,7 @@
 ﻿using OpenAI.GPT3.ObjectModels.RequestModels;
 using WebUI.Models;
 
-namespace WebUI.Classes;
+namespace Shared;
 
 public class ChatLinkedList : List<ChatLinkedListItem>
 {
