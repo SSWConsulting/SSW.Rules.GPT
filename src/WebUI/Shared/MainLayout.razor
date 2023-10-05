@@ -27,38 +27,12 @@
                 </MudStack>
             </MudStack>
         </a>
-        <MudStack Justify="Justify.Center" Class="pl-3 order">
-            <MudText Class="tag-line" Color="Color.Primary" Typo="Typo.body1">Keeping Order with Intelligence</MudText>
+        <MudStack Justify="Justify.Center" Class="pl-3">
+            <MudText Class="d-none d-lg-flex" Color="Color.Primary" Typo="Typo.body1">Keeping Order with Intelligence</MudText>
         </MudStack>
         <MudSpacer/>
-        <MudLink Color="Color.Primary" Variant="Variant.Filled" Class="mr-2 powered-by-link tl" Target="_blank" Href="https://ssw.com.au/rules">Powered by SSW Rules</MudLink>
-        <style>
-            .small-nav {
-                display: none !important;
-            }
-        
-            @@media screen and (max-width: 950px)  {
-                .order {
-                    display: none !important;
-                }
-            }
-            
-            @@media screen and (max-width: 750px)  {
-                .tl {
-                    display: none !important;
-                }
-            }
-            
-            @@media screen and (max-width: 600px) {
-                .wide-nav {
-                    display: none !important;
-                }
-                .small-nav {
-                    display: unset !important;
-                }
-            }
-        </style>
-        <div class="wide-nav">
+        <MudLink Color="Color.Primary" Variant="Variant.Filled" Class="mr-2 powered-by-link d-none d-md-flex" Target="_blank" Href="https://ssw.com.au/rules">Powered by SSW Rules</MudLink>
+        <div class="d-none d-md-flex">
             @switch (themePreference)
             {
                 case ThemePreference.Light:
@@ -92,7 +66,7 @@
                 <MudIconButton Icon="@Icons.Material.Rounded.Leaderboard" Color="Color.Inherit" OnClick="@(() => NavigationManager.NavigateTo("/leaderboard"))"/>
             </MudTooltip>
         </div>
-        <div class="small-nav">
+        <div class="d-sm-flex d-md-none">
             <MudMenu Icon="@Icons.Material.Filled.KeyboardArrowDown" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
                 <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Refresh" OnTouch="ResetApplicationState" OnClick="ResetApplicationState">New Chat</MudMenuItem>
                 <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Leaderboard" OnTouch="@(() => NavigationManager.NavigateTo("/leaderboard"))" OnClick="@(() => NavigationManager.NavigateTo("/leaderboard"))">Leaderboard</MudMenuItem>
