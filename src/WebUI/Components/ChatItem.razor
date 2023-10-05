@@ -89,6 +89,13 @@
                 <MudText Typo="Typo.body1">
                     <b>RulesGPT</b> - @(MessageThreadItem.GptModel.AvailableModelEnumToString())
                 </MudText>
+                <AuthorizeView>
+                    <NotAuthorized>
+                        <MudText Typo="Typo.caption">
+                            ⚠️ Sign in for free GPT-4 access
+                        </MudText>
+                    </NotAuthorized>
+                </AuthorizeView>
                 @if (DataState.IsAwaitingResponseStream && string.IsNullOrWhiteSpace(MessageThreadItem.Message.Content))
                 {
                     <MudPaper Elevation="1" Class="px-4 py-3" Style="text-align: center;">
