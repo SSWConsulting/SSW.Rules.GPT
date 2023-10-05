@@ -49,15 +49,13 @@
 
                     break;
 
+                default:
                 case ThemePreference.System:
                     <MudTooltip Duration="1000" Text="Switch to Light Theme">
                         <MudIconButton Icon="@Icons.Material.Rounded.LightMode" Color="Color.Inherit" OnClick="@(() => SetThemePreference(ThemePreference.Light))"/>
                     </MudTooltip>
-
+                    
                     break;
-
-                default:
-                    goto case ThemePreference.Light;
             }
             <MudTooltip Duration="1000" Text="Start a New Chat">
                 <MudIconButton Icon="@Icons.Material.Rounded.Refresh" Color="Color.Inherit" OnClick="@ResetApplicationState"/>
@@ -77,15 +75,13 @@
                         break;
 
                     case ThemePreference.Dark:
-                        <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.DarkMode" OnTouch="@(() => SetThemePreference(ThemePreference.Dark))" OnClick="@(() => SetThemePreference(ThemePreference.Dark))">Use System Theme</MudMenuItem>
-                        break;
-
-                    case ThemePreference.System:
-                        <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.DarkMode" OnTouch="@(() => SetThemePreference(ThemePreference.Dark))" OnClick="@(() => SetThemePreference(ThemePreference.Light))">Use Light Theme</MudMenuItem>
+                        <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.DarkMode" OnTouch="@(() => SetThemePreference(ThemePreference.Dark))" OnClick="@(() => SetThemePreference(ThemePreference.System))">Use System Theme</MudMenuItem>
                         break;
 
                     default:
-                        goto case ThemePreference.Light;
+                    case ThemePreference.System:
+                        <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.DarkMode" OnTouch="@(() => SetThemePreference(ThemePreference.Dark))" OnClick="@(() => SetThemePreference(ThemePreference.Light))">Use Light Theme</MudMenuItem>
+                        break;
                 }
 
             </MudMenu>
