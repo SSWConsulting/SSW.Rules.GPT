@@ -1,5 +1,4 @@
-﻿using Blazored.LocalStorage;
-using WebUI.Classes;
+﻿using SharedClasses;
 
 namespace WebUI.Models;
 

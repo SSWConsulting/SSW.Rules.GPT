@@ -2,6 +2,7 @@
 using OpenAI.GPT3.Managers;
 using OpenAI.GPT3.ObjectModels;
 using OpenAI.GPT3.ObjectModels.RequestModels;
+using SharedClasses;
 using WebUI.Classes;
 
 namespace WebUI.Services;

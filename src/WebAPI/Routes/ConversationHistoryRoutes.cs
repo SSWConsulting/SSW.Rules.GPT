@@ -1,7 +1,6 @@
 ﻿using Application.Services;
 using Domain.Entities;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Routes;
 

@@ -24,5 +24,9 @@
 	<ItemGroup>
 	  <Compile Remove="Helpers\JwtHandler.cs" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\SharedClasses\SharedClasses.csproj" />
+	</ItemGroup>
 	
 </Project>

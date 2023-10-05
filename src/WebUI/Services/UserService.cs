@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using MudBlazor;
+using SharedClasses;
 using WebUI.Models;
 
 namespace WebUI.Services;

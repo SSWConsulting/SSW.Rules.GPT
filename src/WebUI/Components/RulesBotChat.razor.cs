@@ -5,9 +5,10 @@ using Microsoft.JSInterop;
 using MudBlazor;
 using Newtonsoft.Json;
 using OpenAI.GPT3.ObjectModels.RequestModels;
-using WebUI.Classes;
+using SharedClasses;
 using WebUI.Models;
 using WebUI.Services;
+using Direction = SharedClasses.Direction;
 
 namespace WebUI.Components;
 

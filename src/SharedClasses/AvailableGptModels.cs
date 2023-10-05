@@ -1,4 +1,4 @@
-﻿namespace WebUI;
+﻿namespace SharedClasses;
 
 public enum AvailableGptModels
 {
