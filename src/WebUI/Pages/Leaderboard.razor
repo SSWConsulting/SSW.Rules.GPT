@@ -42,6 +42,11 @@
             </MudButton>
         </MudButtonGroup>
         <MudTable Items="@LeaderboardData" T="OrderedLeaderboardUser">
+            <ColGroup>
+                <col style="width: 60px;"/>
+                <col/>
+                <col/>
+            </ColGroup>
             <HeaderContent>
                 <MudTh>Position</MudTh>
                 <MudTh>Name</MudTh>
@@ -92,7 +97,7 @@
             LastYear = s.LastYear,
             AllTime = s.AllTime
         })
-        .ToList();
+            .ToList();
 
         HandleFilterChanged(LeaderboardFilter.LastMonth);
 
@@ -103,7 +108,7 @@
     {
         Filter = filter;
 
-        //ThenByDescending ensures that if two users have the same number of messages sent this month/year, the one with the higher all time score ranks higher
+    //ThenByDescending ensures that if two users have the same number of messages sent this month/year, the one with the higher all time score ranks higher
         LeaderboardData = Filter switch {
             LeaderboardFilter.LastMonth => LeaderboardData
                 .OrderByDescending(s => s.LastMonth)
