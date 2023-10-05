@@ -18,7 +18,7 @@ public class RulesBotChatBase : ComponentBase, IDisposable
 {
     [Inject] protected DataState DataState { get; set; } = default!;
     [Inject] protected UserService UserService { get; set; } = default!;
-    
+
     [Inject] protected RulesGptClient Client { get; set; } = default!;
 
     [Inject] protected SswRulesGptDialogService SswRulesGptDialogService { get; set; } = default!;
@@ -141,21 +141,20 @@ public class RulesBotChatBase : ComponentBase, IDisposable
             await JsScrollMessageListToBottom();
         }
 
-        //if (UserService.IsUserAuthenticated)
-        //{
-        //TODO: Write message history to DB
-        var serialized = JsonConvert.SerializeObject(
-            DataState.ChatMessages, 
-            Formatting.Indented, 
-            new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore, 
-                PreserveReferencesHandling = PreserveReferencesHandling.All
-            });
-        
-        await Client.AddConversationHistoryAsync(serialized);
-        
-        //}
+        if (UserService.IsUserAuthenticated)
+        {
+            //TODO: Write message history to DB
+            var serialized = JsonConvert.SerializeObject(
+                DataState.ChatMessages,
+                Formatting.Indented,
+                new JsonSerializerSettings
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                    PreserveReferencesHandling = PreserveReferencesHandling.All
+                });
+
+            await Client.AddConversationHistoryAsync(serialized);
+        }
 
         DataState.IsAwaitingResponseStream = false;
         DataState.IsAwaitingResponse = false;
