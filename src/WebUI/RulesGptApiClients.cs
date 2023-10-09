@@ -190,18 +190,18 @@ namespace WebUI
         }
 
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task AddConversationHistoryAsync(string chatHistory)
+        public virtual System.Threading.Tasks.Task AddConversationHistoryAsync(string conversation)
         {
-            return AddConversationHistoryAsync(chatHistory, System.Threading.CancellationToken.None);
+            return AddConversationHistoryAsync(conversation, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task AddConversationHistoryAsync(string chatHistory, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task AddConversationHistoryAsync(string conversation, System.Threading.CancellationToken cancellationToken)
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append("addHistory?");
-            urlBuilder_.Append(System.Uri.EscapeDataString("chatHistory") + "=").Append(System.Uri.EscapeDataString(chatHistory != null ? ConvertToString(chatHistory, System.Globalization.CultureInfo.InvariantCulture) : "")).Append("&");
+            urlBuilder_.Append(System.Uri.EscapeDataString("conversation") + "=").Append(System.Uri.EscapeDataString(conversation != null ? ConvertToString(conversation, System.Globalization.CultureInfo.InvariantCulture) : "")).Append("&");
             urlBuilder_.Length--;
 
             var client_ = _httpClient;

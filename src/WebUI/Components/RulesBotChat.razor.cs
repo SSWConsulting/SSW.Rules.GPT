@@ -143,7 +143,6 @@ public class RulesBotChatBase : ComponentBase, IDisposable
 
         if (UserService.IsUserAuthenticated)
         {
-            //TODO: Write message history to DB
             var serialized = JsonConvert.SerializeObject(
                 DataState.ChatMessages,
                 Formatting.Indented,

@@ -1,9 +1,13 @@
-﻿using OpenAI.GPT3.ObjectModels.RequestModels;
+﻿using System.Text.Json.Serialization;
+using OpenAI.GPT3.ObjectModels.RequestModels;
 
 namespace SharedClasses;
 
 public class ChatLinkedListItem
 {
+    //Required for deserialization
+    public ChatLinkedListItem() { }
+
     public ChatLinkedListItem(ChatMessage message, AvailableGptModels gptModel)
     {
         Message = message;
@@ -25,6 +29,7 @@ public class ChatLinkedListItem
         GptModel = gptModel;
     }
 
+    [JsonIgnore]
     public int LeftCount
     {
         get
@@ -41,6 +46,7 @@ public class ChatLinkedListItem
         }
     }
 
+    [JsonIgnore]
     public int RightCount
     {
         get
