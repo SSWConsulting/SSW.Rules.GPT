@@ -15,12 +15,14 @@ on:
         type: string
         
       # The name of the front and backend resources in Azure respectively
+      # TODO: These needs to be replaced when outputs are persisted from the Bicep deployment
       AzureStaticWebAppName:
         required: true
         type: string      
       AzureWebAppName:
         required: true
         type: string
+        
       AppName:
         required: true
         type: string
