@@ -7,7 +7,10 @@ on:
   workflow_call:
     inputs:
       # The environment to deploy to (Staging or Production)
-      environment:
+      githubEnvironment:
+        required: true
+        type: string
+      deployEnvironment:
         required: true
         type: string
         
@@ -18,7 +21,17 @@ on:
       AzureWebAppName:
         required: true
         type: string
-    
+      AppName:
+        required: true
+        type: string
+        
+      hostingPlanName:
+        required: true
+        type: string
+      hostingPlanRgName:
+        required: true
+        type: string
+        
     secrets:
       AZURE_CREDENTIALS:
         required: true
@@ -40,7 +53,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+    environment: ${{ inputs.githubEnvironment }}
     
     steps:
       - uses: actions/checkout@v3.3.0
@@ -58,9 +71,11 @@ jobs:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           resourceGroupName: ${{ secrets.AZURE_RG }}
           template: ./.github/bicep/main.bicep
-          parameters: 'objectId=${{ secrets.CLIENT_ID }} connectionString=${{ secrets.ConnectionString }} openAiApiKey=${{ secrets.OpenAiApiKey }} allowedCors=${{ vars.ALLOWED_CORS }} maxRequests=${{ vars.MAX_REQUESTS }} signingAuthority=${{ vars.SIGNING_AUTHORITY }}'
+          parameters: 'appName=${{ inputs.appName }} environment=${{ inputs.deployEnvironment }} hostingPlanName=${{ inputs.hostingPlanName }} hostingPlanRgName=${{ inputs.hostingPlanRgName }} objectId=${{ secrets.CLIENT_ID }} connectionString=${{ secrets.ConnectionString }} openAiApiKey=${{ secrets.OpenAiApiKey }} allowedCors=${{ vars.ALLOWED_CORS }} maxRequests=${{ vars.MAX_REQUESTS }} signingAuthority=${{ vars.SIGNING_AUTHORITY }}'
           failOnStdErr: false
 
+      # TODO: Persist Bicep outputs to GH step outputs
+      
       # https://stackoverflow.com/questions/60521929/change-variables-in-appsettings-when-deploying-with-github-actions
       # This will fail if done before the build step
       - name: App Settings Variable Substitution
@@ -74,16 +89,16 @@ jobs:
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v3.0.3
         with:
-          dotnet-version: '7.x'
+          global-json-file: global.json
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
 
       - name: dotnet publish WebAPI
-        run: dotnet publish ./src/WebAPI -c Release -o ./publish/api
+        run: dotnet publish ./src/WebAPI -c Release --no-build --no-restore -o ./publish/api
 
       - name: dotnet publish WebUI
-        run: dotnet publish ./src/WebUI -c Release -o ./publish/ui
+        run: dotnet publish ./src/WebUI -c Release --no-build --no-restore -o ./publish/ui
 
       - name: Upload API artifact for deployment job
         uses: actions/upload-artifact@v3.1.2
@@ -102,7 +117,7 @@ jobs:
     needs: build
     
     environment:
-      name: ${{ inputs.environment }}
+      name: ${{ inputs.githubEnvironment }}
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
@@ -122,7 +137,6 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: "${{ inputs.AzureWebAppName }}"
-          slot-name: 'Production' # The environment in Azure, Production is just the name of the slot
           package: .
 
   deploy-webui:
@@ -130,7 +144,7 @@ jobs:
     needs: build
     
     environment:
-      name: ${{ inputs.environment }}
+      name: ${{ inputs.githubEnvironment }}
       url: ${{ steps.deploy-to-staticwebapp.outputs.static_web_app_url }}
       
     steps:
@@ -144,6 +158,8 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+          
+      # TODO: Move to federated auth
           
       - name: Mask Deployment Token
         uses: azure/CLI@v1

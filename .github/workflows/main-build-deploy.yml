@@ -9,10 +9,22 @@ jobs:
   call-reusable-build-and-deploy:
     uses: ./.github/workflows/template-build-deploy.yml
     with:
-      environment: 'Production'
-      AzureWebAppName: 'ssw-rulesgpt-api'
+      githubEnvironment: 'Production'
+      deployEnvironment: 'prod'
+      
+      AzureWebAppName: ${{ vars.AZURE_WEB_APP_NAME }}
+      AzureStaticWebAppName: ${{ vars.AZURE_STATIC_WEB_APP_NAME }}
+      
+      hostingPlanName: ${{ vars.HOSTING_PLAN_NAME }}
+      hostingPlanRgName: ${{ vars.HOSTING_PLAN_RG_NAME }}
     
     secrets:
-      AzureWebAppSecret: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1FEDFC8C3C4A497399C6318E5C173C42 }}
-      AzureStaticWebAppsApiToken: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_WHITE_DESERT_00E3FB600 }}
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      AZURE_SUBSCRIPTION: ${{ secrets.AZURE_SUBSCRIPTION }}
+      AZURE_RG: ${{ secrets.AZURE_RG }}
+      CLIENT_ID: ${{ secrets.CLIENT_ID }}
+      
+      ConnectionString: ${{ secrets.CONNECTION_STRING }}
+      OpenAiApiKey: ${{ secrets.OPENAI_API_KEY }}
+      
       GithubRepoToken: ${{ secrets.GITHUB_TOKEN }}

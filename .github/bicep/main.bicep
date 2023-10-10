@@ -1,4 +1,4 @@
-param appName string = 'rulesgpt-stage'
+param appName string = 'rulesgpt'
 param environment string = 'stage'
 
 @secure()
@@ -16,9 +16,11 @@ param objectId string
 param location string = resourceGroup().location
 param staticWebAppLocation string = 'eastasia'
 
+param hostingPlanName string 
+param hostingPlanRgName string
+
 //Can't contain uppercase letters or special characters
 var storageAccountName = 'storerulesgpt${environment}'
-var hostingPlanName = 'plan-${appName}'
 var keyVaultName = 'kv-${appName}'
 var tenantId = subscription().tenantId
 
