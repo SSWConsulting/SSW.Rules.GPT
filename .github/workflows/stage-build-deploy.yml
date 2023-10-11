@@ -17,9 +17,6 @@ jobs:
       AzureStaticWebAppName: ${{ vars.AZURE_STATIC_WEB_APP_NAME }}
       
       AppName: ${{ vars.APP_NAME }}
-      
-      hostingPlanName: ${{ vars.HOSTING_PLAN_NAME }}
-      hostingPlanRgName: ${{ vars.HOSTING_PLAN_RG_NAME }}
     
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
