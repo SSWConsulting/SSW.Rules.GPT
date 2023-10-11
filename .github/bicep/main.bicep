@@ -33,6 +33,7 @@ var applicationInsightsName = 'ai-${appName}-${environment}'
 var lawName = 'laws-${appName}${prodEnvironmentName}'
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' = {
+#disable-next-line BCP334
   name: storageAccountName
   location: location
   sku: {
