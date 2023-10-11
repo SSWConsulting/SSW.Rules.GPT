@@ -19,15 +19,18 @@ param staticWebAppLocation string = 'eastasia'
 param hostingPlanName string 
 param hostingPlanRgName string
 
+var prodEnvironmentName = environment == 'prod' ? '' : '-${environment}'
+
 //Can't contain uppercase letters or special characters
-var storageAccountName = 'storerulesgpt${environment}'
-var keyVaultName = 'kv-${appName}'
+var storageAccountName = toLower(take(replace('sa${appName}${environment}', '-', ''), 24))
+var keyVaultName = 'kv-${appName}${prodEnvironmentName}'
 var tenantId = subscription().tenantId
 
-var apiAppName = 'api-${appName}'
-var frontendAppName = 'frontend-${appName}'
+var apiAppName = 'ssw-${appName}-api${prodEnvironmentName}'
+var frontendAppName = 'ssw-${appName}-webui${prodEnvironmentName}'
+var applicationInsightsName = 'ai-${appName}-${environment}'
 
-var applicationInsightsName = 'ai-${appName}'
+var lawName = 'laws-${appName}${prodEnvironmentName}'
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' = {
   name: storageAccountName
@@ -42,15 +45,9 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' = {
   }
 }
 
-resource hostingPlan 'Microsoft.Web/serverfarms@2021-03-01' = {
+resource hostingPlan 'Microsoft.Web/serverfarms@2021-03-01' existing = {
   name: hostingPlanName
-  location: location
-  sku: {
-    name: 'B1'
-    tier: 'Dynamic'
-  }
-  properties: {}
-  kind: 'linux'
+  scope: resourceGroup(hostingPlanRgName)
 }
 
 resource kv 'Microsoft.KeyVault/vaults@2021-11-01-preview' = {
@@ -181,7 +178,20 @@ resource frontendStaticWebApp 'Microsoft.Web/staticSites@2021-01-15' = {
   }
 }
 
-//TODO: Add Log Analytics - this will stop working in february 2024
+resource law 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
+  name: lawName
+  location: location
+  properties: {
+    retentionInDays: 30
+    features: {
+      searchVersion: 1
+    }
+    sku: {
+      name: 'PerGB2018'
+    }
+  }
+}
+
 resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
   name: applicationInsightsName
   location: location
@@ -189,5 +199,6 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
   properties: {
     Application_Type: 'web'
     Request_Source: 'rest'
+    WorkspaceResourceId: law.id
   }
 }
