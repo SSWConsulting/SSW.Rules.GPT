@@ -13,9 +13,6 @@ jobs:
       githubEnvironment: 'Staging'
       deployEnvironment: 'stage'
       
-      AzureWebAppName: ${{ vars.AZURE_WEB_APP_NAME }}
-      AzureStaticWebAppName: ${{ vars.AZURE_STATIC_WEB_APP_NAME }}
-      
       AppName: ${{ vars.APP_NAME }}
     
     secrets:

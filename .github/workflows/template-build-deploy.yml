@@ -14,15 +14,6 @@ on:
         required: true
         type: string
         
-      # The name of the front and backend resources in Azure respectively
-      # TODO: These needs to be replaced when outputs are persisted from the Bicep deployment
-      AzureStaticWebAppName:
-        required: true
-        type: string      
-      AzureWebAppName:
-        required: true
-        type: string
-        
       AppName:
         required: true
         type: string
@@ -131,7 +122,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: "${{ inputs.AzureWebAppName }}"
+          app-name: "${{ vars.AZURE_WEB_APP_NAME }}"
           package: .
 
   deploy-webui:
@@ -161,14 +152,14 @@ jobs:
         with:
           azcliversion: latest
           inlineScript: |
-            echo "::add-mask::$(az staticwebapp secrets list -n ${{ inputs.AzureStaticWebAppName }} | jq -r '.properties.apiKey')"  
+            echo "::add-mask::$(az staticwebapp secrets list -n ${{ vars.AZURE_STATIC_WEB_APP_NAME }} | jq -r '.properties.apiKey')"  
 
       - name: Retrieve Deployment Token
         uses: azure/CLI@v1
         with:
           azcliversion: latest
           inlineScript: |
-            echo "SWA_TOKEN=$(az staticwebapp secrets list -n ${{ inputs.AzureStaticWebAppName }} | jq -r '.properties.apiKey')" >> $GITHUB_ENV            
+            echo "SWA_TOKEN=$(az staticwebapp secrets list -n ${{ vars.AZURE_STATIC_WEB_APP_NAME }} | jq -r '.properties.apiKey')" >> $GITHUB_ENV            
 
       - name: Deploy Static Web App
         id: deploy-to-staticwebapp
