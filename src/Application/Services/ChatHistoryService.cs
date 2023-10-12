@@ -37,9 +37,7 @@ public class ChatHistoryService
     {
         //TODO: Get title for conversation
 
-        var deserialized = JsonConvert.DeserializeObject<ChatLinkedList>(conversation);
-        if (deserialized == null)
-            throw new ArgumentException("Conversation is not valid JSON");
+        ValidateConversation(conversation);
 
         _context.ConversationHistories.Add(
             new ConversationHistoryModel
@@ -54,9 +52,41 @@ public class ChatHistoryService
         _context.SaveChangesAsync();
     }
 
-    public void UpdateConversation(int id, string email) { }
+    public void UpdateConversation(int id, string email, string conversation)
+    {
+        ValidateConversation(conversation);
 
-    public void DeleteConversation() { }
+        var record = _context.ConversationHistories.FirstOrDefault(s => s.Id == id && s.User == email);
+        if (record == null)
+            throw new ArgumentException("Conversation not found");
+        
+        record.Conversation = conversation;
+        
+        _context.SaveChangesAsync();
+    }
 
-    public void ClearAllHistory() { }
+    public void DeleteConversation(int id, string email)
+    {
+        var record = _context.ConversationHistories.FirstOrDefault(s => s.Id == id && s.User == email);
+        if (record == null)
+            throw new ArgumentException("Conversation not found");
+
+        _context.ConversationHistories.Remove(record);
+        _context.SaveChangesAsync();
+    }
+
+    public void ClearAllHistory(string email)
+    {
+        _context.ConversationHistories.RemoveRange(
+            _context.ConversationHistories.Where(s => s.User == email));
+        
+        _context.SaveChangesAsync();
+    }
+
+    private static void ValidateConversation(string conversation)
+    {
+        var deserialized = JsonConvert.DeserializeObject<ChatLinkedList>(conversation);
+        if (deserialized == null)
+            throw new ArgumentException("Conversation is not valid JSON");
+    }
 }

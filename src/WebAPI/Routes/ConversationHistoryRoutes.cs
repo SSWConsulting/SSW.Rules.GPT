@@ -42,6 +42,8 @@ public static class ConversationHistoryRoutes
                     var service = context.RequestServices.GetRequiredService<ChatHistoryService>();
                     var results = service.GetConversations(email);
                     
+                    Console.WriteLine($"Returning {results.Count()} conversations.");
+                    
                     return TypedResults.Ok(results);
                 })
             .WithName("GetConversationByUser")
@@ -49,7 +51,7 @@ public static class ConversationHistoryRoutes
 
         routeGroup
             .MapPost(
-                "/addHistory",
+                "/addConversation",
                 async (HttpContext context, string conversation) =>
                 {
                     if (!CheckAuth(context))
@@ -62,6 +64,57 @@ public static class ConversationHistoryRoutes
                     service.AddConversation(email, conversation);
                 })
             .WithName("AddConversationHistory")
+            .RequireAuthorization("chatHistoryPolicy");
+        
+        routeGroup
+            .MapPost(
+                "/updateConversation", 
+                async (HttpContext context, int id, string conversation) =>
+                {
+                    if (!CheckAuth(context))
+                        return;
+                    
+                    if (!CheckEmail(context, out var email))
+                        return;
+                    
+                    var service = context.RequestServices.GetRequiredService<ChatHistoryService>();
+                    service.UpdateConversation(id, email, conversation);
+                })
+            .WithName("UpdateConversation")
+            .RequireAuthorization("chatHistoryPolicy");;
+
+        routeGroup
+            .MapPost(
+                "/deleteConversation",
+                async (HttpContext context, int id) =>
+                {
+                    if (!CheckAuth(context))
+                        return;
+
+                    if (!CheckEmail(context, out var email))
+                        return;
+
+                    var service = context.RequestServices.GetRequiredService<ChatHistoryService>();
+                    service.DeleteConversation(id, email);
+                })
+            .WithName("DeleteConversation")
+            .RequireAuthorization("chatHistoryPolicy");
+        
+        routeGroup
+            .MapGet(
+                "/clearAllHistory",
+                async context =>
+                {
+                    if (!CheckAuth(context))
+                        return;
+
+                    if (!CheckEmail(context, out var email))
+                        return;
+
+                    var service = context.RequestServices.GetRequiredService<ChatHistoryService>();
+                    service.ClearAllHistory(email);
+                })
+            .WithName("ClearAllHistory")
             .RequireAuthorization("chatHistoryPolicy");
     }
 
