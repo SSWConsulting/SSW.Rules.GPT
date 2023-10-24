@@ -31,6 +31,8 @@ public class UserService
 
     public bool IsUserAuthenticated { get; private set; }
 
+    public event Func<Task> OnAuthenticationStateChangedEvent; 
+
     public void BeginSignIn()
         => _navManager.NavigateToLogin("/authentication/login");
 
@@ -48,5 +50,7 @@ public class UserService
         _snackbar.Add("You are now signed in and have access to GPT-4", Severity.Success);
         _snackbar.Add("Your GPT model has been set to GPT-4, you can change your model in Settings | API Key");
         _dataState.SelectedGptModel = AvailableGptModels.Gpt4;
+        
+        OnAuthenticationStateChangedEvent?.Invoke();
     }
 }

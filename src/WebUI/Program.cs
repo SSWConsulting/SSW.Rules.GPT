@@ -9,6 +9,7 @@ using WebUI;
 using WebUI.Helpers;
 using WebUI.Models;
 using WebUI.Services;
+using DialogService = WebUI.Services.DialogService;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -25,9 +26,11 @@ builder.Services.AddSingleton<NotifierService>();
 builder.Services.AddSingleton<MarkdigPipelineService>();
 
 builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<SignalRClient>();
-builder.Services.AddScoped<SswRulesGptDialogService>();
+builder.Services.AddScoped<MessagingService>();
+builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<ApiKeyValidationService>();
+
+builder.Services.AddScoped<SignalRClient>();
 
 builder.Services.AddGoogleAnalytics(builder.Configuration.GetValue<string>("AnalyticsID"));
 builder.Services.AddBlazoredLocalStorage();
