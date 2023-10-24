@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.SignalR.Client;
 using OpenAI.GPT3.ObjectModels.RequestModels;
+using SharedClasses;
 using WebUI.Services;
+using ChatMessage = SharedClasses.ChatMessage;
 
 namespace WebUI;
 
@@ -78,16 +80,18 @@ public class SignalRClient
         OpenAI.GPT3.ObjectModels.Models.Model gptModel,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        var completionResult = _connection.StreamAsync<ChatMessage?>(
+        var mappedList = messageList.Select(s => new OpenAI.GPT3.ObjectModels.RequestModels.ChatMessage(s.Role, s.Content, s.Name));
+        
+        var completionResult = _connection.StreamAsync<OpenAI.GPT3.ObjectModels.RequestModels.ChatMessage?>(
             "RequestNewCompletionMessage",
-            messageList,
+            mappedList,
             apiKey,
             gptModel,
             cancellationToken
         );
 
         await foreach (var message in completionResult)
-            yield return message;
+            yield return new ChatMessage(message);
     }
 
     //Methods that the client listens for from the server

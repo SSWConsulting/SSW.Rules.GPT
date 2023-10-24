@@ -10,5 +10,9 @@
         <PackageReference Include="Betalgo.OpenAI" Version="6.8.6" />
         <PackageReference Include="Pgvector.EntityFrameworkCore" Version="0.1.1" />
     </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SharedClasses\SharedClasses.csproj" />
+    </ItemGroup>
     
 </Project>

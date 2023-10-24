@@ -30,7 +30,7 @@ public static class ConversationHistoryRoutes
         
         routeGroup
             .MapGet(
-                "/getConversationByUser",
+                "/getConversationsForUser",
                 async (HttpContext context) =>
                 {
                     if (!CheckAuth(context))
@@ -46,7 +46,7 @@ public static class ConversationHistoryRoutes
                     
                     return TypedResults.Ok(results);
                 })
-            .WithName("GetConversationByUser")
+            .WithName("GetConversationsForUser")
             .RequireAuthorization("chatHistoryPolicy");
 
         routeGroup

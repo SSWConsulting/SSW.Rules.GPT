@@ -1,7 +1,6 @@
 ﻿using Blazor.Analytics;
 using MudBlazor;
 using Newtonsoft.Json;
-using OpenAI.GPT3.ObjectModels.RequestModels;
 using SharedClasses;
 using WebUI.Models;
 

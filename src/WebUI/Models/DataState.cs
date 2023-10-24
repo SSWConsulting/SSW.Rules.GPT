@@ -1,4 +1,5 @@
-﻿using SharedClasses;
+﻿using Newtonsoft.Json;
+using SharedClasses;
 using WebUI.Services;
 
 namespace WebUI.Models;
@@ -6,10 +7,12 @@ namespace WebUI.Models;
 public class DataState
 {
     private readonly NotifierService _notifierService;
+    private readonly RulesGptClient _rulesGptClient;
 
-    public DataState(NotifierService notifierService)
+    public DataState(NotifierService notifierService, RulesGptClient rulesGptClient)
     {
         _notifierService = notifierService;
+        _rulesGptClient = rulesGptClient;
     }
 
     public ConversationDetails Conversation { get; private set; } = new();
@@ -41,6 +44,20 @@ public class DataState
         IsAwaitingResponse = false;
         IsAwaitingResponseStream = false;
         CancellationTokenSource = new CancellationTokenSource();
+    }
+    
+    public async Task OpenConversation(int id)
+    {
+        var conversation = await _rulesGptClient.GetConversationByIdAsync(id);
+        if (conversation == null)
+            return;
+
+        var deserialised = JsonConvert.DeserializeObject<ChatLinkedList>(conversation.Conversation);
+        if (deserialised == null)
+            return;
+        
+        Conversation = new ConversationDetails(id, deserialised);
+        await _notifierService.Update();
     }
     
     public void MoveConversationLeft(ChatLinkedListItem item)

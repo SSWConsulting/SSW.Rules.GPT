@@ -1,7 +1,7 @@
 ﻿using Domain;
 using Domain.DTOs;
 using OpenAI.GPT3.ObjectModels;
-using OpenAI.GPT3.ObjectModels.RequestModels;
+using SharedClasses;
 
 namespace Application.Services;
 

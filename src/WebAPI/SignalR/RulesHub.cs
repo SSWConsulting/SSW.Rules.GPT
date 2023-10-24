@@ -4,8 +4,8 @@ using Domain.Entities;
 using Duende.IdentityServer.Extensions;
 using Microsoft.AspNetCore.SignalR;
 using OpenAI.GPT3.ObjectModels;
-using OpenAI.GPT3.ObjectModels.RequestModels;
 using Polly.RateLimit;
+using SharedClasses;
 
 namespace WebAPI.SignalR;
 

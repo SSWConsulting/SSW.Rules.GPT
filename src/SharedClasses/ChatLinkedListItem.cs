@@ -63,9 +63,9 @@ public class ChatLinkedListItem
         }
     }
 
-    public ChatMessage Message { get; }
+    public ChatMessage Message { get; set; }
     public AvailableGptModels GptModel { get; set; }
-    public ChatLinkedListItem? Previous { get; }
+    public ChatLinkedListItem? Previous { get; set; }
     public ChatLinkedListItem? Next { get; set; }
     public ChatLinkedListItem? Left { get; set; }
     public ChatLinkedListItem? Right { get; set; }
