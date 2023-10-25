@@ -66,7 +66,7 @@ public class DataState
             return;
         
         Conversation.ChatList.Move(item, Direction.Left);
-        Conversation.CurrentThread = Conversation.ChatList.GetThread(item);
+        Conversation.CurrentThread = Conversation.ChatList.GetThread(item.Left);
 
         _ = _notifierService.Update();
     }
@@ -77,7 +77,7 @@ public class DataState
             return;
         
         Conversation.ChatList.Move(item, Direction.Right);
-        Conversation.CurrentThread = Conversation.ChatList.GetThread(item);
+        Conversation.CurrentThread = Conversation.ChatList.GetThread(item.Right);
         
         _ = _notifierService.Update();
     }
