@@ -67,6 +67,7 @@ public class ChatHistoryService
         if (record == null)
             throw new ArgumentException("Conversation not found");
         
+        record.Date = DateTimeOffset.Now.ToUniversalTime();
         record.Conversation = conversation;
         
         await _context.SaveChangesAsync();
