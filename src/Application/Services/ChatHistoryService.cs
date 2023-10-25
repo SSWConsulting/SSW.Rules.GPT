@@ -35,13 +35,13 @@ public class ChatHistoryService
                 });
     }
 
-    public void AddConversation(string email, string conversation, string firstMessage)
+    public async Task AddConversation(string email, string conversation, string firstMessage)
     {
         ValidateConversation(conversation);
 
         var title = string.IsNullOrWhiteSpace(firstMessage) 
             ? "New conversation"
-            : GetConversationTitle(firstMessage);
+            : await GetConversationTitle(firstMessage);
         
         if (string.IsNullOrWhiteSpace(title))
             title = "New conversation";
@@ -56,10 +56,10 @@ public class ChatHistoryService
                 SchemaVersion = 1,
             });
 
-        _context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
     }
 
-    public void UpdateConversation(int id, string email, string conversation)
+    public async Task UpdateConversation(int id, string email, string conversation)
     {
         ValidateConversation(conversation);
 
@@ -69,25 +69,25 @@ public class ChatHistoryService
         
         record.Conversation = conversation;
         
-        _context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
     }
 
-    public void DeleteConversation(int id, string email)
+    public async Task DeleteConversation(int id, string email)
     {
         var record = _context.ConversationHistories.FirstOrDefault(s => s.Id == id && s.User == email);
         if (record == null)
             throw new ArgumentException("Conversation not found");
 
         _context.ConversationHistories.Remove(record);
-        _context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
     }
 
-    public void ClearAllHistory(string email)
+    public async Task ClearAllHistory(string email)
     {
         _context.ConversationHistories.RemoveRange(
             _context.ConversationHistories.Where(s => s.User == email));
         
-        _context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
     }
 
     private static void ValidateConversation(string conversation)
@@ -97,8 +97,8 @@ public class ChatHistoryService
             throw new ArgumentException("Conversation is not valid JSON");
     }
     
-    private string GetConversationTitle(string firstMessage)
+    private Task<string> GetConversationTitle(string firstMessage)
     {
-        return _semanticKernelService.GetConversationTitle(firstMessage).Result;
+        return _semanticKernelService.GetConversationTitle(firstMessage);
     }
 }
