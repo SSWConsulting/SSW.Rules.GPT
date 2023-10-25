@@ -61,7 +61,7 @@ public static class ConversationHistoryRoutes
                         return;
                     
                     var service = context.RequestServices.GetRequiredService<ChatHistoryService>();
-                    service.AddConversation(email, conversation, firstMessage);
+                    await service.AddConversation(email, conversation, firstMessage);
                 })
             .WithName("AddConversationHistory")
             .RequireAuthorization("chatHistoryPolicy");
@@ -78,7 +78,7 @@ public static class ConversationHistoryRoutes
                         return;
                     
                     var service = context.RequestServices.GetRequiredService<ChatHistoryService>();
-                    service.UpdateConversation(id, email, conversation);
+                    await service.UpdateConversation(id, email, conversation);
                 })
             .WithName("UpdateConversation")
             .RequireAuthorization("chatHistoryPolicy");;
@@ -95,7 +95,7 @@ public static class ConversationHistoryRoutes
                         return;
 
                     var service = context.RequestServices.GetRequiredService<ChatHistoryService>();
-                    service.DeleteConversation(id, email);
+                    await service.DeleteConversation(id, email);
                 })
             .WithName("DeleteConversation")
             .RequireAuthorization("chatHistoryPolicy");
@@ -112,7 +112,7 @@ public static class ConversationHistoryRoutes
                         return;
 
                     var service = context.RequestServices.GetRequiredService<ChatHistoryService>();
-                    service.ClearAllHistory(email);
+                    await service.ClearAllHistory(email);
                 })
             .WithName("ClearAllHistory")
             .RequireAuthorization("chatHistoryPolicy");
