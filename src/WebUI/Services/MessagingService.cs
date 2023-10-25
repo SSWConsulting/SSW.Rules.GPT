@@ -98,6 +98,13 @@ public class MessagingService
             await _notifierService.Update();
         }
 
+        _dataState.IsAwaitingResponseStream = false;
+        _dataState.IsAwaitingResponse = false;
+        _dataState.CancellationTokenSource.Dispose();
+        _dataState.CancellationTokenSource = new CancellationTokenSource();
+
+        await _notifierService.Update();
+        
         if (_userService.IsUserAuthenticated)
         {
             var serialized = JsonConvert.SerializeObject(
@@ -109,17 +116,14 @@ public class MessagingService
                     PreserveReferencesHandling = PreserveReferencesHandling.All
                 });
 
-            //if (_dataState.Conversation.Id != null)
-            //    await _rulesGptClient.UpdateConversationAsync(_dataState.Conversation.Id.Value, serialized);
-            //
-            //else
+            if (_dataState.Conversation.Id != null)
+                await _rulesGptClient.UpdateConversationAsync(_dataState.Conversation.Id.Value, serialized);
+            
+            else
                 await _rulesGptClient.AddConversationHistoryAsync(serialized, _dataState.Conversation.CurrentThread.FirstOrDefault()?.Message.Content);
         }
-
-        _dataState.IsAwaitingResponseStream = false;
-        _dataState.IsAwaitingResponse = false;
-        _dataState.CancellationTokenSource.Dispose();
-        _dataState.CancellationTokenSource = new CancellationTokenSource();
+        
+        await _notifierService.Update();
     }
 
     private async Task<bool> CheckConnection()
