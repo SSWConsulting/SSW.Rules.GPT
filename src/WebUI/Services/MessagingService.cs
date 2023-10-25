@@ -19,11 +19,11 @@ public class MessagingService
     public MessagingService(
         SignalRClient signalRClient,
         RulesGptClient rulesGptClient,
-        DataState dataState, 
+        DataState dataState,
         UserService userService,
         NotifierService notifierService,
         IAnalytics analytics,
-        ISnackbar snackbar) 
+        ISnackbar snackbar)
     {
         _dataState = dataState;
         _snackbar = snackbar;
@@ -58,7 +58,7 @@ public class MessagingService
 
         await SendMessageInternal(newAssistantMessage);
     }
-    
+
     public async Task SendEditedMessage(ChatLinkedListItem item, string message)
     {
         if (!await CheckConnection())
@@ -81,23 +81,23 @@ public class MessagingService
 
         _dataState.IsAwaitingResponse = true;
         _dataState.IsAwaitingResponseStream = true;
-        
+
         await _notifierService.Update();
-        
+
         var resultStream = _signalRClient.RequestNewCompletionMessage(
             _dataState.Conversation.CurrentThread.Select(s => s.Message).ToList(),
             _dataState.ApiKeyString,
             (OpenAI.GPT3.ObjectModels.Models.Model)_dataState.SelectedGptModel,
             _dataState.CancellationTokenSource.Token);
-        
+
         await foreach (var result in resultStream)
         {
             _dataState.IsAwaitingResponseStream = false;
             assistantMessage.Content += result?.Content;
 
-            _ = _notifierService.Update();
+            await _notifierService.Update();
         }
-        
+
         if (_userService.IsUserAuthenticated)
         {
             var serialized = JsonConvert.SerializeObject(
@@ -109,15 +109,19 @@ public class MessagingService
                     PreserveReferencesHandling = PreserveReferencesHandling.All
                 });
 
-            await _rulesGptClient.AddConversationHistoryAsync(serialized);
+            //if (_dataState.Conversation.Id != null)
+            //    await _rulesGptClient.UpdateConversationAsync(_dataState.Conversation.Id.Value, serialized);
+            //
+            //else
+                await _rulesGptClient.AddConversationHistoryAsync(serialized, _dataState.Conversation.CurrentThread.FirstOrDefault()?.Message.Content);
         }
-        
+
         _dataState.IsAwaitingResponseStream = false;
         _dataState.IsAwaitingResponse = false;
         _dataState.CancellationTokenSource.Dispose();
         _dataState.CancellationTokenSource = new CancellationTokenSource();
     }
-    
+
     private async Task<bool> CheckConnection()
     {
         if (_signalRClient.GetConnectionState() != StatusHubConnectionState.Disconnected)
@@ -128,7 +132,7 @@ public class MessagingService
             await _signalRClient.StartAsync(_dataState.CancellationTokenSource.Token);
             return true;
         }
-        
+
         catch (HttpRequestException)
         {
             _snackbar.Add("Unable to connect to SSW RulesGPT", Severity.Error);

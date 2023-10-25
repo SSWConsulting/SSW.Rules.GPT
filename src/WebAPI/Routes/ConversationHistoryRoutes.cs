@@ -52,7 +52,7 @@ public static class ConversationHistoryRoutes
         routeGroup
             .MapPost(
                 "/addConversation",
-                async (HttpContext context, string conversation) =>
+                async (HttpContext context, string conversation, string firstMessage) =>
                 {
                     if (!CheckAuth(context))
                         return;
@@ -61,7 +61,7 @@ public static class ConversationHistoryRoutes
                         return;
                     
                     var service = context.RequestServices.GetRequiredService<ChatHistoryService>();
-                    service.AddConversation(email, conversation);
+                    service.AddConversation(email, conversation, firstMessage);
                 })
             .WithName("AddConversationHistory")
             .RequireAuthorization("chatHistoryPolicy");

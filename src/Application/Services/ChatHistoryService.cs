@@ -9,10 +9,12 @@ namespace Application.Services;
 public class ChatHistoryService
 {
     private readonly IRulesContext _context;
+    private readonly SemanticKernelService _semanticKernelService;
 
-    public ChatHistoryService(IRulesContext context)
+    public ChatHistoryService(IRulesContext context, SemanticKernelService semanticKernelService)
     {
         _context = context;
+        _semanticKernelService = semanticKernelService;
     }
 
     public ConversationHistoryModel? GetConversation(int id, string email)
@@ -33,19 +35,24 @@ public class ChatHistoryService
                 });
     }
 
-    public void AddConversation(string user, string conversation)
+    public void AddConversation(string email, string conversation, string firstMessage)
     {
-        //TODO: Get title for conversation
-
         ValidateConversation(conversation);
+
+        var title = string.IsNullOrWhiteSpace(firstMessage) 
+            ? "New conversation"
+            : GetConversationTitle(firstMessage);
+        
+        if (string.IsNullOrWhiteSpace(title))
+            title = "New conversation";
 
         _context.ConversationHistories.Add(
             new ConversationHistoryModel
             {
                 Date = DateTimeOffset.Now.ToUniversalTime(),
-                ConversationTitle = "lalala",
+                ConversationTitle = title,
                 Conversation = conversation,
-                User = user,
+                User = email,
                 SchemaVersion = 1,
             });
 
@@ -88,5 +95,10 @@ public class ChatHistoryService
         var deserialized = JsonConvert.DeserializeObject<ChatLinkedList>(conversation);
         if (deserialized == null)
             throw new ArgumentException("Conversation is not valid JSON");
+    }
+    
+    private string GetConversationTitle(string firstMessage)
+    {
+        return _semanticKernelService.GetConversationTitle(firstMessage).Result;
     }
 }
