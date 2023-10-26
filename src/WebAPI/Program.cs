@@ -8,6 +8,8 @@ using WebAPI.SignalR;
 var builder = WebApplication.CreateBuilder(args);
 
 const string RulesGptCorsPolicy = nameof(RulesGptCorsPolicy);
+const string ChatHistoryPolicy = "chatHistoryPolicy";
+
 
 var signingAuthority = builder.Configuration.GetValue<string>("SigningAuthority");
 
@@ -44,7 +46,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorizationBuilder().AddPolicy("chatHistoryPolicy", policy =>
+builder.Services.AddAuthorizationBuilder().AddPolicy(ChatHistoryPolicy, policy =>
 {
     policy.RequireAuthenticatedUser();
 });

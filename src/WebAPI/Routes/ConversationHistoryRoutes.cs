@@ -5,19 +5,17 @@ namespace WebAPI.Routes;
 
 public static class ConversationHistoryRoutes
 {
+    private const string ChatHistoryPolicy = "chatHistoryPolicy";
+    
     public static void MapConversationRoutes(this WebApplication app)
     {
         var routeGroup = app.MapGroup("").WithTags("ConversationHistory").WithOpenApi();
         
-        //TODO: Const for policy name
         routeGroup
             .MapGet(
                 "/ConversationById",
                 async (HttpContext context, int id) =>
                 {
-                    if (!CheckAuth(context))
-                        return null;
-                    
                     if (!CheckEmail(context, out var email))
                         return null;
                     
@@ -27,16 +25,13 @@ public static class ConversationHistoryRoutes
                     return TypedResults.Ok(results);
                 })
             .WithName("GetConversationById")
-            .RequireAuthorization("chatHistoryPolicy");
+            .RequireAuthorization(ChatHistoryPolicy);
         
         routeGroup
             .MapGet(
                 "/ConversationsForUser",
                 async (HttpContext context) =>
                 {
-                    if (!CheckAuth(context))
-                        return null;
-                    
                     if (!CheckEmail(context, out var email))
                         return null;
                     
@@ -48,7 +43,7 @@ public static class ConversationHistoryRoutes
                     return TypedResults.Ok(results);
                 })
             .WithName("GetConversationsForUser")
-            .RequireAuthorization("chatHistoryPolicy");
+            .RequireAuthorization(ChatHistoryPolicy);
         
         routeGroup
             .MapPost(
@@ -57,9 +52,6 @@ public static class ConversationHistoryRoutes
                 {
                     //TODO: Return ID of newly created row to frontend
                     
-                    if (!CheckAuth(context))
-                        return;
-                    
                     if (!CheckEmail(context, out var email))
                         return;
                     
@@ -67,16 +59,13 @@ public static class ConversationHistoryRoutes
                     await service.AddConversation(email, conversation, firstMessage);
                 })
             .WithName("AddConversationHistory")
-            .RequireAuthorization("chatHistoryPolicy");
+            .RequireAuthorization(ChatHistoryPolicy);
         
         routeGroup
             .MapPut(
                 "/Conversation", 
                 async (HttpContext context, int id, string conversation) =>
                 {
-                    if (!CheckAuth(context))
-                        return;
-                    
                     if (!CheckEmail(context, out var email))
                         return;
                     
@@ -84,21 +73,18 @@ public static class ConversationHistoryRoutes
                     await service.UpdateConversation(id, email, conversation);
                 })
             .WithName("UpdateConversation")
-            .RequireAuthorization("chatHistoryPolicy");;
+            .RequireAuthorization(ChatHistoryPolicy);
         
         routeGroup
             .MapDelete(
                 "/Conversations",
                 async (HttpContext context) => { return await Bar(context); })
             .WithName("DeleteAllConversations")
-            .RequireAuthorization("chatHistoryPolicy");
+            .RequireAuthorization(ChatHistoryPolicy);
     }
 
     private static async Task<IResult> Bar(HttpContext context)
     {
-        if (!CheckAuth(context))
-            return TypedResults.Forbid();
-
         if (!CheckEmail(context, out var email))
             return TypedResults.Forbid();
 
@@ -106,16 +92,6 @@ public static class ConversationHistoryRoutes
         await service.ClearAllHistory(email);
 
         return TypedResults.Ok();
-    }
-
-    // TODOD: Test this can be removed
-    private static bool CheckAuth(HttpContext context)
-    {
-        if (context.User.IsAuthenticated())
-            return true;
-        
-        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-        return false;
     }
 
     private static bool CheckEmail(HttpContext context, out string email)
