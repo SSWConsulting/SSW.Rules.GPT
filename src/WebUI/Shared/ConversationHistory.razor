@@ -5,7 +5,6 @@
 
 <MudDrawer @bind-Open="isDrawerOpen" Elevation="1" Width="300px">
     <MudDrawerHeader>
-        <p>Chat History</p>
     </MudDrawerHeader>
     <AuthorizeView>
         <Authorized>
@@ -57,12 +56,6 @@
         }
 
         StateHasChanged();
-    }
-
-    protected async Task DeleteChat(int id)
-    {
-        await Client.DeleteConversationAsync(id);
-        await RefreshChatHistory();
     }
 
     protected async Task ClearHistory()

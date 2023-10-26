@@ -88,23 +88,6 @@ public static class ConversationHistoryRoutes
         
         routeGroup
             .MapDelete(
-                "/Conversations/{id}",
-                async (HttpContext context, int id) =>
-                {
-                    if (!CheckAuth(context))
-                        return;
-        
-                    if (!CheckEmail(context, out var email))
-                        return;
-        
-                    var service = context.RequestServices.GetRequiredService<ChatHistoryService>();
-                    await service.DeleteConversation(id, email);
-                })
-            .WithName("DeleteConversation")
-            .RequireAuthorization("chatHistoryPolicy");
-        
-        routeGroup
-            .MapDelete(
                 "/Conversations",
                 async (HttpContext context) => { return await Bar(context); })
             .WithName("DeleteAllConversations")
