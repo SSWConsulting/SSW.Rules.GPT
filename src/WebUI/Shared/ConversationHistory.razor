@@ -4,20 +4,35 @@
 @inject DataState DataState
 
 <MudDrawer @bind-Open="isDrawerOpen" Elevation="1" Width="300px">
-    <MudDrawerHeader>
-    </MudDrawerHeader>
+    <MudDrawerHeader></MudDrawerHeader>
     <AuthorizeView>
         <Authorized>
-            @foreach (var conversation in Conversations)
+            @if (Conversations.Count == 0)
             {
-                <MudNavLink OnClick="() => DataState.OpenConversation(conversation.Id)" Icon="@Icons.Material.Outlined.ChatBubbleOutline">@conversation.ConversationTitle</MudNavLink>
+                <MudStack Class="px-2">
+                    <MudText Align="Align.Center" Typo="Typo.body1">No saved conversations.</MudText>
+                </MudStack>
+            }
+            else
+            {
+                foreach (var conversation in Conversations)
+                {
+                    <MudNavLink OnClick="() => DataState.OpenConversation(conversation.Id)" Icon="@Icons.Material.Outlined.ChatBubbleOutline">@conversation.ConversationTitle</MudNavLink>
+                }
             }
             <MudSpacer/>
             <MudNavLink OnClick="() => DataState.ResetState()" Icon="@Icons.Material.Filled.Add">New Chat</MudNavLink>
             <MudNavLink OnClick="ClearHistory" Icon="@Icons.Material.Filled.Delete">Clear History</MudNavLink>
         </Authorized>
         <NotAuthorized>
-
+            <MudStack Class="px-2">
+                <MudText Align="Align.Center" Typo="Typo.h6">Sign in now to save your history!</MudText>
+                <MudStack Row="true" Class="mt-4">
+                    <MudSpacer/>
+                    <MudButton Variant="Variant.Filled" Color="Color.Success" Style="display: inline-block; max-width: 150px" OnClick="UserService.BeginSignIn">Sign In</MudButton>
+                    <MudSpacer/>
+                </MudStack>
+            </MudStack>
             <MudSpacer/>
             <MudNavLink Href="" Icon="@Icons.Material.Filled.Add">New Chat</MudNavLink>
         </NotAuthorized>
@@ -35,11 +50,11 @@
     {
         UserService.OnAuthenticationStateChangedEvent += RefreshChatHistory;
         NotifierService.Notify += OnNotify;
-        
+
         await RefreshChatHistory();
         await base.OnInitializedAsync();
     }
-    
+
     private async Task OnNotify()
     {
         await RefreshChatHistory();
@@ -49,7 +64,7 @@
     private async Task RefreshChatHistory()
     {
         Conversations.Clear();
-        
+
         if (UserService.IsUserAuthenticated)
         {
             Conversations = await Client.GetConversationsForUserAsync();
@@ -63,4 +78,5 @@
         await Client.DeleteAllConversationsAsync();
         await RefreshChatHistory();
     }
+
 }

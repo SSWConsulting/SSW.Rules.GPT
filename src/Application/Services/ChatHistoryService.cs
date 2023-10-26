@@ -36,7 +36,6 @@ public class ChatHistoryService
 
     public ConversationHistoryModel? GetConversation(int id)
     {
-        
         return _context.ConversationHistories
             .FirstOrDefault(s => s.Id == id && s.User == Email);
     }
