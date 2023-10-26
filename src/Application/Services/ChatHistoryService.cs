@@ -27,6 +27,7 @@ public class ChatHistoryService
     {
         return _context.ConversationHistories
             .Where(s => s.User == user)
+            .OrderByDescending(s => s.Date)
             .Select(s =>
                 new ChatHistoryDetail
                 {
@@ -70,16 +71,6 @@ public class ChatHistoryService
         record.Date = DateTimeOffset.Now.ToUniversalTime();
         record.Conversation = conversation;
         
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task DeleteConversation(int id, string email)
-    {
-        var record = _context.ConversationHistories.FirstOrDefault(s => s.Id == id && s.User == email);
-        if (record == null)
-            throw new ArgumentException("Conversation not found");
-
-        _context.ConversationHistories.Remove(record);
         await _context.SaveChangesAsync();
     }
 
