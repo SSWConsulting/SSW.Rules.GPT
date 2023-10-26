@@ -7,11 +7,12 @@ public static class ConversationHistoryRoutes
 {
     public static void MapConversationRoutes(this WebApplication app)
     {
-        var routeGroup = app.MapGroup("").WithTags("ConversationHistory");
+        var routeGroup = app.MapGroup("").WithTags("ConversationHistory").WithOpenApi();
         
+        //TODO: Const for policy name
         routeGroup
             .MapGet(
-                "/getConversationById",
+                "/ConversationById",
                 async (HttpContext context, int id) =>
                 {
                     if (!CheckAuth(context))
@@ -30,7 +31,7 @@ public static class ConversationHistoryRoutes
         
         routeGroup
             .MapGet(
-                "/getConversationsForUser",
+                "/ConversationsForUser",
                 async (HttpContext context) =>
                 {
                     if (!CheckAuth(context))
@@ -48,12 +49,14 @@ public static class ConversationHistoryRoutes
                 })
             .WithName("GetConversationsForUser")
             .RequireAuthorization("chatHistoryPolicy");
-
+        
         routeGroup
             .MapPost(
-                "/addConversation",
+                "/Conversation",
                 async (HttpContext context, string conversation, string firstMessage) =>
                 {
+                    //TODO: Return ID of newly created row to frontend
+                    
                     if (!CheckAuth(context))
                         return;
                     
@@ -67,8 +70,8 @@ public static class ConversationHistoryRoutes
             .RequireAuthorization("chatHistoryPolicy");
         
         routeGroup
-            .MapPost(
-                "/updateConversation", 
+            .MapPut(
+                "/Conversation", 
                 async (HttpContext context, int id, string conversation) =>
                 {
                     if (!CheckAuth(context))
@@ -82,18 +85,18 @@ public static class ConversationHistoryRoutes
                 })
             .WithName("UpdateConversation")
             .RequireAuthorization("chatHistoryPolicy");;
-
+        
         routeGroup
-            .MapPost(
-                "/deleteConversation",
+            .MapDelete(
+                "/Conversations/{id}",
                 async (HttpContext context, int id) =>
                 {
                     if (!CheckAuth(context))
                         return;
-
+        
                     if (!CheckEmail(context, out var email))
                         return;
-
+        
                     var service = context.RequestServices.GetRequiredService<ChatHistoryService>();
                     await service.DeleteConversation(id, email);
                 })
@@ -101,23 +104,28 @@ public static class ConversationHistoryRoutes
             .RequireAuthorization("chatHistoryPolicy");
         
         routeGroup
-            .MapGet(
-                "/clearAllHistory",
-                async context =>
-                {
-                    if (!CheckAuth(context))
-                        return;
-
-                    if (!CheckEmail(context, out var email))
-                        return;
-
-                    var service = context.RequestServices.GetRequiredService<ChatHistoryService>();
-                    await service.ClearAllHistory(email);
-                })
-            .WithName("ClearAllHistory")
+            .MapDelete(
+                "/Conversations",
+                async (HttpContext context) => { return await Bar(context); })
+            .WithName("DeleteAllConversations")
             .RequireAuthorization("chatHistoryPolicy");
     }
 
+    private static async Task<IResult> Bar(HttpContext context)
+    {
+        if (!CheckAuth(context))
+            return TypedResults.Forbid();
+
+        if (!CheckEmail(context, out var email))
+            return TypedResults.Forbid();
+
+        var service = context.RequestServices.GetRequiredService<ChatHistoryService>();
+        await service.ClearAllHistory(email);
+
+        return TypedResults.Ok();
+    }
+
+    // TODOD: Test this can be removed
     private static bool CheckAuth(HttpContext context)
     {
         if (context.User.IsAuthenticated())

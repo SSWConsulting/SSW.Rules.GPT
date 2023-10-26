@@ -1,8 +1,9 @@
 ﻿@inject RulesGptClient Client
 @inject UserService UserService
+@inject NotifierService NotifierService
 @inject DataState DataState
 
-<MudDrawer @bind-Open="isDrawerOpen" Elevation="1">
+<MudDrawer @bind-Open="isDrawerOpen" Elevation="1" Width="300px">
     <MudDrawerHeader>
         <p>Chat History</p>
     </MudDrawerHeader>
@@ -10,16 +11,14 @@
         <Authorized>
             @foreach (var conversation in Conversations)
             {
-                <MudButton Style="justify-content: left;" Class="px-4 py-2" StartIcon="@Icons.Material.Filled.Chat" OnClick="() => DataState.OpenConversation(conversation.Id)">
-                    @conversation.ConversationTitle
-                </MudButton>
+                <MudNavLink OnClick="() => DataState.OpenConversation(conversation.Id)" Icon="@Icons.Material.Outlined.ChatBubbleOutline">@conversation.ConversationTitle</MudNavLink>
             }
             <MudSpacer/>
-            <MudNavLink Href="" Icon="@Icons.Material.Filled.Add">New Chat</MudNavLink>
-            <MudNavLink Href="" Icon="@Icons.Material.Filled.Delete">Clear History</MudNavLink>
+            <MudNavLink OnClick="() => DataState.ResetState()" Icon="@Icons.Material.Filled.Add">New Chat</MudNavLink>
+            <MudNavLink OnClick="ClearHistory" Icon="@Icons.Material.Filled.Delete">Clear History</MudNavLink>
         </Authorized>
         <NotAuthorized>
-            
+
             <MudSpacer/>
             <MudNavLink Href="" Icon="@Icons.Material.Filled.Add">New Chat</MudNavLink>
         </NotAuthorized>
@@ -35,16 +34,23 @@
 
     protected override async Task OnInitializedAsync()
     {
-        UserService.OnAuthenticationStateChangedEvent += HandleAuthenticationStateChange;
-        await HandleAuthenticationStateChange();
+        UserService.OnAuthenticationStateChangedEvent += RefreshChatHistory;
+        NotifierService.Notify += OnNotify;
         
+        await RefreshChatHistory();
         await base.OnInitializedAsync();
     }
+    
+    private async Task OnNotify()
+    {
+        await RefreshChatHistory();
+        await InvokeAsync(StateHasChanged);
+    }
 
-    private async Task HandleAuthenticationStateChange()
+    private async Task RefreshChatHistory()
     {
         Conversations.Clear();
-
+        
         if (UserService.IsUserAuthenticated)
         {
             Conversations = await Client.GetConversationsForUserAsync();
@@ -56,11 +62,12 @@
     protected async Task DeleteChat(int id)
     {
         await Client.DeleteConversationAsync(id);
+        await RefreshChatHistory();
     }
 
     protected async Task ClearHistory()
     {
-    //await _client.ClearAllHistoryAsync();
+        await Client.DeleteAllConversationsAsync();
+        await RefreshChatHistory();
     }
-
 }

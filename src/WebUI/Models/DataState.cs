@@ -51,7 +51,7 @@ public class DataState
         var conversation = await _rulesGptClient.GetConversationByIdAsync(id);
         if (conversation == null)
             return;
-
+        
         var deserialised = JsonConvert.DeserializeObject<ChatLinkedList>(conversation.Conversation);
         if (deserialised == null)
             return;
