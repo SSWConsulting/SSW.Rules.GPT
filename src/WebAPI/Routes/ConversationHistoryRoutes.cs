@@ -1,11 +1,11 @@
-﻿using Application.Services;
-using Duende.IdentityServer.Extensions;
+﻿using Application.Contracts;
+using Application.Services;
 
 namespace WebAPI.Routes;
 
 public static class ConversationHistoryRoutes
 {
-    private const string ChatHistoryPolicy = "chatHistoryPolicy";
+    private const string ChatHistoryPolicy = nameof(ChatHistoryPolicy);
     
     public static void MapConversationRoutes(this WebApplication app)
     {
@@ -16,11 +16,8 @@ public static class ConversationHistoryRoutes
                 "/ConversationById",
                 async (HttpContext context, int id) =>
                 {
-                    if (!CheckEmail(context, out var email))
-                        return null;
-                    
                     var service = context.RequestServices.GetRequiredService<ChatHistoryService>();
-                    var results = service.GetConversation(id, email);
+                    var results = service.GetConversation(id);
                     
                     return TypedResults.Ok(results);
                 })
@@ -32,13 +29,8 @@ public static class ConversationHistoryRoutes
                 "/ConversationsForUser",
                 async (HttpContext context) =>
                 {
-                    if (!CheckEmail(context, out var email))
-                        return null;
-                    
                     var service = context.RequestServices.GetRequiredService<ChatHistoryService>();
-                    var results = service.GetConversations(email);
-                    
-                    Console.WriteLine($"Returning {results.Count()} conversations.");
+                    var results = service.GetConversations();
                     
                     return TypedResults.Ok(results);
                 })
@@ -52,11 +44,8 @@ public static class ConversationHistoryRoutes
                 {
                     //TODO: Return ID of newly created row to frontend
                     
-                    if (!CheckEmail(context, out var email))
-                        return;
-                    
                     var service = context.RequestServices.GetRequiredService<ChatHistoryService>();
-                    await service.AddConversation(email, conversation, firstMessage);
+                    await service.AddConversation(conversation, firstMessage);
                 })
             .WithName("AddConversationHistory")
             .RequireAuthorization(ChatHistoryPolicy);
@@ -66,11 +55,10 @@ public static class ConversationHistoryRoutes
                 "/Conversation", 
                 async (HttpContext context, int id, string conversation) =>
                 {
-                    if (!CheckEmail(context, out var email))
-                        return;
-                    
                     var service = context.RequestServices.GetRequiredService<ChatHistoryService>();
-                    await service.UpdateConversation(id, email, conversation);
+                    await service.UpdateConversation(id, conversation);
+                    
+                    return TypedResults.Ok();
                 })
             .WithName("UpdateConversation")
             .RequireAuthorization(ChatHistoryPolicy);
@@ -78,25 +66,14 @@ public static class ConversationHistoryRoutes
         routeGroup
             .MapDelete(
                 "/Conversations",
-                async (HttpContext context) => { return await Bar(context); })
+                async (HttpContext context) =>
+                {
+                    var service = context.RequestServices.GetRequiredService<ChatHistoryService>();
+                    await service.ClearAllHistory();
+
+                    return TypedResults.Ok();
+                })
             .WithName("DeleteAllConversations")
             .RequireAuthorization(ChatHistoryPolicy);
-    }
-
-    private static async Task<IResult> Bar(HttpContext context)
-    {
-        if (!CheckEmail(context, out var email))
-            return TypedResults.Forbid();
-
-        var service = context.RequestServices.GetRequiredService<ChatHistoryService>();
-        await service.ClearAllHistory(email);
-
-        return TypedResults.Ok();
-    }
-
-    private static bool CheckEmail(HttpContext context, out string email)
-    {
-        email = context.User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")?.Value ?? "";
-        return !string.IsNullOrWhiteSpace(email);
     }
 }

@@ -9,24 +9,42 @@ namespace Application.Services;
 public class ChatHistoryService
 {
     private readonly IRulesContext _context;
+    private readonly ICurrentUserService _currentUserService;
     private readonly SemanticKernelService _semanticKernelService;
 
-    public ChatHistoryService(IRulesContext context, SemanticKernelService semanticKernelService)
+    private string Email
+    {
+        get
+        {
+            var email = _currentUserService.GetEmail();
+            if (email == null)
+                throw new ArgumentException("No email found for user!");
+            
+            return email;
+        }
+    }
+
+    public ChatHistoryService(
+        IRulesContext context, 
+        ICurrentUserService currentUserService,
+        SemanticKernelService semanticKernelService)
     {
         _context = context;
+        _currentUserService = currentUserService;
         _semanticKernelService = semanticKernelService;
     }
 
-    public ConversationHistoryModel? GetConversation(int id, string email)
+    public ConversationHistoryModel? GetConversation(int id)
     {
+        
         return _context.ConversationHistories
-            .FirstOrDefault(s => s.Id == id && s.User == email);
+            .FirstOrDefault(s => s.Id == id && s.User == Email);
     }
 
-    public IEnumerable<ChatHistoryDetail> GetConversations(string user)
+    public IEnumerable<ChatHistoryDetail> GetConversations()
     {
         return _context.ConversationHistories
-            .Where(s => s.User == user)
+            .Where(s => s.User == Email)
             .OrderByDescending(s => s.Date)
             .Select(s =>
                 new ChatHistoryDetail
@@ -36,7 +54,7 @@ public class ChatHistoryService
                 });
     }
 
-    public async Task AddConversation(string email, string conversation, string firstMessage)
+    public async Task AddConversation(string conversation, string firstMessage)
     {
         ValidateConversation(conversation);
 
@@ -53,18 +71,18 @@ public class ChatHistoryService
                 Date = DateTimeOffset.Now.ToUniversalTime(),
                 ConversationTitle = title,
                 Conversation = conversation,
-                User = email,
+                User = Email,
                 SchemaVersion = 1,
             });
 
         await _context.SaveChangesAsync();
     }
 
-    public async Task UpdateConversation(int id, string email, string conversation)
+    public async Task UpdateConversation(int id, string conversation)
     {
         ValidateConversation(conversation);
 
-        var record = _context.ConversationHistories.FirstOrDefault(s => s.Id == id && s.User == email);
+        var record = _context.ConversationHistories.FirstOrDefault(s => s.Id == id && s.User == Email);
         if (record == null)
             throw new ArgumentException("Conversation not found");
         
@@ -74,10 +92,10 @@ public class ChatHistoryService
         await _context.SaveChangesAsync();
     }
 
-    public async Task ClearAllHistory(string email)
+    public async Task ClearAllHistory()
     {
         _context.ConversationHistories.RemoveRange(
-            _context.ConversationHistories.Where(s => s.User == email));
+            _context.ConversationHistories.Where(s => s.User == Email));
         
         await _context.SaveChangesAsync();
     }

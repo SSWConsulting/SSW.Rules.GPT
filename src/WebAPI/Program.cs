@@ -8,8 +8,7 @@ using WebAPI.SignalR;
 var builder = WebApplication.CreateBuilder(args);
 
 const string RulesGptCorsPolicy = nameof(RulesGptCorsPolicy);
-const string ChatHistoryPolicy = "chatHistoryPolicy";
-
+const string ChatHistoryPolicy = nameof(ChatHistoryPolicy);
 
 var signingAuthority = builder.Configuration.GetValue<string>("SigningAuthority");
 
