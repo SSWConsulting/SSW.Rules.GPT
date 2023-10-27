@@ -17,7 +17,6 @@ public static class DependencyInjection
         services.AddSingleton<PruningService>();
         services.AddSingleton<TokenService>();
         services.AddSingleton<OpenAiServiceFactory>();
-        services.AddSingleton<SemanticKernelService>();
 
         return services;
     }

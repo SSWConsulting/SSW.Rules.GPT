@@ -10,7 +10,7 @@ public class ChatHistoryService
 {
     private readonly IRulesContext _context;
     private readonly ICurrentUserService _currentUserService;
-    private readonly SemanticKernelService _semanticKernelService;
+    private readonly ISemanticKernelService _semanticKernelService;
 
     private string Email
     {
@@ -27,7 +27,7 @@ public class ChatHistoryService
     public ChatHistoryService(
         IRulesContext context, 
         ICurrentUserService currentUserService,
-        SemanticKernelService semanticKernelService)
+        ISemanticKernelService semanticKernelService)
     {
         _context = context;
         _currentUserService = currentUserService;

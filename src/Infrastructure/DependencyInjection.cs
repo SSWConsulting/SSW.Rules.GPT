@@ -18,6 +18,7 @@ public static class DependencyInjection
     {
         services.AddSingleton<IOpenAiChatCompletionsService, OpenAiChatCompletionsService>();
         services.AddSingleton<IOpenAiEmbeddingService, OpenAiEmbeddingService>();
+        services.AddSingleton<ISemanticKernelService, SemanticKernelService>();
 
         var connectionString = config.GetConnectionString("DefaultConnection");
 

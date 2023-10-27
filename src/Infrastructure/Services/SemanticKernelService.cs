@@ -1,9 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Application.Contracts;
+using Microsoft.Extensions.Configuration;
 using Microsoft.SemanticKernel;
 
-namespace Application.Services;
+namespace Infrastructure.Services;
 
-public class SemanticKernelService
+public class SemanticKernelService : ISemanticKernelService
 {
     private readonly IKernel _kernel;
     private readonly ISKFunction _titleFunction;
