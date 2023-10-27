@@ -38,8 +38,8 @@ public static class ConversationHistoryRoutes
                 "/Conversation",
                 async (ChatHistoryService historyService, string conversation, string firstMessage) =>
                 {
-                    //TODO: Return ID of newly created row to frontend
-                    await historyService.AddConversation(conversation, firstMessage);
+                    var id = await historyService.AddConversation(conversation, firstMessage);
+                    return TypedResults.Ok(id);
                 })
             .WithName("AddConversationHistory")
             .RequireAuthorization(ChatHistoryPolicy);

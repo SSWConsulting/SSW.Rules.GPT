@@ -118,9 +118,12 @@ public class MessagingService
 
             if (_dataState.Conversation.Id != null)
                 await _rulesGptClient.UpdateConversationAsync(_dataState.Conversation.Id.Value, serialized);
-            
+
             else
-                await _rulesGptClient.AddConversationHistoryAsync(serialized, _dataState.Conversation.CurrentThread.FirstOrDefault()?.Message.Content);
+            {
+                var id = await _rulesGptClient.AddConversationHistoryAsync(serialized, _dataState.Conversation.CurrentThread.FirstOrDefault()?.Message.Content);
+                _dataState.Conversation.Id = id;
+            }
         }
         
         await _notifierService.Update();

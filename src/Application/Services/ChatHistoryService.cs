@@ -53,7 +53,7 @@ public class ChatHistoryService
                 });
     }
 
-    public async Task AddConversation(string conversation, string firstMessage)
+    public async Task<int> AddConversation(string conversation, string firstMessage)
     {
         ValidateConversation(conversation);
 
@@ -64,7 +64,7 @@ public class ChatHistoryService
         if (string.IsNullOrWhiteSpace(title))
             title = "New conversation";
 
-        _context.ConversationHistories.Add(
+        var newConversation = _context.ConversationHistories.Add(
             new ConversationHistoryModel
             {
                 Date = DateTimeOffset.Now.ToUniversalTime(),
@@ -75,6 +75,7 @@ public class ChatHistoryService
             });
 
         await _context.SaveChangesAsync();
+        return newConversation.Entity.Id;
     }
 
     public async Task UpdateConversation(int id, string conversation)
