@@ -13,7 +13,7 @@ public static class ConversationHistoryRoutes
         
         routeGroup
             .MapGet(
-                "/ConversationById",
+                "/Conversation/{id}",
                 async (ChatHistoryService historyService, int id) =>
                 {
                     var results = historyService.GetConversation(id);
@@ -24,7 +24,7 @@ public static class ConversationHistoryRoutes
         
         routeGroup
             .MapGet(
-                "/ConversationsForUser",
+                "/Conversations",
                 async (ChatHistoryService historyService) =>
                 {
                     var results = historyService.GetConversations();
@@ -46,7 +46,7 @@ public static class ConversationHistoryRoutes
         
         routeGroup
             .MapPut(
-                "/Conversation", 
+                "/Conversation{id}", 
                 async (ChatHistoryService historyService, int id, string conversation) =>
                 {
                     await historyService.UpdateConversation(id, conversation);
