@@ -99,6 +99,7 @@ public class ChatHistoryService
         await _context.SaveChangesAsync();
     }
 
+    //Checks that the conversation is a valid JSON object
     private static void ValidateConversation(string conversation)
     {
         var deserialized = JsonConvert.DeserializeObject<ChatLinkedList>(conversation);
