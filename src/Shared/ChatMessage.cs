@@ -2,6 +2,7 @@
 
 public class ChatMessage
 {
+    //Required for deserialization
     public ChatMessage() { }
 
     public ChatMessage(OpenAI.GPT3.ObjectModels.RequestModels.ChatMessage message)
