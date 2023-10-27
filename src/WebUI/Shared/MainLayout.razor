@@ -146,7 +146,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-    //Will default to 'light' if no stored value is found
+        //Will default to 'light' if no stored value is found
         themePreference = await Storage.GetItemAsync<ThemePreference>("DarkModePreference");
         SetThemePreference(themePreference);
 
@@ -156,7 +156,7 @@
         }
         catch (HttpRequestException e)
         {
-    // Display error message
+            // Display error message
             Snackbar.Add("Unable to connect to SSW RulesGPT", Severity.Error);
         }
 
@@ -167,7 +167,7 @@
         var savedAPIKey = await Storage.GetItemAsync<string>("userAPIKey");
         var savedModel = await Storage.GetItemAsync<string>("userGptModel");
 
-    //useSavedKey should be ignored if there is no key saved
+        //useSavedKey should be ignored if there is no key saved
         if (!string.IsNullOrEmpty(savedAPIKey) && useSavedKeyParsed && useSavedKey)
         {
             DataState.ApiKeyString = savedAPIKey;
