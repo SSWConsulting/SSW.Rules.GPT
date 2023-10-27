@@ -14,11 +14,9 @@ public static class ConversationHistoryRoutes
         routeGroup
             .MapGet(
                 "/ConversationById",
-                async (HttpContext context, int id) =>
+                async (ChatHistoryService historyService, int id) =>
                 {
-                    var service = context.RequestServices.GetRequiredService<ChatHistoryService>();
-                    var results = service.GetConversation(id);
-                    
+                    var results = historyService.GetConversation(id);
                     return TypedResults.Ok(results);
                 })
             .WithName("GetConversationById")
@@ -27,11 +25,9 @@ public static class ConversationHistoryRoutes
         routeGroup
             .MapGet(
                 "/ConversationsForUser",
-                async (HttpContext context) =>
+                async (ChatHistoryService historyService) =>
                 {
-                    var service = context.RequestServices.GetRequiredService<ChatHistoryService>();
-                    var results = service.GetConversations();
-                    
+                    var results = historyService.GetConversations();
                     return TypedResults.Ok(results);
                 })
             .WithName("GetConversationsForUser")
@@ -40,12 +36,10 @@ public static class ConversationHistoryRoutes
         routeGroup
             .MapPost(
                 "/Conversation",
-                async (HttpContext context, string conversation, string firstMessage) =>
+                async (ChatHistoryService historyService, string conversation, string firstMessage) =>
                 {
                     //TODO: Return ID of newly created row to frontend
-                    
-                    var service = context.RequestServices.GetRequiredService<ChatHistoryService>();
-                    await service.AddConversation(conversation, firstMessage);
+                    await historyService.AddConversation(conversation, firstMessage);
                 })
             .WithName("AddConversationHistory")
             .RequireAuthorization(ChatHistoryPolicy);
@@ -53,11 +47,9 @@ public static class ConversationHistoryRoutes
         routeGroup
             .MapPut(
                 "/Conversation", 
-                async (HttpContext context, int id, string conversation) =>
+                async (ChatHistoryService historyService, int id, string conversation) =>
                 {
-                    var service = context.RequestServices.GetRequiredService<ChatHistoryService>();
-                    await service.UpdateConversation(id, conversation);
-                    
+                    await historyService.UpdateConversation(id, conversation);
                     return TypedResults.Ok();
                 })
             .WithName("UpdateConversation")
@@ -66,11 +58,9 @@ public static class ConversationHistoryRoutes
         routeGroup
             .MapDelete(
                 "/Conversations",
-                async (HttpContext context) =>
+                async (ChatHistoryService historyService) =>
                 {
-                    var service = context.RequestServices.GetRequiredService<ChatHistoryService>();
-                    await service.ClearAllHistory();
-
+                    await historyService.ClearAllHistory();
                     return TypedResults.Ok();
                 })
             .WithName("DeleteAllConversations")
