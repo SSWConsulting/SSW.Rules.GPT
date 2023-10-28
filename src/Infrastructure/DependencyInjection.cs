@@ -1,4 +1,5 @@
 ﻿using Application.Contracts;
+using Infrastructure.Options;
 using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -16,6 +17,8 @@ public static class DependencyInjection
         IConfiguration config
     )
     {
+        services.Configure<AzureOpenAiOptions>(config.GetSection(AzureOpenAiOptions.Section));
+        
         services.AddSingleton<IOpenAiChatCompletionsService, OpenAiChatCompletionsService>();
         services.AddSingleton<IOpenAiEmbeddingService, OpenAiEmbeddingService>();
         services.AddSingleton<ISemanticKernelService, SemanticKernelService>();

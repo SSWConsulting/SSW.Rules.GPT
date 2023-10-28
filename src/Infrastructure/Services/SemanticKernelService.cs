@@ -1,5 +1,6 @@
 ﻿using Application.Contracts;
-using Microsoft.Extensions.Configuration;
+using Infrastructure.Options;
+using Microsoft.Extensions.Options;
 using Microsoft.SemanticKernel;
 
 namespace Infrastructure.Services;
@@ -9,13 +10,10 @@ public class SemanticKernelService : ISemanticKernelService
     private readonly IKernel _kernel;
     private readonly ISKFunction _titleFunction;
 
-    public SemanticKernelService(IConfiguration configuration)
+    public SemanticKernelService(IOptions<AzureOpenAiOptions> azureOpenAiOptions)
     {
-        var key = configuration.GetValue<string>("AzureOpenAiApiKey");
-        var endpoint = configuration.GetValue<string>("AzureOpenAiEndpoint");
-        
         _kernel = Kernel.Builder
-            .WithAzureChatCompletionService("GPT4", endpoint, key)
+            .WithAzureChatCompletionService("GPT4", azureOpenAiOptions.Value.Endpoint, azureOpenAiOptions.Value.ApiKey)
             .Build();
 
         _titleFunction = _kernel.CreateSemanticFunction("Create a simple three word title for a conversation about '{{$input}}'. Return only plain text with no quotation marks. Use simple and short words.");
