@@ -12,6 +12,9 @@ public class ChatHistoryService
     private readonly ICurrentUserService _currentUserService;
     private readonly ISemanticKernelService _semanticKernelService;
 
+    //This is unlikely to change but if it ends up being used extract into a separate class
+    private const int CurrentSchemaVersion = 1;
+    
     private string Email
     {
         get
@@ -71,7 +74,7 @@ public class ChatHistoryService
                 ConversationTitle = title,
                 Conversation = conversation,
                 User = Email,
-                SchemaVersion = 1,
+                SchemaVersion = CurrentSchemaVersion,
             });
 
         await _context.SaveChangesAsync();
