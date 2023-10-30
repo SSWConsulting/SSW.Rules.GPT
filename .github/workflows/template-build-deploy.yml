@@ -101,9 +101,9 @@ jobs:
           path: ./publish/ui
 
   deploy-api:
+    if: ${{ vars.TAKE_APP_OFFLINE != 'TRUE' }}
     runs-on: ubuntu-latest
     needs: build
-    if: ${{ vars.TAKE_APP_OFFLINE != 'TRUE' }}
     
     environment:
       name: ${{ inputs.githubEnvironment }}
