@@ -81,12 +81,14 @@ jobs:
         run: dotnet build --configuration Release
 
       - name: dotnet publish WebAPI
+        if: ${{ vars.TAKE_APP_OFFLINE != 'TRUE' }}
         run: dotnet publish ./src/WebAPI -c Release --no-build --no-restore -o ./publish/api
 
       - name: dotnet publish WebUI
         run: dotnet publish ./src/WebUI -c Release --no-build --no-restore -o ./publish/ui
 
       - name: Upload API artifact for deployment job
+        if: ${{ vars.TAKE_APP_OFFLINE != 'TRUE' }}
         uses: actions/upload-artifact@v3.1.2
         with:
           name: .net-app-api
@@ -101,6 +103,7 @@ jobs:
   deploy-api:
     runs-on: ubuntu-latest
     needs: build
+    if: ${{ vars.TAKE_APP_OFFLINE != 'TRUE' }}
     
     environment:
       name: ${{ inputs.githubEnvironment }}
@@ -138,7 +141,25 @@ jobs:
         uses: actions/download-artifact@v3.0.2
         with:
           name: .net-app-webui
-  
+    
+      - name: Check for App Offline
+        id: app_offline
+        shell: pwsh
+        run: |
+            Set-Location "wwwroot"
+            if ($env:TAKE_APP_OFFLINE -eq "TRUE")
+            {
+              Remove-Item -Path "index.html" -Force
+              Move-Item -Path "app_offline-template.htm" -Destination "index.html"
+            }
+            else
+            {
+              Remove-Item -Path "app_offline-template.htm" -Force
+            }
+        #working-directory: .net-app-webui
+        env:
+          TAKE_APP_OFFLINE: ${{ vars.TAKE_APP_OFFLINE }}
+
       # Log in to Azure
       - name: Azure Login
         uses: azure/login@v1
