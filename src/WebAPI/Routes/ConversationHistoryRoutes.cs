@@ -46,7 +46,7 @@ public static class ConversationHistoryRoutes
         
         routeGroup
             .MapPut(
-                "/Conversation{id}", 
+                "/Conversation/{id}", 
                 async (ChatHistoryService historyService, int id, string conversation) =>
                 {
                     await historyService.UpdateConversation(id, conversation);
