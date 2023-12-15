@@ -150,6 +150,10 @@ resource backendAppService 'Microsoft.Web/sites@2020-06-01' = {
       }
       appSettings: [
         {
+          name: 'AZURE_CLIENT_ID'
+          value: managedIdentity.properties.clientId
+        }
+        {
           name: 'AllowedCORSOrigins'
           value: allowedCors
         }
