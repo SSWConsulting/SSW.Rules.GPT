@@ -118,10 +118,10 @@ resource backendAppService 'Microsoft.Web/sites@2020-06-01' = {
   }
   properties: {
     serverFarmId: hostingPlan.id
+    reserved: true
     siteConfig: {
       numberOfWorkers: 1
-      netFrameworkVersion: '7.0'
-
+      linuxFxVersion: 'DOTNETCORE|7.0'
       alwaysOn: false
       http20Enabled: false
       cors: {
