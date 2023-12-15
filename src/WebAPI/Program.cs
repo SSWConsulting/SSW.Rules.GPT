@@ -51,11 +51,11 @@ builder.Services.AddWebApi(builder.Configuration, RulesGptCorsPolicy);
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
+//if (app.Environment.IsDevelopment())
+//{
     app.UseOpenApi();
     app.UseSwaggerUi3();
-}
+//}
 
 app.UseCors(RulesGptCorsPolicy);
 app.UseHttpsRedirection();
