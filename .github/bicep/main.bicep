@@ -23,7 +23,7 @@ var prodEnvironmentName = environment == 'prod' ? '' : '-${environment}'
 
 //Can't contain uppercase letters or special characters
 var storageAccountName = toLower(take(replace('sa${appName}${environment}', '-', ''), 24))
-var keyVaultName = 'kv-${appName}${prodEnvironmentName}'
+var keyVaultName = 'kv-${appName}-${environment}'
 var tenantId = subscription().tenantId
 
 var apiAppName = 'ssw-${appName}-api${prodEnvironmentName}'
