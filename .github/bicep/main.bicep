@@ -109,6 +109,7 @@ resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-
 resource backendAppService 'Microsoft.Web/sites@2020-06-01' = {
   name: apiAppName
   location: location
+  kind: 'app,linux'
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -120,6 +121,7 @@ resource backendAppService 'Microsoft.Web/sites@2020-06-01' = {
     siteConfig: {
       numberOfWorkers: 1
       netFrameworkVersion: '7.0'
+
       alwaysOn: false
       http20Enabled: false
       cors: {
