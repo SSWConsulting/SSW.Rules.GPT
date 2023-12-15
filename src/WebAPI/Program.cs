@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Application;
 using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -31,7 +32,7 @@ builder.Services.AddAuthentication(options =>
 
             // If the request is for our hub...
             var path = context.HttpContext.Request.Path;
-            
+
             if (!string.IsNullOrEmpty(accessToken) &&
                 (path.StartsWithSegments("/ruleshub")))
             {
