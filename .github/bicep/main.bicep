@@ -85,29 +85,6 @@ resource kv 'Microsoft.KeyVault/vaults@2021-11-01-preview' = {
   }
 }
 
-resource keyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01' = {
-  parent: kv
-  name: 'add'
-  properties: {
-    accessPolicies: [
-      {
-        objectId: backendAppService.identity.principalId
-        tenantId: subscription().tenantId
-        permissions: {
-          secrets: [
-            'list'
-            'get'
-          ]
-          keys: [
-            'list'
-            'get'
-          ]
-        }
-      }
-    ]
-  }
-}
-
 resource dbSecret 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
   parent: kv
   name: 'ConnectionStrings--DefaultConnection'
@@ -186,16 +163,22 @@ resource backendAppService 'Microsoft.Web/sites@2020-06-01' = {
   }
 }
 
-resource accessPolicies 'Microsoft.KeyVault/vaults/accessPolicies@2019-09-01' = {
-  name: '${keyVaultName}/add'
+resource keyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01' = {
+  parent: kv
+  name: 'add'
   properties: {
     accessPolicies: [
       {
         objectId: managedIdentity.id
-        tenantId: tenant().tenantId
+        tenantId: subscription().tenantId
         permissions: {
           secrets: [
-            'Get'
+            'list'
+            'get'
+          ]
+          keys: [
+            'list'
+            'get'
           ]
         }
       }
