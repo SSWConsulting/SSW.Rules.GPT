@@ -134,6 +134,9 @@ resource backendAppService 'Microsoft.Web/sites@2020-06-01' = {
       netFrameworkVersion: 'v7.0'
       alwaysOn: false
       http20Enabled: false
+      cors: {
+        allowedOrigins: [ allowedCors ]
+      }
       appSettings: [
         {
           name: 'AllowedCORSOrigins'
