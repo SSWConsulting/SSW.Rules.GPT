@@ -169,7 +169,7 @@ resource keyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-
   properties: {
     accessPolicies: [
       {
-        objectId: managedIdentity.id
+        objectId: managedIdentity.properties.principalId
         tenantId: subscription().tenantId
         permissions: {
           secrets: [
