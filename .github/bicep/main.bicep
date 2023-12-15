@@ -106,7 +106,7 @@ resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-
   location: location
 }
 
-resource backendAppService 'Microsoft.Web/sites@2020-06-01' = {
+resource backendAppService 'Microsoft.Web/sites@2020-12-01' = {
   name: apiAppName
   location: location
   kind: 'app,linux'
@@ -119,6 +119,7 @@ resource backendAppService 'Microsoft.Web/sites@2020-06-01' = {
   properties: {
     serverFarmId: hostingPlan.id
     reserved: true
+    keyVaultReferenceIdentity: managedIdentity.id
     siteConfig: {
       numberOfWorkers: 1
       linuxFxVersion: 'DOTNETCORE|7.0'
