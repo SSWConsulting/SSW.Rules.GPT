@@ -119,7 +119,7 @@ resource backendAppService 'Microsoft.Web/sites@2020-06-01' = {
     serverFarmId: hostingPlan.id
     siteConfig: {
       numberOfWorkers: 1
-      netFrameworkVersion: 'v7.0'
+      netFrameworkVersion: '7.0'
       alwaysOn: false
       http20Enabled: false
       cors: {
