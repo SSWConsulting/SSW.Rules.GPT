@@ -29,6 +29,9 @@ var tenantId = subscription().tenantId
 var apiAppName = 'ssw-${appName}-api${prodEnvironmentName}'
 var frontendAppName = 'ssw-${appName}-webui${prodEnvironmentName}'
 var applicationInsightsName = 'ai-${appName}-${environment}'
+// identity
+var managedIdentityName = 'id-${apiAppName}'
+
 
 var lawName = 'laws-${appName}${prodEnvironmentName}'
 
@@ -121,11 +124,19 @@ resource openaiApiKeySecret 'Microsoft.KeyVault/vaults/secrets@2021-11-01-previe
   }
 }
 
+resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
+  name: managedIdentityName
+  location: location
+}
+
 resource backendAppService 'Microsoft.Web/sites@2020-06-01' = {
   name: apiAppName
   location: location
   identity: {
-    type: 'SystemAssigned'
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${managedIdentity.id}': {}
+    }
   }
   properties: {
     serverFarmId: hostingPlan.id
@@ -168,6 +179,23 @@ resource backendAppService 'Microsoft.Web/sites@2020-06-01' = {
         }
       ]
     }
+  }
+}
+
+resource accessPolicies 'Microsoft.KeyVault/vaults/accessPolicies@2019-09-01' = {
+  name: '${keyVaultName}/add'
+  properties: {
+    accessPolicies: [
+      {
+        objectId: managedIdentity.id
+        tenantId: tenant().tenantId
+        permissions: {
+          secrets: [
+            'Get'
+          ]
+        }
+      }
+    ]
   }
 }
 
