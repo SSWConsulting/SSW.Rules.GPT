@@ -29,8 +29,6 @@ var tenantId = subscription().tenantId
 var apiAppName = 'ssw-${appName}-api${prodEnvironmentName}'
 var frontendAppName = 'ssw-${appName}-webui${prodEnvironmentName}'
 var applicationInsightsName = 'ai-${appName}-${environment}'
-// identity
-var managedIdentityName = 'id-${apiAppName}'
 
 
 var lawName = 'laws-${appName}${prodEnvironmentName}'
@@ -54,7 +52,7 @@ resource hostingPlan 'Microsoft.Web/serverfarms@2021-03-01' existing = {
   scope: resourceGroup(hostingPlanRgName)
 }
 
-resource kv 'Microsoft.KeyVault/vaults@2021-11-01-preview' = {
+resource kv 'Microsoft.KeyVault/vaults@2023-07-01' = {
   name: keyVaultName
   location: location
   properties: {
@@ -64,16 +62,6 @@ resource kv 'Microsoft.KeyVault/vaults@2021-11-01-preview' = {
     tenantId: tenantId
     enableSoftDelete: true
     softDeleteRetentionInDays: 90
-    accessPolicies: [
-    {
-        objectId: objectId
-        tenantId: tenantId
-        permissions: {
-          keys: [ 'get', 'list' ]
-          secrets: [ 'get', 'list' ]
-        }
-      }
-    ]
     sku: {
       name: 'standard'
       family: 'A'
@@ -101,25 +89,16 @@ resource openaiApiKeySecret 'Microsoft.KeyVault/vaults/secrets@2021-11-01-previe
   }
 }
 
-resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
-  name: managedIdentityName
-  location: location
-}
-
 resource backendAppService 'Microsoft.Web/sites@2020-12-01' = {
   name: apiAppName
   location: location
   kind: 'app,linux'
   identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${managedIdentity.id}': {}
-    }
+    type: 'SystemAssigned'
   }
   properties: {
     serverFarmId: hostingPlan.id
     reserved: true
-    keyVaultReferenceIdentity: managedIdentity.id
     siteConfig: {
       numberOfWorkers: 1
       linuxFxVersion: 'DOTNETCORE|7.0'
@@ -129,10 +108,6 @@ resource backendAppService 'Microsoft.Web/sites@2020-12-01' = {
         allowedOrigins: [ allowedCors ]
       }
       appSettings: [
-        {
-          name: 'AZURE_CLIENT_ID'
-          value: managedIdentity.properties.clientId
-        }
         {
           name: 'AllowedCORSOrigins'
           value: allowedCors
@@ -166,13 +141,13 @@ resource backendAppService 'Microsoft.Web/sites@2020-12-01' = {
   }
 }
 
-resource keyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01' = {
+resource keyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2023-07-01' = {
   parent: kv
   name: 'add'
   properties: {
     accessPolicies: [
       {
-        objectId: managedIdentity.properties.principalId
+        objectId: backendAppService.identity.principalId
         tenantId: subscription().tenantId
         permissions: {
           secrets: [
