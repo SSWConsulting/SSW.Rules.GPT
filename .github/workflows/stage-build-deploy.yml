@@ -6,14 +6,22 @@ on:
       - main
   workflow_dispatch:
 
-jobs: 
+jobs:
   call-reusable-build-and-deploy:
     uses: ./.github/workflows/template-build-deploy.yml
     with:
-      environment: 'Staging'
-      AzureWebAppName: 'ssw-rulesgpt-api-stage'
+      githubEnvironment: 'Staging'
+      deployEnvironment: 'stage'
+      
+      AppName: ${{ vars.APP_NAME }}
     
     secrets:
-      AzureWebAppSecret: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_706C909B7DCB4379927A9D3AF3D8B5EF }}
-      AzureStaticWebAppsApiToken: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_ASHY_MEADOW_0A2BAD900 }}
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      AZURE_SUBSCRIPTION: ${{ secrets.AZURE_SUBSCRIPTION }}
+      AZURE_RG: ${{ secrets.AZURE_RG }}
+      CLIENT_ID: ${{ secrets.CLIENT_ID }}
+      
+      ConnectionString: ${{ secrets.CONNECTION_STRING }}
+      OpenAiApiKey: ${{ secrets.OPENAI_API_KEY }}
+      
       GithubRepoToken: ${{ secrets.GITHUB_TOKEN }}
