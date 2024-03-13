@@ -9,6 +9,7 @@ using WebAPI.SignalR;
 var builder = WebApplication.CreateBuilder(args);
 
 const string RulesGptCorsPolicy = nameof(RulesGptCorsPolicy);
+const string ChatHistoryPolicy = nameof(ChatHistoryPolicy);
 
 var signingAuthority = builder.Configuration.GetValue<string>("SigningAuthority");
 
@@ -45,6 +46,11 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddAuthorizationBuilder().AddPolicy(ChatHistoryPolicy, policy =>
+{
+    policy.RequireAuthenticatedUser();
+});
+
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddWebApi(builder.Configuration, RulesGptCorsPolicy);
@@ -63,8 +69,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapAuthRoutes();
 app.MapLeaderboardRoutes();
+app.MapConversationRoutes();
 app.MapHub<RulesHub>("/ruleshub");
 
 app.Logger.LogInformation("Starting WebAPI");

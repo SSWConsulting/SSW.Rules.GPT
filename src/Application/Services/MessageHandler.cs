@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text.Json;
 using OpenAI.GPT3.ObjectModels;
-using OpenAI.GPT3.ObjectModels.RequestModels;
+using SharedClasses;
 
 namespace Application.Services;
 
@@ -20,7 +20,7 @@ public class MessageHandler
     }
 
     public async IAsyncEnumerable<ChatMessage?> Handle(
-        List<ChatMessage> messageList,
+        List<SharedClasses.ChatMessage> messageList,
         string? apiKey,
         Models.Model gptModel,
         [EnumeratorCancellation] CancellationToken cancellationToken

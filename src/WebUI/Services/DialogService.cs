@@ -3,11 +3,11 @@ using WebUI.Components;
 
 namespace WebUI.Services;
 
-public class SswRulesGptDialogService
+public class DialogService
 {
     private readonly IDialogService _dialogService;
 
-    public SswRulesGptDialogService(IDialogService dialogService)
+    public DialogService(IDialogService dialogService)
     {
         _dialogService = dialogService;
     }

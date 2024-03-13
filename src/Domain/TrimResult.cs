@@ -1,4 +1,4 @@
-﻿using OpenAI.GPT3.ObjectModels.RequestModels;
+﻿using SharedClasses;
 
 namespace Domain;
 

@@ -1,9 +1,7 @@
 ﻿using Application.Contracts;
 using Application.Services;
 using Microsoft.Extensions.Configuration;
-using OpenAI.GPT3;
 using OpenAI.GPT3.Interfaces;
-using OpenAI.GPT3.Managers;
 using OpenAI.GPT3.ObjectModels;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 using OpenAI.GPT3.ObjectModels.ResponseModels;

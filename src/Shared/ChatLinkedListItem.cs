@@ -1,10 +1,13 @@
-﻿using OpenAI.GPT3.ObjectModels.RequestModels;
-using WebUI.Models;
+﻿using System.Text.Json.Serialization;
+using OpenAI.GPT3.ObjectModels.RequestModels;
 
-namespace WebUI.Classes;
+namespace SharedClasses;
 
 public class ChatLinkedListItem
 {
+    //Required for deserialization
+    public ChatLinkedListItem() { }
+
     public ChatLinkedListItem(ChatMessage message, AvailableGptModels gptModel)
     {
         Message = message;
@@ -26,6 +29,7 @@ public class ChatLinkedListItem
         GptModel = gptModel;
     }
 
+    [JsonIgnore]
     public int LeftCount
     {
         get
@@ -42,6 +46,7 @@ public class ChatLinkedListItem
         }
     }
 
+    [JsonIgnore]
     public int RightCount
     {
         get
@@ -58,9 +63,9 @@ public class ChatLinkedListItem
         }
     }
 
-    public ChatMessage Message { get; }
+    public ChatMessage Message { get; set; }
     public AvailableGptModels GptModel { get; set; }
-    public ChatLinkedListItem? Previous { get; }
+    public ChatLinkedListItem? Previous { get; set; }
     public ChatLinkedListItem? Next { get; set; }
     public ChatLinkedListItem? Left { get; set; }
     public ChatLinkedListItem? Right { get; set; }
