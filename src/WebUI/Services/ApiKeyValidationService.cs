@@ -2,7 +2,9 @@
 using OpenAI.GPT3.Managers;
 using OpenAI.GPT3.ObjectModels;
 using OpenAI.GPT3.ObjectModels.RequestModels;
+using SharedClasses;
 using WebUI.Classes;
+using ChatMessage = OpenAI.GPT3.ObjectModels.RequestModels.ChatMessage;
 
 namespace WebUI.Services;
 

@@ -22,8 +22,8 @@ public class ChatCompletionsService
         _logger = logger;
     }
 
-    public async IAsyncEnumerable<ChatMessage?> RequestNewCompletionMessage(
-        List<ChatMessage> messageList,
+    public async IAsyncEnumerable<SharedClasses.ChatMessage?> RequestNewCompletionMessage(
+        List<SharedClasses.ChatMessage> messageList,
         string? apiKey,
         Models.Model gptModel,
         [EnumeratorCancellation] CancellationToken cancellationToken
@@ -33,7 +33,7 @@ public class ChatCompletionsService
 
         if (trimResult.InputTooLong)
         {
-            yield return new ChatMessage(
+            yield return new SharedClasses.ChatMessage(
                 "assistant",
                 "⚠️ Message too long! Please shorten your message and try again."
             );
@@ -42,7 +42,7 @@ public class ChatCompletionsService
         
         var chatCompletionCreateRequest = new ChatCompletionCreateRequest
         {
-            Messages = trimResult.Messages,
+            Messages = trimResult.Messages.Select(s => new ChatMessage(s.Role, s.Content, s.Name)).ToList(),
             MaxTokens = trimResult.RemainingTokens,
             Temperature = 0.5F
         };
@@ -70,7 +70,8 @@ public class ChatCompletionsService
                     _logger.LogInformation("{FinishReason}", finishReason);
                 }
 
-                yield return completion.Choices.FirstOrDefault()?.Message;
+                var message = completion.Choices.FirstOrDefault()?.Message;
+                yield return new SharedClasses.ChatMessage(message);
             }
             else
             {
@@ -85,7 +86,7 @@ public class ChatCompletionsService
 
                 if (gptModel == Models.Model.Gpt_4)
                 {
-                    yield return new ChatMessage("assistant", "⚠️ *GPT-4 Request failed, reverting to GPT-3.5 Turbo.*" + Environment.NewLine);
+                    yield return new SharedClasses.ChatMessage("assistant", "⚠️ *GPT-4 Request failed, reverting to GPT-3.5 Turbo.*" + Environment.NewLine);
                     await foreach (
                         var chatMessage in RequestNewCompletionMessage(messageList, apiKey,
                             Models.Model.ChatGpt3_5Turbo,
@@ -97,7 +98,7 @@ public class ChatCompletionsService
                 
                 else
                 {
-                    yield return new ChatMessage("assistant", "❌ **OpenAI API request failed. Please try again later.**");
+                    yield return new SharedClasses.ChatMessage("assistant", "❌ **OpenAI API request failed. Please try again later.**");
                 }
                 
             }

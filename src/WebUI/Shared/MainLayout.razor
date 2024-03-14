@@ -1,7 +1,8 @@
 @using WebUI.Classes
+@using DialogService = WebUI.Services.DialogService
 @inherits LayoutComponentBase
 
-@inject SswRulesGptDialogService SswRulesGptDialogService
+@inject DialogService DialogService
 @inject DataState DataState
 @inject NotifierService NotifierService
 @inject SignalRClient SignalRClient
@@ -16,7 +17,9 @@
 <MudSnackbarProvider/>
 
 <MudLayout>
+    <ConversationHistory isDrawerOpen="@isDrawerOpen" />
     <MudAppBar Elevation="0">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         <a @onclick="ResetApplicationState" style="color: unset; cursor: pointer;">
             <MudStack Row="true" Spacing="0">
                 <MudStack Justify="Justify.Center" Class="pr-2">
@@ -116,9 +119,10 @@
     private MudThemeProvider _mudThemeProvider;
     private bool _isDarkMode;
     private bool systemIsDarkMode;
+    private bool isDrawerOpen = true;
 
     ThemePreference themePreference;
-
+    
     private readonly MudTheme _theme = new()
     {
         Palette = new PaletteLight
@@ -140,6 +144,11 @@
             BackgroundGrey = "#3E4446"
         }
     };
+    
+    private void DrawerToggle()
+    {
+        isDrawerOpen = !isDrawerOpen;
+    }
 
     private void SetThemePreference(ThemePreference preference)
     {
@@ -184,7 +193,6 @@
         if (!string.IsNullOrEmpty(savedAPIKey) && useSavedKeyParsed && useSavedKey)
         {
             DataState.ApiKeyString = savedAPIKey;
-            DataState.UsingByoApiKey = true;
             DataState.SavingByoApiKey = true;
         }
 
@@ -199,11 +207,11 @@
         Snackbar.Add($"Too many messages sent! Try again in {retryAfter} seconds.", Severity.Error);
         await NotifierService.CancelMessageStream();
 
-        var lastMessage = DataState.CurrentMessageThread.Last(s => s.Message.Role == "user");
+        var lastMessage = DataState.Conversation.CurrentThread.Last(s => s.Message.Role == "user");
 
         DataState.NewMessageString = lastMessage.Message.Content;
-        DataState.ChatMessages.Remove(lastMessage);
-        DataState.CurrentMessageThread.Remove(lastMessage);
+        DataState.Conversation.ChatList.Remove(lastMessage);
+        DataState.Conversation.CurrentThread.Remove(lastMessage);
 
         StateHasChanged();
         await NotifierService.Update();
@@ -238,25 +246,22 @@
 
     private async Task OpenApiKeyDialog()
     {
-        await SswRulesGptDialogService.ApiKeyDialog();
+        await DialogService.ApiKeyDialog();
     }
 
     private async Task OpenAboutRulesGptDialog()
     {
-        await SswRulesGptDialogService.AboutRulesGptDialog();
+        await DialogService.AboutRulesGptDialog();
     }
 
     private async Task OpenInstallInstructionsDialog()
     {
-        await SswRulesGptDialogService.InstallInstructionsDialog();
+        await DialogService.InstallInstructionsDialog();
     }
 
     private async Task ResetApplicationState()
     {
-        await NotifierService.CancelMessageStream();
-        DataState.ChatMessages.Clear();
-        DataState.CurrentMessageThread.Clear();
-        await NotifierService.Update();
+        await DataState.ResetState();
         NavigationManager.NavigateTo("");
     }
 

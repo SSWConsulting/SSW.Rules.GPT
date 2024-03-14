@@ -4,15 +4,11 @@
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <RootNamespace>Shared</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Betalgo.OpenAI" Version="6.8.6" />
-        <PackageReference Include="Pgvector.EntityFrameworkCore" Version="0.1.1" />
+      <PackageReference Include="Betalgo.OpenAI" Version="6.8.6" />
     </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\Shared\Shared.csproj" />
-    </ItemGroup>
-    
 </Project>

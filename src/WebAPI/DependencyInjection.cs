@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Application.Contracts;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging.ApplicationInsights;
+using WebAPI.Services;
 using WebAPI.SignalR;
 
 namespace WebAPI;
@@ -11,6 +13,9 @@ public static class DependencyInjection
         IConfiguration configuration,
         string rulesGptCorsPolicy)
     {
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        
         services.AddSingleton<SignalRHubFilter>();
 
         services.AddSignalR(options => options.AddFilter<SignalRHubFilter>());

@@ -1,8 +1,8 @@
 ﻿using Application.Contracts;
 using Domain.DTOs;
 using OpenAI.GPT3.ObjectModels;
-using OpenAI.GPT3.ObjectModels.RequestModels;
 using Pgvector;
+using SharedClasses;
 
 namespace Application.Services;
 

@@ -1,10 +1,9 @@
-﻿using OpenAI.GPT3.ObjectModels.RequestModels;
-using WebUI.Models;
-
-namespace WebUI.Classes;
+﻿namespace SharedClasses;
 
 public class ChatLinkedList : List<ChatLinkedListItem>
 {
+    public ChatLinkedList() { }
+
     public ChatLinkedListItem Add(ChatMessage message, AvailableGptModels gptModel)
     {
         var newItem = new ChatLinkedListItem(message, gptModel);
@@ -51,7 +50,8 @@ public class ChatLinkedList : List<ChatLinkedListItem>
         var previous = item.Previous;
         var next = item.Next;
 
-        if (previous != null) previous.Next = next;
+        if (previous != null)
+            previous.Next = next;
 
         base.Remove(item);
     }
@@ -65,9 +65,11 @@ public class ChatLinkedList : List<ChatLinkedListItem>
             ? item.Left
             : item.Right;
 
-        if (target == null) return;
+        if (target == null)
+            return;
 
-        if (item.Previous != null) item.Previous.Next = target;
+        if (item.Previous != null)
+            item.Previous.Next = target;
     }
 
     public List<ChatLinkedListItem> GetThread(ChatLinkedListItem item)

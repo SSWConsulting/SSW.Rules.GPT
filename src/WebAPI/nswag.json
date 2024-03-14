@@ -73,7 +73,7 @@
       "generateExceptionClasses": true,
       "exceptionClass": "ApiException",
       "wrapDtoExceptions": true,
-      "useHttpClientCreationMethod": false,
+      "useHttpClientCreationMethod": true,
       "httpClientType": "System.Net.Http.HttpClient",
       "useHttpRequestMessageCreationMethod": false,
       "useBaseUrl": false,

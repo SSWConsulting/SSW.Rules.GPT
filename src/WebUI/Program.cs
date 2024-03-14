@@ -1,6 +1,7 @@
 using Blazor.Analytics;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor;
 using MudBlazor.Services;
@@ -8,6 +9,7 @@ using WebUI;
 using WebUI.Helpers;
 using WebUI.Models;
 using WebUI.Services;
+using DialogService = WebUI.Services.DialogService;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -24,9 +26,11 @@ builder.Services.AddSingleton<NotifierService>();
 builder.Services.AddSingleton<MarkdigPipelineService>();
 
 builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<SignalRClient>();
-builder.Services.AddScoped<SswRulesGptDialogService>();
+builder.Services.AddScoped<MessagingService>();
+builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<ApiKeyValidationService>();
+
+builder.Services.AddScoped<SignalRClient>();
 
 builder.Services.AddGoogleAnalytics(builder.Configuration.GetValue<string>("AnalyticsID"));
 builder.Services.AddBlazoredLocalStorage();
@@ -65,8 +69,13 @@ builder.Services
         ApiClient,
         client => client.BaseAddress = new Uri(apiBaseUrl ?? throw new InvalidOperationException())
     )
-    .AddHttpMessageHandler(sp => sp.GetRequiredService<CookieHandler>());
+    .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>().ConfigureHandler(
+        authorizedUrls: new[] { apiBaseUrl }
+    ));
 
-builder.Services.AddHttpClient<RulesGptClient>(ApiClient);
+builder.Services.AddHttpClient<RulesGptClient>(ApiClient)
+    .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>().ConfigureHandler(
+        authorizedUrls: new[] { apiBaseUrl }
+    ));
 
 await builder.Build().RunAsync();

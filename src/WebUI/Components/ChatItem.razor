@@ -1,9 +1,12 @@
 ﻿@using WebUI.Classes
-@using Direction = WebUI.Direction
+@using DialogService = WebUI.Services.DialogService
+@using Direction = SharedClasses.Direction
 @implements IDisposable
+
 @inject DataState DataState
 @inject NotifierService NotifierService
-@inject SswRulesGptDialogService SswRulesGptDialogService
+@inject MessagingService MessagingService
+@inject DialogService DialogService
 
 <style>
     .chat-box {
@@ -63,13 +66,13 @@
 
                         <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
                             <MudSpacer/>
-                            <MudIconButton Icon="@Icons.Material.Rounded.ChevronLeft" Size="Size.Small" Disabled="@(position == 1)" OnClick="() => OnMoveClicked(Direction.Left)"/>
+                            <MudIconButton Icon="@Icons.Material.Rounded.ChevronLeft" Size="Size.Small" Disabled="@(position == 1)" OnClick="() => DataState.MoveConversationLeft(MessageThreadItem)"/>
                             <MudText>
                                 @position
                                 <span style="color: #BDBDBD">/</span>
                                 @total
                             </MudText>
-                            <MudIconButton Icon="@Icons.Material.Rounded.ChevronRight" Size="Size.Small" Disabled="@(position == total)" OnClick="() => OnMoveClicked(Direction.Right)"/>
+                            <MudIconButton Icon="@Icons.Material.Rounded.ChevronRight" Size="Size.Small" Disabled="@(position == total)" OnClick="() => DataState.MoveConversationRight(MessageThreadItem)"/>
                         </MudStack>
                     }
                 </MudStack>
@@ -81,7 +84,7 @@
     }
     else
     {
-        <MudStack Class=@(DataState.IsAwaitingResponse && DataState.CurrentMessageThread.Last().Message == MessageThreadItem.Message ? "mb-12 mx-4" : "mx-4") Row="true">
+        <MudStack Class=@(DataState.IsAwaitingResponse && DataState.Conversation.CurrentThread.Last().Message == MessageThreadItem.Message ? "mb-12 mx-4" : "mx-4") Row="true">
             <MudAvatar>
                 <MudImage Src="images/chatgpt-icon.svg"></MudImage>
             </MudAvatar>
@@ -122,13 +125,11 @@
     public ChatLinkedListItem MessageThreadItem { get; set; } = default!;
 
     [Parameter]
-    public EventCallback<(ChatLinkedListItem, string)> OnEditSubmittedEvent { get; set; }
-
-    [Parameter]
     public EventCallback<(ChatLinkedListItem, Direction)> OnMoveClickedEvent { get; set; }
 
     private bool isUser;
     private bool isEditing;
+    
     private MultilineInput multilineInput;
 
     protected override async Task OnInitializedAsync()
@@ -158,21 +159,13 @@
         isEditing = false;
 
         if (message == MessageThreadItem.Message.Content)
-        {
             return;
-        }
 
-        await OnEditSubmittedEvent.InvokeAsync((MessageThreadItem, message));
-    }
-
-    private async Task OnMoveClicked(Direction direction)
-    {
-        await OnMoveClickedEvent.InvokeAsync((MessageThreadItem, direction));
+        await MessagingService.SendEditedMessage(MessageThreadItem, message);
     }
 
     public void Dispose()
     {
         NotifierService.Notify -= OnNotify;
     }
-
 }

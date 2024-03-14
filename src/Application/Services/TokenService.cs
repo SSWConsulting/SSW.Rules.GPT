@@ -1,8 +1,8 @@
 ﻿using OpenAI.GPT3.ObjectModels;
-using OpenAI.GPT3.ObjectModels.RequestModels;
 using SharpToken;
 using Domain;
 using Domain.DTOs;
+using SharedClasses;
 
 namespace Application.Services;
 
@@ -11,17 +11,17 @@ public class TokenService
     public const int Gpt3AllowedTokens = 4000;
     public const int Gpt4AllowedTokens = 8000;
 
-    public int GetTokenCount(ChatMessage message, Models.Model model) =>
-        GptEncoding.GetEncodingForModel(model.EnumToString()).Encode(message.Content).Count;
+    public int GetTokenCount(ChatMessage message, Models.Model model)
+        => GptEncoding.GetEncodingForModel(model.EnumToString()).Encode(message.Content).Count;
 
-    public int GetTokenCount(RuleDto message, Models.Model model) =>
-        GptEncoding.GetEncodingForModel(model.EnumToString()).Encode(message.Content).Count;
+    public int GetTokenCount(RuleDto message, Models.Model model)
+        => GptEncoding.GetEncodingForModel(model.EnumToString()).Encode(message.Content).Count;
 
-    public TokenResult GetTokenCount(List<ChatMessage> messageList, Models.Model model) =>
-        GetTokenCount(messageList.Select(m => m.Content).ToList(), model);
+    public TokenResult GetTokenCount(List<ChatMessage> messageList, Models.Model model)
+        => GetTokenCount(messageList.Select(m => m.Content).ToList(), model);
 
-    public TokenResult GetTokenCount(List<RuleDto> messageList, Models.Model model) =>
-        GetTokenCount(messageList.Select(m => m.Content).Cast<string>().ToList(), model);
+    public TokenResult GetTokenCount(List<RuleDto> messageList, Models.Model model)
+        => GetTokenCount(messageList.Select(m => m.Content).Cast<string>().ToList(), model);
 
     private TokenResult GetTokenCount(List<string> messageList, Models.Model model)
     {
