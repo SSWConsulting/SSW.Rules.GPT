@@ -145,7 +145,7 @@ resource keyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2023-07-
     accessPolicies: [
       {
         objectId: backendAppService.identity.principalId
-        tenantId: subscription().tenantId
+        tenantId: backendAppService.identity.tenantId
         permissions: {
           secrets: [
             'list'
