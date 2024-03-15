@@ -42,17 +42,17 @@ jobs:
     environment: ${{ inputs.githubEnvironment }}
     
     steps:
-      - uses: actions/checkout@v3.3.0
+      - uses: actions/checkout@v4
 
       # Log in to Azure
       - name: Azure Login
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           
       # Run Bicep
       - name: Deploy Bicep
-        uses: azure/arm-deploy@v1
+        uses: azure/arm-deploy@v2
         with:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           resourceGroupName: ${{ secrets.AZURE_RG }}
@@ -73,7 +73,7 @@ jobs:
           SigningAuthority: ${{ vars.SIGNING_AUTHORITY }}
 
       - name: Set up .NET Core
-        uses: actions/setup-dotnet@v3.0.3
+        uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
 
@@ -89,13 +89,13 @@ jobs:
 
       - name: Upload API artifact for deployment job
         if: ${{ vars.TAKE_APP_OFFLINE != 'TRUE' }}
-        uses: actions/upload-artifact@v3.1.2
+        uses: actions/upload-artifact@v4
         with:
           name: .net-app-api
           path: ./publish/api
 
       - name: Upload WebUI artifact for deployment job
-        uses: actions/upload-artifact@v3.1.2
+        uses: actions/upload-artifact@v4
         with:
           name: .net-app-webui
           path: ./publish/ui
@@ -111,21 +111,21 @@ jobs:
     steps:
       - name: Download artifact from build job
         if: ${{ vars.TAKE_APP_OFFLINE != 'TRUE' }}
-        uses: actions/download-artifact@v3.0.2
+        uses: actions/download-artifact@v4
         with:
           name: .net-app-api
 
       # Log in to Azure
       - name: Azure Login
         if: ${{ vars.TAKE_APP_OFFLINE != 'TRUE' }}
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Deploy to Azure Web App
         if: ${{ vars.TAKE_APP_OFFLINE != 'TRUE' }}
         id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
+        uses: azure/webapps-deploy@v3
         with:
           app-name: "${{ vars.AZURE_WEB_APP_NAME }}"
           package: .
@@ -140,7 +140,7 @@ jobs:
       
     steps:
       - name: Download artifact from build job
-        uses: actions/download-artifact@v3.0.2
+        uses: actions/download-artifact@v4
         with:
           name: .net-app-webui
     
@@ -164,21 +164,21 @@ jobs:
 
       # Log in to Azure
       - name: Azure Login
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           
       # TODO: Move to federated auth
           
       - name: Mask Deployment Token
-        uses: azure/CLI@v1
+        uses: azure/CLI@v2
         with:
           azcliversion: latest
           inlineScript: |
             echo "::add-mask::$(az staticwebapp secrets list -n ${{ vars.AZURE_STATIC_WEB_APP_NAME }} | jq -r '.properties.apiKey')"  
 
       - name: Retrieve Deployment Token
-        uses: azure/CLI@v1
+        uses: azure/CLI@v2
         with:
           azcliversion: latest
           inlineScript: |
