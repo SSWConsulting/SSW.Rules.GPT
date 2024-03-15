@@ -16,7 +16,7 @@ public static class ConversationHistoryRoutes
                 "/Conversation/{id}",
                 async (ChatHistoryService historyService, int id) =>
                 {
-                    var results = historyService.GetConversation(id);
+                    var results = await historyService.GetConversation(id);
                     return TypedResults.Ok(results);
                 })
             .WithName("GetConversationById")
@@ -27,7 +27,7 @@ public static class ConversationHistoryRoutes
                 "/Conversations",
                 async (ChatHistoryService historyService) =>
                 {
-                    var results = historyService.GetConversations();
+                    var results = await historyService.GetConversations();
                     return TypedResults.Ok(results);
                 })
             .WithName("GetConversationsForUser")

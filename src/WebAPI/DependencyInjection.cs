@@ -1,4 +1,5 @@
 ﻿using Application.Contracts;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging.ApplicationInsights;
 using WebAPI.Services;
@@ -59,6 +60,43 @@ public static class DependencyInjection
                             .AllowCredentials()
                 )
         );
+        
+        var signingAuthority = configuration.GetValue<string>("SigningAuthority");
+
+        services.AddAuthentication(options =>
+        {
+            // Identity made Cookie authentication the default.
+            // However, we want JWT Bearer Auth to be the default.
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(options =>
+        {
+            options.Authority = signingAuthority;
+            options.Audience = "rulesgpt";
+            options.TokenValidationParameters.ValidTypes = new[] { "at+jwt" };
+
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    var accessToken = context.Request.Query["access_token"];
+
+                    // If the request is for our hub...
+                    var path = context.HttpContext.Request.Path;
+
+                    if (!string.IsNullOrEmpty(accessToken) &&
+                        (path.StartsWithSegments("/ruleshub")))
+                    {
+                        // Read the token out of the query string
+                        context.Token = accessToken;
+                    }
+
+                    return Task.CompletedTask;
+                }
+            };
+        });
+
+        services.AddHealthChecks();
 
         return services;
     }

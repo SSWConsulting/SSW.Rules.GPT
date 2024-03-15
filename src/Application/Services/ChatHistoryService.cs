@@ -1,6 +1,7 @@
 ﻿using Application.Contracts;
 using Domain;
 using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using SharedClasses;
 
@@ -37,15 +38,15 @@ public class ChatHistoryService
         _semanticKernelService = semanticKernelService;
     }
 
-    public ConversationHistoryModel? GetConversation(int id)
+    public async Task<ConversationHistoryModel?> GetConversation(int id)
     {
-        return _context.ConversationHistories
-            .FirstOrDefault(s => s.Id == id && s.User == Email);
+        return await _context.ConversationHistories
+            .FirstOrDefaultAsync(s => s.Id == id && s.User == Email);
     }
 
-    public IEnumerable<ChatHistoryDetail> GetConversations()
+    public async Task<List<ChatHistoryDetail>> GetConversations()
     {
-        return _context.ConversationHistories
+        return await _context.ConversationHistories
             .Where(s => s.User == Email)
             .OrderByDescending(s => s.Date)
             .Select(s =>
@@ -53,7 +54,7 @@ public class ChatHistoryService
                 {
                     Id = s.Id,
                     ConversationTitle = s.ConversationTitle
-                });
+                }).ToListAsync();
     }
 
     public async Task<int> AddConversation(string conversation, string firstMessage)
@@ -85,7 +86,7 @@ public class ChatHistoryService
     {
         ValidateConversation(conversation);
 
-        var record = _context.ConversationHistories.FirstOrDefault(s => s.Id == id && s.User == Email);
+        var record = await _context.ConversationHistories.FirstOrDefaultAsync(s => s.Id == id && s.User == Email);
         if (record == null)
             throw new ArgumentException("Conversation not found");
         
@@ -111,8 +112,8 @@ public class ChatHistoryService
             throw new ArgumentException("Conversation is not valid JSON");
     }
     
-    private Task<string> GetConversationTitle(string firstMessage)
+    private async Task<string> GetConversationTitle(string firstMessage)
     {
-        return _semanticKernelService.GetConversationTitle(firstMessage);
+        return await _semanticKernelService.GetConversationTitle(firstMessage);
     }
 }

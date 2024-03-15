@@ -13,10 +13,9 @@ public static class LeaderboardRoutes
         routeGroup
             .MapGet(
                 "/getLeaderboardStats",
-                Ok<IEnumerable<LeaderboardUser>> (HttpContext context) =>
+                async Task<Ok<List<LeaderboardUser>>> (LeaderboardService leaderboardService) =>
                 {
-                    var service = context.RequestServices.GetRequiredService<LeaderboardService>();
-                    return TypedResults.Ok(service.GetLeaderboardStats());
+                    return TypedResults.Ok(await leaderboardService.GetLeaderboardStats());
                 }
             )
             .WithName("GetLeaderboardStats");
