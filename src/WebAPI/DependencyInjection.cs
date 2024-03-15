@@ -1,4 +1,5 @@
 ﻿using Application.Contracts;
+using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging.ApplicationInsights;
@@ -96,7 +97,7 @@ public static class DependencyInjection
             };
         });
 
-        services.AddHealthChecks();
+        services.AddHealthChecks().AddDbContextCheck<RulesContext>();
 
         return services;
     }

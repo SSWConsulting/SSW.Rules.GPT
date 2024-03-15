@@ -36,7 +36,7 @@ app.MapLeaderboardRoutes();
 app.MapConversationRoutes();
 app.MapHub<RulesHub>("/ruleshub");
 
-app.UseHealthChecks("/health");
+app.MapHealthChecks("/health");
 
 app.Logger.LogInformation("Starting WebAPI");
 app.Run();
