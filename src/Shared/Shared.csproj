@@ -1,14 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <RootNamespace>Shared</RootNamespace>
-    </PropertyGroup>
-
-    <ItemGroup>
-      <PackageReference Include="Betalgo.OpenAI" Version="6.8.6" />
-    </ItemGroup>
-
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<RootNamespace>Shared</RootNamespace>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Betalgo.OpenAI" Version="6.8.6" />
+	</ItemGroup>
 </Project>
