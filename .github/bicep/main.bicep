@@ -99,7 +99,7 @@ resource backendAppService 'Microsoft.Web/sites@2020-12-01' = {
     reserved: true
     siteConfig: {
       numberOfWorkers: 1
-      linuxFxVersion: 'DOTNETCORE|7.0'
+      linuxFxVersion: 'DOTNETCORE|8.0'
       alwaysOn: false
       http20Enabled: false
       cors: {
