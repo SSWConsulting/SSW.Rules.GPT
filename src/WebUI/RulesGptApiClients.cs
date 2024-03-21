@@ -71,8 +71,8 @@ namespace WebUI
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "getLeaderboardStats"
-                    urlBuilder_.Append("getLeaderboardStats");
+                    // Operation Path: "leaderboard/getLeaderboardStats"
+                    urlBuilder_.Append("leaderboard/getLeaderboardStats");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
