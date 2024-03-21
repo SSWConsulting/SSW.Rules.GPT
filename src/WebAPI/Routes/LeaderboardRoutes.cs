@@ -8,7 +8,7 @@ public static class LeaderboardRoutes
 {
     public static void MapLeaderboardRoutes(this WebApplication app)
     {
-        var routeGroup = app.MapGroup("").WithTags("Leaderboard");
+        var routeGroup = app.MapGroup("leaderboard").WithTags("Leaderboard");
 
         routeGroup
             .MapGet(

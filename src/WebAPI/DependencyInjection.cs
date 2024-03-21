@@ -18,6 +18,10 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         
+        services.ConfigureHttpJsonOptions(options =>
+        {
+            options.SerializerOptions.PropertyNamingPolicy = null; // Override camelCase with PascalCase
+        });
         services.AddSingleton<SignalRHubFilter>();
 
         services.AddSignalR(options => options.AddFilter<SignalRHubFilter>());
