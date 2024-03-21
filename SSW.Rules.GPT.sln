@@ -9,8 +9,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		.csharpierrc = .csharpierrc
 		global.json = global.json
-		.github\workflows\ssw-rulesgpt-prod.yml = .github\workflows\ssw-rulesgpt-prod.yml
-		.github\workflows\ssw-rulesgpt-stage.yml = .github\workflows\ssw-rulesgpt-stage.yml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{DF971C14-AD50-4B07-ACED-087B6ECA7500}"
@@ -30,6 +28,22 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application.UnitTests", "tests\Application.UnitTests\Application.UnitTests.csproj", "{BAE42F60-9354-4321-9A9A-A3F88D2C7236}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application.IntegrationTests", "tests\Application.IntegrationTests\Application.IntegrationTests.csproj", "{8F5EA9E9-6B28-4308-B8D0-A0C28E05204D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "src\Shared\Shared.csproj", "{F86915AF-37EA-4B49-987A-3AE0978D1EBA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{2789B05B-CCB1-4D30-A5D8-A3C161E232C7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "bicep", "bicep", "{0E648D68-2537-4917-805A-34E5228CF01B}"
+	ProjectSection(SolutionItems) = preProject
+		.github\bicep\main.bicep = .github\bicep\main.bicep
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{B66FAA72-B4E7-40BA-B85D-DAB617E3AE2E}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\main-build-deploy.yml = .github\workflows\main-build-deploy.yml
+		.github\workflows\stage-build-deploy.yml = .github\workflows\stage-build-deploy.yml
+		.github\workflows\template-build-deploy.yml = .github\workflows\template-build-deploy.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,6 +79,10 @@ Global
 		{8F5EA9E9-6B28-4308-B8D0-A0C28E05204D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8F5EA9E9-6B28-4308-B8D0-A0C28E05204D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8F5EA9E9-6B28-4308-B8D0-A0C28E05204D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F86915AF-37EA-4B49-987A-3AE0978D1EBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F86915AF-37EA-4B49-987A-3AE0978D1EBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F86915AF-37EA-4B49-987A-3AE0978D1EBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F86915AF-37EA-4B49-987A-3AE0978D1EBA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -80,5 +98,8 @@ Global
 		{ECCD1CBB-0AE9-46CA-8B49-5A94F956F1E5} = {DF971C14-AD50-4B07-ACED-087B6ECA7500}
 		{BAE42F60-9354-4321-9A9A-A3F88D2C7236} = {D23E8309-9E03-4769-B6CC-2959CB36C8F5}
 		{8F5EA9E9-6B28-4308-B8D0-A0C28E05204D} = {D23E8309-9E03-4769-B6CC-2959CB36C8F5}
+		{F86915AF-37EA-4B49-987A-3AE0978D1EBA} = {DF971C14-AD50-4B07-ACED-087B6ECA7500}
+		{0E648D68-2537-4917-805A-34E5228CF01B} = {2789B05B-CCB1-4D30-A5D8-A3C161E232C7}
+		{B66FAA72-B4E7-40BA-B85D-DAB617E3AE2E} = {2789B05B-CCB1-4D30-A5D8-A3C161E232C7}
 	EndGlobalSection
 EndGlobal

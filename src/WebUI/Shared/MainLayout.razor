@@ -1,7 +1,8 @@
 @using WebUI.Classes
+@using DialogService = WebUI.Services.DialogService
 @inherits LayoutComponentBase
 
-@inject SswRulesGptDialogService SswRulesGptDialogService
+@inject DialogService DialogService
 @inject DataState DataState
 @inject NotifierService NotifierService
 @inject SignalRClient SignalRClient
@@ -16,7 +17,9 @@
 <MudSnackbarProvider/>
 
 <MudLayout>
+    <ConversationHistory isDrawerOpen="@isDrawerOpen" />
     <MudAppBar Elevation="0">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         <a @onclick="ResetApplicationState" style="color: unset; cursor: pointer;">
             <MudStack Row="true" Spacing="0">
                 <MudStack Justify="Justify.Center" Class="pr-2">
@@ -28,42 +31,64 @@
             </MudStack>
         </a>
         <MudStack Justify="Justify.Center" Class="pl-3">
-            <MudText Class="tag-line" Color="Color.Primary" Typo="Typo.body1">Keeping Order with Intelligence</MudText>
+            <MudText Class="d-none d-lg-flex" Color="Color.Primary" Typo="Typo.body1">Keeping Order with Intelligence</MudText>
         </MudStack>
         <MudSpacer/>
-        <MudLink Color="Color.Primary" Variant="Variant.Filled" Class="mr-2 powered-by-link" Target="_blank" Href="https://ssw.com.au/rules">Powered by SSW Rules</MudLink>
-        @switch (themePreference)
-        {
-            case ThemePreference.Light:
-                <MudTooltip Duration="1000" Text="Switch to Dark Theme">
-                    <MudIconButton Icon="@Icons.Material.Rounded.DarkMode" Color="Color.Inherit" OnClick="@(() => SetThemePreference(ThemePreference.Dark))"/>
-                </MudTooltip>
+        <MudLink Color="Color.Primary" Variant="Variant.Filled" Class="mr-2 powered-by-link d-none d-md-flex" Target="_blank" Href="https://ssw.com.au/rules">Powered by SSW Rules</MudLink>
+        <div class="d-none d-md-flex">
+            @switch (themePreference)
+            {
+                case ThemePreference.Light:
+                    <MudTooltip Duration="1000" Text="Switch to Dark Theme">
+                        <MudIconButton Icon="@Icons.Material.Rounded.DarkMode" Color="Color.Inherit" OnClick="@(() => SetThemePreference(ThemePreference.Dark))"/>
+                    </MudTooltip>
 
-                break;
+                    break;
 
-            case ThemePreference.Dark:
-                <MudTooltip Duration="1000" Text="Switch to System Theme">
-                    <MudIconButton Icon="@Icons.Material.Rounded.Devices" Color="Color.Inherit" OnClick="@(() => SetThemePreference(ThemePreference.System))"/>
-                </MudTooltip>
+                case ThemePreference.Dark:
+                    <MudTooltip Duration="1000" Text="Switch to System Theme">
+                        <MudIconButton Icon="@Icons.Material.Rounded.Devices" Color="Color.Inherit" OnClick="@(() => SetThemePreference(ThemePreference.System))"/>
+                    </MudTooltip>
 
-                break;
+                    break;
 
-            case ThemePreference.System:
-                <MudTooltip Duration="1000" Text="Switch to Light Theme">
-                    <MudIconButton Icon="@Icons.Material.Rounded.LightMode" Color="Color.Inherit" OnClick="@(() => SetThemePreference(ThemePreference.Light))"/>
-                </MudTooltip>
+                default:
+                case ThemePreference.System:
+                    <MudTooltip Duration="1000" Text="Switch to Light Theme">
+                        <MudIconButton Icon="@Icons.Material.Rounded.LightMode" Color="Color.Inherit" OnClick="@(() => SetThemePreference(ThemePreference.Light))"/>
+                    </MudTooltip>
+                    
+                    break;
+            }
+            <MudTooltip Duration="1000" Text="Start a New Chat">
+                <MudIconButton Icon="@Icons.Material.Rounded.Refresh" Color="Color.Inherit" OnClick="@ResetApplicationState"/>
+            </MudTooltip>
+            <MudTooltip Duration="1000" Text="Leaderboard">
+                <MudIconButton Icon="@Icons.Material.Rounded.Leaderboard" Color="Color.Inherit" OnClick="@(() => NavigationManager.NavigateTo("/leaderboard"))"/>
+            </MudTooltip>
+        </div>
+        <div class="d-sm-flex d-md-none">
+            <MudMenu Icon="@Icons.Material.Filled.KeyboardArrowDown" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+                <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Refresh" OnTouch="ResetApplicationState" OnClick="ResetApplicationState">New Chat</MudMenuItem>
+                <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Leaderboard" OnTouch="@(() => NavigationManager.NavigateTo("/leaderboard"))" OnClick="@(() => NavigationManager.NavigateTo("/leaderboard"))">Leaderboard</MudMenuItem>
+                @switch (themePreference)
+                {
+                    case ThemePreference.Light:
+                        <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.DarkMode" OnTouch="@(() => SetThemePreference(ThemePreference.Dark))" OnClick="@(() => SetThemePreference(ThemePreference.Dark))">Use Dark Theme</MudMenuItem>
+                        break;
 
-                break;
+                    case ThemePreference.Dark:
+                        <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.DarkMode" OnTouch="@(() => SetThemePreference(ThemePreference.Dark))" OnClick="@(() => SetThemePreference(ThemePreference.System))">Use System Theme</MudMenuItem>
+                        break;
 
-            default:
-                goto case ThemePreference.Light;
-        }
-        <MudTooltip Duration="1000" Text="Start a New Chat">
-            <MudIconButton Icon="@Icons.Material.Rounded.Refresh" Color="Color.Inherit" OnClick="@ResetApplicationState"/>
-        </MudTooltip>
-        <MudTooltip Duration="1000" Text="Leaderboard">
-            <MudIconButton Icon="@Icons.Material.Rounded.Leaderboard" Color="Color.Inherit" OnClick="@(() => NavigationManager.NavigateTo("/leaderboard"))"/>
-        </MudTooltip>
+                    default:
+                    case ThemePreference.System:
+                        <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.DarkMode" OnTouch="@(() => SetThemePreference(ThemePreference.Dark))" OnClick="@(() => SetThemePreference(ThemePreference.Light))">Use Light Theme</MudMenuItem>
+                        break;
+                }
+
+            </MudMenu>
+        </div>
         <MudMenu Icon="@Icons.Material.Filled.Settings" Dense="false" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
             <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Edit" OnTouch="OpenApiKeyDialog" OnClick="OpenApiKeyDialog">API Key</MudMenuItem>
             <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.SettingsSuggest" Target="_blank" Href="https://github.com/SSWConsulting/SSW.Rules.GPT.Blazor/issues">Suggestions</MudMenuItem>
@@ -94,9 +119,10 @@
     private MudThemeProvider _mudThemeProvider;
     private bool _isDarkMode;
     private bool systemIsDarkMode;
+    private bool isDrawerOpen = true;
 
     ThemePreference themePreference;
-
+    
     private readonly MudTheme _theme = new()
     {
         Palette = new PaletteLight
@@ -118,6 +144,11 @@
             BackgroundGrey = "#3E4446"
         }
     };
+    
+    private void DrawerToggle()
+    {
+        isDrawerOpen = !isDrawerOpen;
+    }
 
     private void SetThemePreference(ThemePreference preference)
     {
@@ -137,7 +168,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        //Will default to 'light' if no stored value is found
+    //Will default to 'light' if no stored value is found
         themePreference = await Storage.GetItemAsync<ThemePreference>("DarkModePreference");
         SetThemePreference(themePreference);
 
@@ -147,7 +178,7 @@
         }
         catch (HttpRequestException e)
         {
-            // Display error message
+    // Display error message
             Snackbar.Add("Unable to connect to SSW RulesGPT", Severity.Error);
         }
 
@@ -158,11 +189,10 @@
         var savedAPIKey = await Storage.GetItemAsync<string>("userAPIKey");
         var savedModel = await Storage.GetItemAsync<string>("userGptModel");
 
-        //useSavedKey should be ignored if there is no key saved
+    //useSavedKey should be ignored if there is no key saved
         if (!string.IsNullOrEmpty(savedAPIKey) && useSavedKeyParsed && useSavedKey)
         {
             DataState.ApiKeyString = savedAPIKey;
-            DataState.UsingByoApiKey = true;
             DataState.SavingByoApiKey = true;
         }
 
@@ -177,11 +207,11 @@
         Snackbar.Add($"Too many messages sent! Try again in {retryAfter} seconds.", Severity.Error);
         await NotifierService.CancelMessageStream();
 
-        var lastMessage = DataState.CurrentMessageThread.Last(s => s.Message.Role == "user");
+        var lastMessage = DataState.Conversation.CurrentThread.Last(s => s.Message.Role == "user");
 
         DataState.NewMessageString = lastMessage.Message.Content;
-        DataState.ChatMessages.Remove(lastMessage);
-        DataState.CurrentMessageThread.Remove(lastMessage);
+        DataState.Conversation.ChatList.Remove(lastMessage);
+        DataState.Conversation.CurrentThread.Remove(lastMessage);
 
         StateHasChanged();
         await NotifierService.Update();
@@ -216,25 +246,22 @@
 
     private async Task OpenApiKeyDialog()
     {
-        await SswRulesGptDialogService.ApiKeyDialog();
+        await DialogService.ApiKeyDialog();
     }
 
     private async Task OpenAboutRulesGptDialog()
     {
-        await SswRulesGptDialogService.AboutRulesGptDialog();
+        await DialogService.AboutRulesGptDialog();
     }
 
     private async Task OpenInstallInstructionsDialog()
     {
-        await SswRulesGptDialogService.InstallInstructionsDialog();
+        await DialogService.InstallInstructionsDialog();
     }
 
     private async Task ResetApplicationState()
     {
-        await NotifierService.CancelMessageStream();
-        DataState.ChatMessages.Clear();
-        DataState.CurrentMessageThread.Clear();
-        await NotifierService.Update();
+        await DataState.ResetState();
         NavigationManager.NavigateTo("");
     }
 

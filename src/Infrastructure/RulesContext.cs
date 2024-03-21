@@ -1,5 +1,4 @@
 ﻿using Application.Contracts;
-using Domain;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Object = Domain.Entities.Object;
@@ -40,6 +39,8 @@ public partial class RulesContext : DbContext, IRulesContext
     public virtual DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
 
     public virtual DbSet<LeaderboardModel> UserStats { get; set; } = null!;
+    
+    public virtual DbSet<ConversationHistoryModel> ConversationHistories { get; set; }
     
     public virtual DbSet<Rule> Rules { get; set; } = null!;
 
@@ -491,6 +492,22 @@ public partial class RulesContext : DbContext, IRulesContext
             entity.Property(e => e.Name).HasColumnName("user_name");
             entity.Property(e => e.Email).HasColumnName("user_email");
             entity.Property(e => e.Date).HasColumnName("created_at");
+        });
+
+        modelBuilder.Entity<ConversationHistoryModel>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("chat_history_pkey");
+            
+            entity.ToTable("chat_history");
+            
+            entity.HasIndex(e => e.Id, "chat_history_id_key").IsUnique();
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Date).HasColumnName("created_at");
+            entity.Property(e => e.User).HasColumnName("user");
+            entity.Property(e => e.ConversationTitle).HasColumnName("conversation_title");
+            entity.Property(e => e.SchemaVersion).HasColumnName("schema_ver");
+            entity.Property(e => e.Conversation).HasColumnName("conversation");
         });
 
         modelBuilder.Entity<SamlProvider>(entity =>

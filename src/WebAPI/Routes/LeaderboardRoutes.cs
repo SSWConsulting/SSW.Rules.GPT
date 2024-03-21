@@ -8,15 +8,14 @@ public static class LeaderboardRoutes
 {
     public static void MapLeaderboardRoutes(this WebApplication app)
     {
-        var routeGroup = app.MapGroup("").WithTags("Leaderboard");
+        var routeGroup = app.MapGroup("leaderboard").WithTags("Leaderboard");
 
         routeGroup
             .MapGet(
                 "/getLeaderboardStats",
-                Ok<IEnumerable<LeaderboardUser>> (HttpContext context) =>
+                async Task<Ok<List<LeaderboardUser>>> (LeaderboardService leaderboardService) =>
                 {
-                    var service = context.RequestServices.GetRequiredService<LeaderboardService>();
-                    return TypedResults.Ok(service.GetLeaderboardStats());
+                    return TypedResults.Ok(await leaderboardService.GetLeaderboardStats());
                 }
             )
             .WithName("GetLeaderboardStats");

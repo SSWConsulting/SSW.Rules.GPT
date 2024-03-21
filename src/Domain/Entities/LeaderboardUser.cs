@@ -2,8 +2,8 @@
 
 public class LeaderboardUser
 {
-    public string Name { get; set; } = null!;
-    public string Email { get; set; } = null!;
+    public required string Name { get; set; }
+    public required string Email { get; set; }
     
     public int LastMonth { get; set; }
     public int LastYear { get; set; }

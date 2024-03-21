@@ -11,9 +11,9 @@ public class SignalRHubFilter : IHubFilter
         _logger = logger;
     }
 
-    public async ValueTask<object> InvokeMethodAsync(
+    public async ValueTask<object?> InvokeMethodAsync(
         HubInvocationContext invocationContext,
-        Func<HubInvocationContext, ValueTask<object>> next
+        Func<HubInvocationContext, ValueTask<object?>> next
     )
     {
         _logger.LogInformation(

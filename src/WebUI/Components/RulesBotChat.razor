@@ -1,11 +1,20 @@
 @using OpenAI.GPT3.ObjectModels.RequestModels
+@using DialogService = WebUI.Services.DialogService;
 
-@inherits RulesBotChatBase
+@inject DataState DataState
+@inject MessagingService MessagingService
+@inject NotifierService NotifierService
+
+@inject RulesGptClient RulesGptClient
+@inject SignalRClient SignalRClient
+
+@inject IJSRuntime Js
+
 
 <div style="display: grid; grid-template-rows: 1fr auto; height: 100%; padding: 24px 0;">
     <MudPaper Elevation="0" Style=@($"background: {(!isDarkMode ? Theme.Palette.BackgroundGrey : Theme.PaletteDark.BackgroundGrey)}; border: 1px solid #e6e6e6; overflow-y: auto; height: 100%")>
         <MudContainer Class="pa-0" Style="height: 100%">
-            @if (DataState.ChatMessages.Count == 0)
+            @if (DataState.Conversation.ChatList.Count == 0)
             {
                 <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center" Style="height: 60%">
                     <MudStack Row="true" Class="pb-6">
@@ -33,21 +42,66 @@
             else
             {
                 <MudList Class="py-0 chatContainer" DisableGutters="true">
-                    @foreach (var message in DataState.CurrentMessageThread.Where(s => s.Message.Role != "system"))
+                    @foreach (var message in DataState.Conversation.CurrentThread.Where(s => s.Message.Role != "system"))
                     {
-                        <ChatItem MessageThreadItem="message" OnMoveClickedEvent="Move" OnEditSubmittedEvent="SendEditedMessage"/>
+                        <ChatItem MessageThreadItem="message"/>
                     }
                 </MudList>
             }
         </MudContainer>
         <MudPopover Open="DataState.IsAwaitingResponse" OverflowBehavior="OverflowBehavior.FlipNever" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.BottomCenter" Paper="false">
-            <MudButton Class="mb-3" OnClick="CancelStreamingResponse" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Primary">Cancel Request</MudButton>
+            <MudButton Class="mb-3" OnClick="DataState.CancelStreamingResponse" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel" Color="Color.Primary">Cancel Request</MudButton>
         </MudPopover>
     </MudPaper>
     <MudStack Row="true" Class="mt-3">
         <MudTextField Lines="5" Style="height: 100%;" id="chat-input" Clearable="true" Disabled="DataState.IsAwaitingResponse" @bind-Value="DataState.NewMessageString" OnKeyDown="MessageTextFieldHandleEnterKey" Immediate="true" Label="Ask a question!" Variant="Variant.Outlined"></MudTextField>
-        <MudButton Color="Color.Secondary" Variant="Variant.Filled" OnClick="SendMessage">
+        <MudButton Color="Color.Secondary" Variant="Variant.Filled" OnClick="MessagingService.SendMessage">
             <MudIcon Icon="@Icons.Material.Filled.Send"></MudIcon>
         </MudButton>
     </MudStack>
 </div>
+
+@code {
+    [CascadingParameter] protected MudTheme Theme { get; set; }
+    [CascadingParameter] protected bool isDarkMode { get; set; }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        NotifierService.Notify += OnNotify;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender)
+            await Js.InvokeVoidAsync("initInputHeight");
+    }
+
+    protected async Task OnExampleClicked(string message)
+    {
+        DataState.NewMessageString = message;
+        await MessagingService.SendMessage();
+    }
+
+    protected async Task MessageTextFieldHandleEnterKey(KeyboardEventArgs args)
+    {
+        if (args is { Key: "Enter", ShiftKey: false })
+            await MessagingService.SendMessage();
+    }
+
+    private async Task OnNotify()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task JsScrollMessageListToBottom()
+    {
+        await Js.InvokeVoidAsync("scrollLatestMessageIntoView");
+    }
+
+    public void Dispose()
+    {
+        NotifierService.Notify -= OnNotify;
+    }
+}

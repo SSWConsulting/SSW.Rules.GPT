@@ -11,6 +11,7 @@ public static class DependencyInjection
         services.AddScoped<MessageHandler>();
         services.AddScoped<RelevantRulesService>();
         services.AddScoped<LeaderboardService>();
+        services.AddScoped<ChatHistoryService>();
         
         services.AddSingleton<ChatCompletionsService>();
         services.AddSingleton<PruningService>();
