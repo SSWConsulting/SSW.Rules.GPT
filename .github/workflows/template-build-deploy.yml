@@ -29,6 +29,9 @@ on:
         required: true
       OpenAiApiKey:
         required: true
+
+      GH_PAT:
+        required: true
       
       GithubRepoToken:
         required: true
