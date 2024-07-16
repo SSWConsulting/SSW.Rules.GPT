@@ -369,3 +369,5 @@ FodyWeavers.xsd
 
 # Git
 .git/
+
+.github/bicep/main.json
