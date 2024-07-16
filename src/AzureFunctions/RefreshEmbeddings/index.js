@@ -18,13 +18,15 @@ module.exports = async function (context, req) {
     context.log('GITHUB_TOKEN:', process.env.GITHUB_TOKEN ? 'Set' : 'Not set');
     context.log('OPENAI_API_KEY:', process.env.OPENAI_API_KEY ? 'Set' : 'Not set');
     context.log('SUPABASE_KEY:', process.env.SUPABASE_KEY ? 'Set' : 'Not set');
+    context.log('RULES_TABLE_NAME:', process.env.RULES_TABLE_NAME);
 
     // Get configuration from environment variables or query parameters
     const githubToken = process.env.GITHUB_TOKEN;
     const openaiApiKey = process.env.OPENAI_API_KEY;
     const owner = req.query.owner || process.env.GITHUB_OWNER;
     const repo = req.query.repo || process.env.GITHUB_REPO;
-    const timeFrame = req.query.timeFrame || '14 days'; // Default to 1 day if not specified
+    const timeFrame = req.query.timeFrame || '14 days'; // Default to 14 days if not specified
+    const rulesTableName = process.env.RULES_TABLE_NAME || 'rules_test';
 
     context.log('Configuration:');
     context.log('Owner:', owner);
@@ -129,7 +131,7 @@ async function saveEmbeddingsToDatabase(embeddings) {
         try {
             // Delete existing records for this rule
             const { error: deleteError } = await supabase
-                .from('rules_test')
+                .from(rulesTableName)
                 .delete()
                 .eq('name', ruleName);
 
@@ -139,7 +141,7 @@ async function saveEmbeddingsToDatabase(embeddings) {
 
             // Insert all new records for this rule
             const { error: insertError } = await supabase
-                .from('rules_test')
+                .from(rulesTableName)
                 .insert(ruleEmbeddings.map(embedding => ({
                     name: embedding.RuleName,
                     content: embedding.RuleContent,

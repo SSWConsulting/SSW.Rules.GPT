@@ -8,6 +8,8 @@ param openAiApiKey string
 @secure()
 param githubPAT string
 
+param rulesTableName string
+
 param allowedCors string
 param maxRequests string
 param signingAuthority string
@@ -202,6 +204,10 @@ resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
         {
           name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
           value: applicationInsights.properties.InstrumentationKey
+        }
+        {
+          name: 'RULES_TABLE_NAME'
+          value: rulesTableName
         }
       ]
       ftpsState: 'FtpsOnly'
