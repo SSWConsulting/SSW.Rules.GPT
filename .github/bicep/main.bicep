@@ -6,7 +6,7 @@ param connectionString string
 @secure()
 param openAiApiKey string
 @secure()
-param githubPAT string
+param GH_PAT string
 
 param rulesTableName string
 
@@ -100,7 +100,7 @@ resource githubTokenSecret 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
   parent: kv
   name: 'GithubToken'
   properties: {
-    value: githubPAT
+    value: GH_PAT
   }
 }
 
