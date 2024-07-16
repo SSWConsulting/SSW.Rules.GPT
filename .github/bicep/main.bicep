@@ -5,6 +5,8 @@ param environment string = 'stage'
 param connectionString string
 @secure()
 param openAiApiKey string
+@secure()
+param githubPAT string
 
 param allowedCors string
 param maxRequests string
@@ -26,7 +28,7 @@ var tenantId = subscription().tenantId
 var apiAppName = 'ssw-${appName}-api${prodEnvironmentName}'
 var frontendAppName = 'ssw-${appName}-webui${prodEnvironmentName}'
 var applicationInsightsName = 'ai-${appName}-${environment}'
-
+var functionAppName = 'func-${appName}-embeddings${prodEnvironmentName}'
 
 var lawName = 'laws-${appName}${prodEnvironmentName}'
 
@@ -44,12 +46,17 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-05-01' = {
   }
 }
 
+resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2022-05-01' = {
+  parent: storageAccount
+  name: 'default'
+}
+
 resource hostingPlan 'Microsoft.Web/serverfarms@2021-03-01' existing = {
   name: hostingPlanName
   scope: resourceGroup(hostingPlanRgName)
 }
 
-resource kv 'Microsoft.KeyVault/vaults@2023-07-01' = {
+resource kv 'Microsoft.KeyVault/vaults@2022-07-01' = {
   name: keyVaultName
   location: location
   properties: {
@@ -71,7 +78,7 @@ resource kv 'Microsoft.KeyVault/vaults@2023-07-01' = {
   }
 }
 
-resource dbSecret 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
+resource dbSecret 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
   parent: kv
   name: 'ConnectionStrings--DefaultConnection'
   properties: {
@@ -79,11 +86,19 @@ resource dbSecret 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
   }
 }
 
-resource openaiApiKeySecret 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
+resource openaiApiKeySecret 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
   parent: kv
   name: 'OpenAiApiKey'
   properties: {
     value: openAiApiKey
+  }
+}
+
+resource githubTokenSecret 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+  parent: kv
+  name: 'GithubToken'
+  properties: {
+    value: githubPAT
   }
 }
 
@@ -139,7 +154,67 @@ resource backendAppService 'Microsoft.Web/sites@2020-12-01' = {
   }
 }
 
-resource keyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2023-07-01' = {
+resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
+  name: functionAppName
+  location: location
+  kind: 'functionapp,linux'
+  properties: {
+    serverFarmId: hostingPlan.id
+    siteConfig: {
+      linuxFxVersion: 'NODE|18'
+      appSettings: [
+        {
+          name: 'AzureWebJobsStorage'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${az.environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
+        }
+        {
+          name: 'FUNCTIONS_EXTENSION_VERSION'
+          value: '~4'
+        }
+        {
+          name: 'FUNCTIONS_WORKER_RUNTIME'
+          value: 'node'
+        }
+        {
+          name: 'WEBSITE_NODE_DEFAULT_VERSION'
+          value: '~18'
+        }
+        {
+          name: 'GITHUB_TOKEN'
+          value: '@Microsoft.KeyVault(SecretUri=${githubTokenSecret.properties.secretUri})'
+        }
+        {
+          name: 'OPENAI_API_KEY'
+          value: '@Microsoft.KeyVault(SecretUri=${openaiApiKeySecret.properties.secretUri})'
+        }
+        {
+          name: 'SUPABASE_KEY'
+          value: '@Microsoft.KeyVault(SecretUri=${dbSecret.properties.secretUri})'
+        }
+        {
+          name: 'GITHUB_OWNER'
+          value: 'SSWConsulting'
+        }
+        {
+          name: 'GITHUB_REPO'
+          value: 'SSW.Rules.Content'
+        }
+        {
+          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
+          value: applicationInsights.properties.InstrumentationKey
+        }
+      ]
+      ftpsState: 'FtpsOnly'
+      minTlsVersion: '1.2'
+    }
+    httpsOnly: true
+  }
+  identity: {
+    type: 'SystemAssigned'
+  }
+}
+
+resource keyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01' = {
   parent: kv
   name: 'add'
   properties: {
@@ -147,6 +222,20 @@ resource keyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2023-07-
       {
         objectId: backendAppService.identity.principalId
         tenantId: backendAppService.identity.tenantId
+        permissions: {
+          secrets: [
+            'list'
+            'get'
+          ]
+          keys: [
+            'list'
+            'get'
+          ]
+        }
+      }
+      {
+        objectId: functionApp.identity.principalId
+        tenantId: functionApp.identity.tenantId
         permissions: {
           secrets: [
             'list'

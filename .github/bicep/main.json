@@ -1,0 +1,356 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.22.6.54827",
+      "templateHash": "14140388874930204296"
+    }
+  },
+  "parameters": {
+    "appName": {
+      "type": "string",
+      "defaultValue": "rulesgpt"
+    },
+    "environment": {
+      "type": "string",
+      "defaultValue": "stage"
+    },
+    "connectionString": {
+      "type": "securestring"
+    },
+    "openAiApiKey": {
+      "type": "securestring"
+    },
+    "githubToken": {
+      "type": "securestring"
+    },
+    "allowedCors": {
+      "type": "string"
+    },
+    "maxRequests": {
+      "type": "string"
+    },
+    "signingAuthority": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "staticWebAppLocation": {
+      "type": "string",
+      "defaultValue": "eastasia"
+    },
+    "hostingPlanName": {
+      "type": "string"
+    },
+    "hostingPlanRgName": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "prodEnvironmentName": "[if(equals(parameters('environment'), 'prod'), '', format('-{0}', parameters('environment')))]",
+    "storageAccountName": "[toLower(take(replace(format('sa{0}{1}', parameters('appName'), parameters('environment')), '-', ''), 24))]",
+    "keyVaultName": "[format('kv-{0}-{1}', parameters('appName'), parameters('environment'))]",
+    "tenantId": "[subscription().tenantId]",
+    "apiAppName": "[format('ssw-{0}-api{1}', parameters('appName'), variables('prodEnvironmentName'))]",
+    "frontendAppName": "[format('ssw-{0}-webui{1}', parameters('appName'), variables('prodEnvironmentName'))]",
+    "applicationInsightsName": "[format('ai-{0}-{1}', parameters('appName'), parameters('environment'))]",
+    "functionAppName": "[format('func-{0}-embeddings{1}', parameters('appName'), variables('prodEnvironmentName'))]",
+    "lawName": "[format('laws-{0}{1}', parameters('appName'), variables('prodEnvironmentName'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2022-05-01",
+      "name": "[variables('storageAccountName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "Storage",
+      "properties": {
+        "supportsHttpsTrafficOnly": true,
+        "defaultToOAuthAuthentication": true
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices",
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}/{1}', variables('storageAccountName'), 'default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2022-07-01",
+      "name": "[variables('keyVaultName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "accessPolicies": [],
+        "enabledForDeployment": false,
+        "enabledForDiskEncryption": false,
+        "enabledForTemplateDeployment": true,
+        "tenantId": "[variables('tenantId')]",
+        "enableSoftDelete": true,
+        "softDeleteRetentionInDays": 90,
+        "sku": {
+          "name": "standard",
+          "family": "A"
+        },
+        "networkAcls": {
+          "defaultAction": "Allow",
+          "bypass": "AzureServices"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2022-07-01",
+      "name": "[format('{0}/{1}', variables('keyVaultName'), 'ConnectionStrings--DefaultConnection')]",
+      "properties": {
+        "value": "[parameters('connectionString')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2022-07-01",
+      "name": "[format('{0}/{1}', variables('keyVaultName'), 'OpenAiApiKey')]",
+      "properties": {
+        "value": "[parameters('openAiApiKey')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2022-07-01",
+      "name": "[format('{0}/{1}', variables('keyVaultName'), 'GithubToken')]",
+      "properties": {
+        "value": "[parameters('githubToken')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2020-12-01",
+      "name": "[variables('apiAppName')]",
+      "location": "[parameters('location')]",
+      "kind": "app,linux",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "serverFarmId": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hostingPlanRgName')), 'Microsoft.Web/serverfarms', parameters('hostingPlanName'))]",
+        "reserved": true,
+        "siteConfig": {
+          "numberOfWorkers": 1,
+          "linuxFxVersion": "DOTNETCORE|8.0",
+          "alwaysOn": false,
+          "http20Enabled": false,
+          "cors": {
+            "allowedOrigins": [
+              "[parameters('allowedCors')]"
+            ]
+          },
+          "appSettings": [
+            {
+              "name": "AllowedCORSOrigins",
+              "value": "[parameters('allowedCors')]"
+            },
+            {
+              "name": "MaxRequestsPerMinute",
+              "value": "[parameters('maxRequests')]"
+            },
+            {
+              "name": "SigningAuthority",
+              "value": "[parameters('signingAuthority')]"
+            },
+            {
+              "name": "ConnectionStrings__DefaultConnection",
+              "value": "[format('@Microsoft.KeyVault(SecretUri={0})', reference(resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyVaultName'), 'ConnectionStrings--DefaultConnection'), '2022-07-01').secretUri)]"
+            },
+            {
+              "name": "OpenAiApiKey",
+              "value": "[format('@Microsoft.KeyVault(SecretUri={0})', reference(resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyVaultName'), 'OpenAiApiKey'), '2022-07-01').secretUri)]"
+            },
+            {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "[reference(resourceId('Microsoft.Insights/components', variables('applicationInsightsName')), '2020-02-02').InstrumentationKey]"
+            },
+            {
+              "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+              "value": "[reference(resourceId('Microsoft.Insights/components', variables('applicationInsightsName')), '2020-02-02').ConnectionString]"
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/components', variables('applicationInsightsName'))]",
+        "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyVaultName'), 'ConnectionStrings--DefaultConnection')]",
+        "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyVaultName'), 'OpenAiApiKey')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-03-01",
+      "name": "[variables('functionAppName')]",
+      "location": "[parameters('location')]",
+      "kind": "functionapp,linux",
+      "properties": {
+        "serverFarmId": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('hostingPlanRgName')), 'Microsoft.Web/serverfarms', parameters('hostingPlanName'))]",
+        "siteConfig": {
+          "linuxFxVersion": "NODE|18",
+          "appSettings": [
+            {
+              "name": "AzureWebJobsStorage",
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storageAccountName'), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2022-05-01').keys[0].value)]"
+            },
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~4"
+            },
+            {
+              "name": "FUNCTIONS_WORKER_RUNTIME",
+              "value": "node"
+            },
+            {
+              "name": "WEBSITE_NODE_DEFAULT_VERSION",
+              "value": "~18"
+            },
+            {
+              "name": "GITHUB_TOKEN",
+              "value": "[format('@Microsoft.KeyVault(SecretUri={0})', reference(resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyVaultName'), 'GithubToken'), '2022-07-01').secretUri)]"
+            },
+            {
+              "name": "OPENAI_API_KEY",
+              "value": "[format('@Microsoft.KeyVault(SecretUri={0})', reference(resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyVaultName'), 'OpenAiApiKey'), '2022-07-01').secretUri)]"
+            },
+            {
+              "name": "SUPABASE_KEY",
+              "value": "[format('@Microsoft.KeyVault(SecretUri={0})', reference(resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyVaultName'), 'ConnectionStrings--DefaultConnection'), '2022-07-01').secretUri)]"
+            },
+            {
+              "name": "GITHUB_OWNER",
+              "value": "SSWConsulting"
+            },
+            {
+              "name": "GITHUB_REPO",
+              "value": "SSW.Rules.Content"
+            },
+            {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "[reference(resourceId('Microsoft.Insights/components', variables('applicationInsightsName')), '2020-02-02').InstrumentationKey]"
+            }
+          ],
+          "ftpsState": "FtpsOnly",
+          "minTlsVersion": "1.2"
+        },
+        "httpsOnly": true
+      },
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/components', variables('applicationInsightsName'))]",
+        "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyVaultName'), 'ConnectionStrings--DefaultConnection')]",
+        "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyVaultName'), 'GithubToken')]",
+        "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyVaultName'), 'OpenAiApiKey')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/accessPolicies",
+      "apiVersion": "2022-07-01",
+      "name": "[format('{0}/{1}', variables('keyVaultName'), 'add')]",
+      "properties": {
+        "accessPolicies": [
+          {
+            "objectId": "[reference(resourceId('Microsoft.Web/sites', variables('apiAppName')), '2020-12-01', 'full').identity.principalId]",
+            "tenantId": "[reference(resourceId('Microsoft.Web/sites', variables('apiAppName')), '2020-12-01', 'full').identity.tenantId]",
+            "permissions": {
+              "secrets": [
+                "list",
+                "get"
+              ],
+              "keys": [
+                "list",
+                "get"
+              ]
+            }
+          },
+          {
+            "objectId": "[reference(resourceId('Microsoft.Web/sites', variables('functionAppName')), '2022-03-01', 'full').identity.principalId]",
+            "tenantId": "[reference(resourceId('Microsoft.Web/sites', variables('functionAppName')), '2022-03-01', 'full').identity.tenantId]",
+            "permissions": {
+              "secrets": [
+                "list",
+                "get"
+              ],
+              "keys": [
+                "list",
+                "get"
+              ]
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('apiAppName'))]",
+        "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]",
+        "[resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/staticSites",
+      "apiVersion": "2021-01-15",
+      "name": "[variables('frontendAppName')]",
+      "location": "[parameters('staticWebAppLocation')]",
+      "tags": null,
+      "properties": {},
+      "sku": {
+        "name": "Standard",
+        "size": "Standard"
+      }
+    },
+    {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2022-10-01",
+      "name": "[variables('lawName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "retentionInDays": 30,
+        "features": {
+          "searchVersion": 1
+        },
+        "sku": {
+          "name": "PerGB2018"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2020-02-02",
+      "name": "[variables('applicationInsightsName')]",
+      "location": "[parameters('location')]",
+      "kind": "web",
+      "properties": {
+        "Application_Type": "web",
+        "Request_Source": "rest",
+        "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('lawName'))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces', variables('lawName'))]"
+      ]
+    }
+  ]
+}

@@ -19,5 +19,7 @@ jobs:
       
       ConnectionString: ${{ secrets.CONNECTION_STRING }}
       OpenAiApiKey: ${{ secrets.OPENAI_API_KEY }}
+
+      GithubPAT: ${{ secrets.GH_PAT }}
       
       GithubRepoToken: ${{ secrets.GITHUB_TOKEN }}
