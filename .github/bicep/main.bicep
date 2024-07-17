@@ -58,7 +58,7 @@ resource hostingPlan 'Microsoft.Web/serverfarms@2021-03-01' existing = {
   scope: resourceGroup(hostingPlanRgName)
 }
 
-resource kv 'Microsoft.KeyVault/vaults@2022-07-01' = {
+resource kv 'Microsoft.KeyVault/vaults@2023-07-01' = {
   name: keyVaultName
   location: location
   properties: {
@@ -80,7 +80,7 @@ resource kv 'Microsoft.KeyVault/vaults@2022-07-01' = {
   }
 }
 
-resource dbSecret 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+resource dbSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   parent: kv
   name: 'ConnectionStrings--DefaultConnection'
   properties: {
@@ -88,7 +88,7 @@ resource dbSecret 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
   }
 }
 
-resource openaiApiKeySecret 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+resource openaiApiKeySecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   parent: kv
   name: 'OpenAiApiKey'
   properties: {
@@ -96,7 +96,7 @@ resource openaiApiKeySecret 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
   }
 }
 
-resource githubTokenSecret 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+resource githubTokenSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   parent: kv
   name: 'GithubToken'
   properties: {
@@ -220,7 +220,7 @@ resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
   }
 }
 
-resource keyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01' = {
+resource keyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2023-07-01' = {
   parent: kv
   name: 'add'
   properties: {
