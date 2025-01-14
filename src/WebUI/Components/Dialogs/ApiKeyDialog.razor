@@ -8,10 +8,10 @@
 <MudDialog>
     <DialogContent>
         <MudStack>
-            <MudSwitch @bind-Checked="@UsingByoApiKey" Label="Use my API Key" Color="Color.Error"></MudSwitch>
+            <MudSwitch @bind-value="@UsingByoApiKey" Label="Use my API Key" Color="Color.Error"></MudSwitch>
             @if (UsingByoApiKey)
             {
-                <MudSwitch Class="mb-2" @bind-Checked="@SaveAPIKeyToLocalStorage" Label="Save to LocalStorage" Color="Color.Error"></MudSwitch>
+                <MudSwitch Class="mb-2" @bind-Value="@SaveAPIKeyToLocalStorage" Label="Save to LocalStorage" Color="Color.Error"></MudSwitch>
             }
             <MudSelect Disabled="@(!UsingByoApiKey && !UserService.IsUserAuthenticated)" T="AvailableGptModels" @bind-Value="@SelectedGptModel" ToStringFunc="s => s.AvailableModelEnumToString()" Label="GPT Model" AnchorOrigin="Origin.BottomCenter">
                 <MudSelectItem Value="AvailableGptModels.Gpt35Turbo"/>
@@ -30,7 +30,7 @@
                 <MudButton StartIcon="@Icons.Material.Filled.Help" OnClick="OpenHelp">Help</MudButton>
             }
         </MudStack>
-        <MudDialog @bind-IsVisible="HelpIsVisible">
+        <MudDialog @bind-Visible="HelpIsVisible">
             <DialogContent>
                 <MudText Class="mb-2" Typo="Typo.h6">How to get an API Key</MudText>
                 <MudText>

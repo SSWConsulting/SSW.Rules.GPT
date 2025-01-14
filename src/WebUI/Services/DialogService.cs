@@ -18,7 +18,6 @@ public class DialogService
         {
             CloseOnEscapeKey = true,
             CloseButton = true,
-            DisableBackdropClick = false,
             NoHeader = false,
             MaxWidth = MaxWidth.ExtraSmall
         };
@@ -33,7 +32,6 @@ public class DialogService
         {
             CloseOnEscapeKey = true,
             CloseButton = true,
-            DisableBackdropClick = false,
             NoHeader = false,
             MaxWidth = MaxWidth.Small,
             
@@ -49,7 +47,6 @@ public class DialogService
         {
             CloseOnEscapeKey = true,
             CloseButton = true,
-            DisableBackdropClick = false,
             NoHeader = false,
             MaxWidth = MaxWidth.Large
         };
