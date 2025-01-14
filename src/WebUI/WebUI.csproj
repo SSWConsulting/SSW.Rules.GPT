@@ -5,10 +5,10 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Blazor-Analytics" Version="3.11.0" />
-		<PackageReference Include="Blazored.LocalStorage" Version="4.3.0" />
+		<PackageReference Include="Blazor-Analytics" Version="3.12.0" />
+		<PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
 		<PackageReference Include="Betalgo.OpenAI" Version="8.7.2" />
-		<PackageReference Include="Markdig" Version="0.31.0" />
+		<PackageReference Include="Markdig" Version="0.40.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="9.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.0" PrivateAssets="all" />
@@ -16,7 +16,7 @@
 		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
 		<PackageReference Include="MudBlazor" Version="7.15.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="Polly" Version="8.3.1" />
+		<PackageReference Include="Polly" Version="8.5.1" />
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Remove="Helpers\JwtHandler.cs" />
