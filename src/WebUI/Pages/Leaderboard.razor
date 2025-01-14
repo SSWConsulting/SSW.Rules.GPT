@@ -21,21 +21,21 @@
         <MudButtonGroup OverrideStyles="false">
             <MudButton
                 Color="Color.Error"
-                DisableElevation="true"
+                DropShadow="false"
                 Variant="@(Filter == LeaderboardFilter.LastMonth ? Variant.Filled : Variant.Outlined)"
                 OnClick="@(() => HandleFilterChanged(LeaderboardFilter.LastMonth))">
                 Last Month
             </MudButton>
             <MudButton
                 Color="Color.Error"
-                DisableElevation="true"
+                DropShadow="false"
                 Variant="@(Filter == LeaderboardFilter.LastYear ? Variant.Filled : Variant.Outlined)"
                 OnClick="@(() => HandleFilterChanged(LeaderboardFilter.LastYear))">
                 Last Year
             </MudButton>
             <MudButton
                 Color="Color.Error"
-                DisableElevation="true"
+                DropShadow="false"
                 Variant="@(Filter == LeaderboardFilter.AllTime ? Variant.Filled : Variant.Outlined)"
                 OnClick="@(() => HandleFilterChanged(LeaderboardFilter.AllTime))">
                 All Time

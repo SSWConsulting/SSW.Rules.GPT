@@ -12,7 +12,7 @@
 
 
 <div style="display: grid; grid-template-rows: 1fr auto; height: 100%; padding: 24px 0;">
-    <MudPaper Elevation="0" Style=@($"background: {(!isDarkMode ? Theme.Palette.BackgroundGrey : Theme.PaletteDark.BackgroundGrey)}; border: 1px solid #e6e6e6; overflow-y: auto; height: 100%")>
+    <MudPaper Elevation="0" Style=@($"background: {(!isDarkMode ? Theme.PaletteLight.BackgroundGray : Theme.PaletteDark.BackgroundGray)}; border: 1px solid #e6e6e6; overflow-y: auto; height: 100%")>
         <MudContainer Class="pa-0" Style="height: 100%">
             @if (DataState.Conversation.ChatList.Count == 0)
             {
@@ -41,7 +41,7 @@
             }
             else
             {
-                <MudList Class="py-0 chatContainer" DisableGutters="true">
+                <MudList T="ChatLinkedListItem" Class="py-0 chatContainer" Gutters="false">
                     @foreach (var message in DataState.Conversation.CurrentThread.Where(s => s.Message.Role != "system"))
                     {
                         <ChatItem MessageThreadItem="message"/>
