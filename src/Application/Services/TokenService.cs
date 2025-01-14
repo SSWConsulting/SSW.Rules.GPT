@@ -1,7 +1,7 @@
-﻿using OpenAI.GPT3.ObjectModels;
-using SharpToken;
+﻿using SharpToken;
 using Domain;
 using Domain.DTOs;
+using OpenAI.ObjectModels;
 using SharedClasses;
 
 namespace Application.Services;
@@ -29,7 +29,7 @@ public class TokenService
         var allowedTokens = model switch
         {
             Models.Model.Gpt_4 => Gpt4AllowedTokens,
-            Models.Model.ChatGpt3_5Turbo => Gpt3AllowedTokens,
+            Models.Model.Gpt_3_5_Turbo => Gpt3AllowedTokens,
             _ => throw new ArgumentOutOfRangeException()
         };
 
@@ -45,7 +45,7 @@ public class TokenService
     {
         return gptModel switch
         {
-            Models.Model.ChatGpt3_5Turbo => Gpt3AllowedTokens,
+            Models.Model.Gpt_3_5_Turbo => Gpt3AllowedTokens,
             Models.Model.Gpt_4 => Gpt4AllowedTokens,
             _ => throw new ArgumentOutOfRangeException(),
         };

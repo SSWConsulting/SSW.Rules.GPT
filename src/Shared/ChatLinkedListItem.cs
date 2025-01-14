@@ -1,5 +1,4 @@
 ﻿using System.Text.Json.Serialization;
-using OpenAI.GPT3.ObjectModels.RequestModels;
 
 namespace SharedClasses;
 

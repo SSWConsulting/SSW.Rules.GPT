@@ -1,10 +1,10 @@
 ﻿using Application.Contracts;
 using Application.Services;
 using Microsoft.Extensions.Configuration;
-using OpenAI.GPT3.Interfaces;
-using OpenAI.GPT3.ObjectModels;
-using OpenAI.GPT3.ObjectModels.RequestModels;
-using OpenAI.GPT3.ObjectModels.ResponseModels;
+using OpenAI.Interfaces;
+using OpenAI.ObjectModels;
+using OpenAI.ObjectModels.RequestModels;
+using OpenAI.ObjectModels.ResponseModels;
 using Polly.RateLimit;
 
 namespace Infrastructure.Services;
@@ -47,7 +47,8 @@ public class OpenAiChatCompletionsService : IOpenAiChatCompletionsService
         {
             return openAiService.ChatCompletion.CreateCompletionAsStream(
                 chatCompletionCreateRequest,
-                gptModelStr,
+                gptModelStr, 
+                true,
                 cancellationToken
             );
         }

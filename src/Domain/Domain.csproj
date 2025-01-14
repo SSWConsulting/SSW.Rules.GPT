@@ -5,7 +5,7 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Betalgo.OpenAI" Version="6.8.6" />
+		<PackageReference Include="Betalgo.OpenAI" Version="8.7.2" />
 		<PackageReference Include="Pgvector.EntityFrameworkCore" Version="0.2.1" />
 	</ItemGroup>
 	<ItemGroup>

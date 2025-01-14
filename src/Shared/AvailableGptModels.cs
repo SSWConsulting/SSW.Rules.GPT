@@ -2,8 +2,8 @@
 
 public enum AvailableGptModels
 {
-    Gpt35Turbo = OpenAI.GPT3.ObjectModels.Models.Model.ChatGpt3_5Turbo,
-    Gpt4 = OpenAI.GPT3.ObjectModels.Models.Model.Gpt_4
+    Gpt35Turbo = OpenAI.ObjectModels.Models.Model.Gpt_3_5_Turbo,
+    Gpt4 = OpenAI.ObjectModels.Models.Model.Gpt_4
 }
 
 public static class AvailableGptModelsExtensions

@@ -1,6 +1,6 @@
-﻿using OpenAI.GPT3.ObjectModels;
-using OpenAI.GPT3.ObjectModels.RequestModels;
-using OpenAI.GPT3.ObjectModels.ResponseModels;
+﻿using OpenAI.ObjectModels;
+using OpenAI.ObjectModels.RequestModels;
+using OpenAI.ObjectModels.ResponseModels;
 
 namespace Application.Contracts;
 

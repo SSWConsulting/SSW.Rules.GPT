@@ -1,6 +1,6 @@
 ﻿using Application.Contracts;
 using Domain.DTOs;
-using OpenAI.GPT3.ObjectModels;
+using OpenAI.ObjectModels;
 using Pgvector;
 using SharedClasses;
 

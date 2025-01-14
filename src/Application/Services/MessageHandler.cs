@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text.Json;
-using OpenAI.GPT3.ObjectModels;
+using OpenAI.ObjectModels;
 using SharedClasses;
 
 namespace Application.Services;

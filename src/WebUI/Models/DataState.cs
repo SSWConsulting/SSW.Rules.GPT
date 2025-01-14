@@ -27,7 +27,7 @@ public class DataState
     public bool IsAwaitingResponseStream { get; set; }
     
     public AvailableGptModels SelectedGptModel { get; set; } =
-        (AvailableGptModels)OpenAI.GPT3.ObjectModels.Models.Model.ChatGpt3_5Turbo;
+        (AvailableGptModels)OpenAI.ObjectModels.Models.Model.Gpt_3_5_Turbo;
 
     public async Task CancelStreamingResponse()
     {

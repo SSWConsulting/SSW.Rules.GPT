@@ -1,6 +1,6 @@
 ﻿using Domain;
 using Domain.DTOs;
-using OpenAI.GPT3.ObjectModels;
+using OpenAI.ObjectModels;
 using SharedClasses;
 
 namespace Application.Services;

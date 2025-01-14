@@ -3,7 +3,7 @@ using Infrastructure;
 using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using OpenAI.GPT3.ObjectModels;
+using OpenAI.ObjectModels;
 using Pgvector.EntityFrameworkCore;
 using SharedClasses;
 
@@ -55,7 +55,7 @@ public class RelevantRulesServiceTests
         var relevantRules = await relevantRulesService.GetRelevantRules(
             messageList,
             apiKey: null,
-            gptModel: Models.Model.ChatGpt3_5Turbo
+            gptModel: Models.Model.Gpt_3_5_Turbo
         );
 
         //Assert
