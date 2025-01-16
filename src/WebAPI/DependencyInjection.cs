@@ -12,8 +12,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddWebApi(
         this IServiceCollection services,
-        IConfiguration configuration,
-        string rulesGptCorsPolicy)
+        IConfiguration configuration)
     {
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
@@ -55,14 +54,13 @@ public static class DependencyInjection
         
         services.AddCors(
             options =>
-                options.AddPolicy(
-                    name: rulesGptCorsPolicy,
+                options.AddDefaultPolicy(
                     policy =>
                         policy
                             .WithOrigins(allowedCorsList)
+                            .AllowCredentials()
                             .AllowAnyMethod()
                             .AllowAnyHeader()
-                            .AllowCredentials()
                 )
         );
         

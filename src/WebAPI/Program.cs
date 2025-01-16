@@ -6,17 +6,9 @@ using WebAPI.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
-const string RulesGptCorsPolicy = nameof(RulesGptCorsPolicy);
-const string ChatHistoryPolicy = nameof(ChatHistoryPolicy);
-
-builder.Services.AddAuthorizationBuilder().AddPolicy(ChatHistoryPolicy, policy =>
-{
-    policy.RequireAuthenticatedUser();
-});
-
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddWebApi(builder.Configuration, RulesGptCorsPolicy);
+builder.Services.AddWebApi(builder.Configuration);
 
 var app = builder.Build();
 
@@ -26,17 +18,19 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUi();
 }
 
-app.UseCors(RulesGptCorsPolicy);
 app.UseHttpsRedirection();
+app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapLeaderboardRoutes();
-app.MapConversationRoutes();
-app.MapHub<RulesHub>("/ruleshub");
+var baseRoute = app.MapGroup("api").RequireAuthorization();
+baseRoute.MapLeaderboardRoutes();
+baseRoute.MapConversationRoutes();
 
 app.MapHealthChecks("/health");
 
+app.MapHub<RulesHub>("/ruleshub");
+
 app.Logger.LogInformation("Starting WebAPI");
-app.Run();
+await app.RunAsync();

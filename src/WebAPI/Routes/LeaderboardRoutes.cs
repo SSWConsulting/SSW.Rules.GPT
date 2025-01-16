@@ -6,7 +6,7 @@ namespace WebAPI.Routes;
 
 public static class LeaderboardRoutes
 {
-    public static void MapLeaderboardRoutes(this WebApplication app)
+    public static void MapLeaderboardRoutes(this RouteGroupBuilder app)
     {
         var routeGroup = app.MapGroup("leaderboard").WithTags("Leaderboard");
 

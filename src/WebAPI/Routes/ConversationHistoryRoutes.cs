@@ -7,7 +7,7 @@ public static class ConversationHistoryRoutes
 {
     private const string ChatHistoryPolicy = nameof(ChatHistoryPolicy);
     
-    public static void MapConversationRoutes(this WebApplication app)
+    public static void MapConversationRoutes(this RouteGroupBuilder app)
     {
         var routeGroup = app.MapGroup("").WithTags("ConversationHistory").WithOpenApi();
         
