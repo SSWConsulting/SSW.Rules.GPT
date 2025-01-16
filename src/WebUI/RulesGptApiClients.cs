@@ -75,8 +75,8 @@ namespace WebUI
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "leaderboard/getLeaderboardStats"
-                    urlBuilder_.Append("leaderboard/getLeaderboardStats");
+                    // Operation Path: "api/leaderboard/getLeaderboardStats"
+                    urlBuilder_.Append("api/leaderboard/getLeaderboardStats");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -154,8 +154,8 @@ namespace WebUI
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "Conversation/{id}"
-                    urlBuilder_.Append("Conversation/");
+                    // Operation Path: "api/Conversation/{id}"
+                    urlBuilder_.Append("api/Conversation/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
 
                     PrepareRequest(client_, request_, urlBuilder_);
@@ -237,8 +237,8 @@ namespace WebUI
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "Conversation/{id}"
-                    urlBuilder_.Append("Conversation/");
+                    // Operation Path: "api/Conversation/{id}"
+                    urlBuilder_.Append("api/Conversation/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append('?');
                     urlBuilder_.Append(System.Uri.EscapeDataString("conversation")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(conversation, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
@@ -312,8 +312,8 @@ namespace WebUI
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "Conversations"
-                    urlBuilder_.Append("Conversations");
+                    // Operation Path: "api/Conversations"
+                    urlBuilder_.Append("api/Conversations");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -387,8 +387,8 @@ namespace WebUI
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "Conversations"
-                    urlBuilder_.Append("Conversations");
+                    // Operation Path: "api/Conversations"
+                    urlBuilder_.Append("api/Conversations");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -465,8 +465,8 @@ namespace WebUI
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                 
-                    // Operation Path: "Conversation"
-                    urlBuilder_.Append("Conversation");
+                    // Operation Path: "api/Conversation"
+                    urlBuilder_.Append("api/Conversation");
                     urlBuilder_.Append('?');
                     urlBuilder_.Append(System.Uri.EscapeDataString("conversation")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(conversation, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
                     urlBuilder_.Append(System.Uri.EscapeDataString("firstMessage")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(firstMessage, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
