@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
-using OpenAI.GPT3;
-using OpenAI.GPT3.Interfaces;
-using OpenAI.GPT3.Managers;
+using OpenAI;
+using OpenAI.Interfaces;
+using OpenAI.Managers;
 
 namespace Application.Services;
 

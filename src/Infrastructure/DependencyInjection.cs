@@ -4,8 +4,7 @@ using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using OpenAI.GPT3.Extensions;
-using Pgvector.EntityFrameworkCore;
+using OpenAI.Extensions;
 using Polly;
 
 namespace Infrastructure;
@@ -36,7 +35,6 @@ public static class DependencyInjection
             : 50;
         
         var rateLimitPolicy = Policy.RateLimitAsync(maxRequestsPerMinute, TimeSpan.FromSeconds(60));
-
         services.AddOpenAIService(settings =>
         {
             settings.ApiKey = openAiApiKey;

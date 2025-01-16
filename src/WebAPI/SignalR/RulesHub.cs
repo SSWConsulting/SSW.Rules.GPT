@@ -3,7 +3,7 @@ using Application.Services;
 using Domain.Entities;
 using Duende.IdentityServer.Extensions;
 using Microsoft.AspNetCore.SignalR;
-using OpenAI.GPT3.ObjectModels;
+using OpenAI.ObjectModels;
 using Polly.RateLimit;
 using SharedClasses;
 
@@ -98,7 +98,7 @@ public class RulesHub : Hub<IRulesClient>
         else if (!isAuthenticated && string.IsNullOrWhiteSpace(apiKey) && gptModel == Models.Model.Gpt_4)
         {
             Clients.Caller.ReceiveInvalidModelWarning();
-            gptModel = Models.Model.ChatGpt3_5Turbo;
+            gptModel = Models.Model.Gpt_3_5_Turbo;
         }
 
         return _messageHandler.Handle(messageList, apiKey, gptModel, cancellationToken);

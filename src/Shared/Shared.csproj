@@ -6,6 +6,6 @@
 		<RootNamespace>Shared</RootNamespace>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Betalgo.OpenAI" Version="6.8.6" />
+		<PackageReference Include="Betalgo.OpenAI" Version="8.7.2" />
 	</ItemGroup>
 </Project>

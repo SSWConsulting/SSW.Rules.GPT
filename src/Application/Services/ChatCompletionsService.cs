@@ -1,8 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
 using Application.Contracts;
 using Microsoft.Extensions.Logging;
-using OpenAI.GPT3.ObjectModels;
-using OpenAI.GPT3.ObjectModels.RequestModels;
+using OpenAI.ObjectModels;
+using OpenAI.ObjectModels.RequestModels;
 
 namespace Application.Services;
 
@@ -89,7 +89,7 @@ public class ChatCompletionsService
                     yield return new SharedClasses.ChatMessage("assistant", "⚠️ *GPT-4 Request failed, reverting to GPT-3.5 Turbo.*" + Environment.NewLine);
                     await foreach (
                         var chatMessage in RequestNewCompletionMessage(messageList, apiKey,
-                            Models.Model.ChatGpt3_5Turbo,
+                            Models.Model.Gpt_3_5_Turbo,
                             cancellationToken))
                     {
                         yield return chatMessage;

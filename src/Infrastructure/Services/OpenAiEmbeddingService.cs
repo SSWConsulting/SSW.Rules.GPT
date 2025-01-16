@@ -1,9 +1,9 @@
 using Application.Contracts;
 using Microsoft.Extensions.Configuration;
 using Application.Services;
-using OpenAI.GPT3.Interfaces;
-using OpenAI.GPT3.ObjectModels;
-using OpenAI.GPT3.ObjectModels.RequestModels;
+using OpenAI.Interfaces;
+using OpenAI.ObjectModels;
+using OpenAI.ObjectModels.RequestModels;
 using Pgvector;
 using Polly.RateLimit;
 
