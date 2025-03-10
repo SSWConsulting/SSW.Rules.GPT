@@ -5,12 +5,10 @@ namespace WebAPI.Routes;
 
 public static class ConversationHistoryRoutes
 {
-    private const string ChatHistoryPolicy = nameof(ChatHistoryPolicy);
-    
     public static void MapConversationRoutes(this RouteGroupBuilder app)
     {
         var routeGroup = app.MapGroup("").WithTags("ConversationHistory").WithOpenApi();
-        
+
         routeGroup
             .MapGet(
                 "/Conversation/{id}",
@@ -19,9 +17,7 @@ public static class ConversationHistoryRoutes
                     var results = await historyService.GetConversation(id);
                     return TypedResults.Ok(results);
                 })
-            .WithName("GetConversationById")
-            .RequireAuthorization(ChatHistoryPolicy);
-        
+            .WithName("GetConversationById");
         routeGroup
             .MapGet(
                 "/Conversations",
@@ -30,9 +26,8 @@ public static class ConversationHistoryRoutes
                     var results = await historyService.GetConversations();
                     return TypedResults.Ok(results);
                 })
-            .WithName("GetConversationsForUser")
-            .RequireAuthorization(ChatHistoryPolicy);
-        
+            .WithName("GetConversationsForUser");
+
         routeGroup
             .MapPost(
                 "/Conversation",
@@ -41,20 +36,18 @@ public static class ConversationHistoryRoutes
                     var id = await historyService.AddConversation(conversation, firstMessage);
                     return TypedResults.Ok(id);
                 })
-            .WithName("AddConversationHistory")
-            .RequireAuthorization(ChatHistoryPolicy);
-        
+            .WithName("AddConversationHistory");
+
         routeGroup
             .MapPut(
-                "/Conversation/{id}", 
+                "/Conversation/{id}",
                 async (ChatHistoryService historyService, int id, string conversation) =>
                 {
                     await historyService.UpdateConversation(id, conversation);
                     return TypedResults.Ok();
                 })
-            .WithName("UpdateConversation")
-            .RequireAuthorization(ChatHistoryPolicy);
-        
+            .WithName("UpdateConversation");
+
         routeGroup
             .MapDelete(
                 "/Conversations",
@@ -63,7 +56,6 @@ public static class ConversationHistoryRoutes
                     await historyService.ClearAllHistory();
                     return TypedResults.Ok();
                 })
-            .WithName("DeleteAllConversations")
-            .RequireAuthorization(ChatHistoryPolicy);
+            .WithName("DeleteAllConversations");
     }
 }
