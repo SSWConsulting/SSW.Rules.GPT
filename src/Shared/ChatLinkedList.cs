@@ -2,8 +2,6 @@
 
 public class ChatLinkedList : List<ChatLinkedListItem>
 {
-    public ChatLinkedList() { }
-
     public ChatLinkedListItem Add(ChatMessage message, AvailableGptModels gptModel)
     {
         var newItem = new ChatLinkedListItem(message, gptModel);
@@ -14,8 +12,8 @@ public class ChatLinkedList : List<ChatLinkedListItem>
 
     public ChatLinkedListItem AddAfter(ChatMessage message, ChatLinkedListItem item, AvailableGptModels gptModel)
     {
-        if (item != null && !Contains(item))
-            throw new ArgumentException("Item is not in the list");
+        ArgumentNullException.ThrowIfNull(item, nameof(item));
+        if (this.Contains(item) is false) throw new ArgumentException("Item is not in the list");
 
         var newItem = new ChatLinkedListItem(message, item, gptModel);
         item.Next = newItem;

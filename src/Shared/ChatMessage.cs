@@ -2,16 +2,6 @@
 
 public class ChatMessage
 {
-    //Required for deserialization
-    public ChatMessage() { }
-
-    public ChatMessage(OpenAI.ObjectModels.RequestModels.ChatMessage message)
-    {
-        Role = message.Role;
-        Content = message.Content;
-        Name = message.Name;
-    }
-    
     public ChatMessage(string role, string content, string? name = null)
     {
         Role = role;
