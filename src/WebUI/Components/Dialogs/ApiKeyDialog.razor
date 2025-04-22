@@ -77,8 +77,7 @@
     private string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
     private bool ShowPassword { get; set; }
 
-
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         UsingByoApiKey = DataState.UsingByoApiKey;
         SaveAPIKeyToLocalStorage = DataState.SavingByoApiKey;

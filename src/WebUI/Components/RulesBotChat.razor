@@ -61,7 +61,7 @@
 </div>
 
 @code {
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         NotifierService.Notify += OnNotify;
     }

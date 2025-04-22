@@ -62,7 +62,7 @@ builder.Services.AddApiAuthorization();
 
 const string ApiClient = nameof(ApiClient);
 
-var apiBaseUrl = builder.Configuration["ApiBaseUrl"];
+var apiBaseUrl = builder.Configuration.GetValue<string>("ApiBaseUrl") ?? throw new ArgumentNullException("ApiBaseUrl");
 
 builder.Services
     .AddHttpClient(
@@ -70,12 +70,12 @@ builder.Services
         client => client.BaseAddress = new Uri(apiBaseUrl ?? throw new InvalidOperationException())
     )
     .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>().ConfigureHandler(
-        authorizedUrls: new[] { apiBaseUrl }
+        authorizedUrls: [apiBaseUrl]
     ));
 
 builder.Services.AddHttpClient<RulesGptClient>(ApiClient)
     .AddHttpMessageHandler(sp => sp.GetRequiredService<AuthorizationMessageHandler>().ConfigureHandler(
-        authorizedUrls: new[] { apiBaseUrl }
+        authorizedUrls: [apiBaseUrl]
     ));
 
 await builder.Build().RunAsync();

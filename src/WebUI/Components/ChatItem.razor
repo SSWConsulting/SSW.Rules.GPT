@@ -132,7 +132,7 @@
     
     private MultilineInput multilineInput;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         NotifierService.Notify += OnNotify;
         isUser = MessageThreadItem.Message.Role == "user";
@@ -143,7 +143,7 @@
         await InvokeAsync(StateHasChanged);
     }
 
-    private async Task SetEditState(bool editing)
+    private void SetEditState(bool editing)
     {
         isEditing = editing;
         StateHasChanged();
