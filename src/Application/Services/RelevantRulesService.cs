@@ -46,9 +46,10 @@ public class RelevantRulesService
             concatenatedUserMessages,
             apiKey
         );
+        ArgumentNullException.ThrowIfNull(embeddingVector);
 
         var relevantRulesList = await _embeddingNeighboursService.CalculateNearestNeighbours(
-            new List<Vector> { embeddingVector }
+            [embeddingVector]
         );
         relevantRulesList = _pruningService.PruneRelevantRules(relevantRulesList, gptModel);
 
