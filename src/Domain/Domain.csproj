@@ -6,7 +6,7 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Betalgo.OpenAI" Version="8.7.2" />
-		<PackageReference Include="Pgvector.EntityFrameworkCore" Version="0.2.1" />
+		<PackageReference Include="Pgvector.EntityFrameworkCore" Version="0.2.2" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Shared\Shared.csproj" />
