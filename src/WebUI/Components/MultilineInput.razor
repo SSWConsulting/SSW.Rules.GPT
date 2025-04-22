@@ -19,9 +19,9 @@
         base.OnParametersSet();
     }
 
-    private async Task HandleInput(ChangeEventArgs args)
+    private void HandleInput(ChangeEventArgs args)
     {
-        message = args.Value.ToString();
+        message = args.Value!.ToString()!;
     }
     
     private async Task HandleSubmit(KeyboardEventArgs args)

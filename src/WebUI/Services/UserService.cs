@@ -31,7 +31,7 @@ public class UserService
 
     public bool IsUserAuthenticated { get; private set; }
 
-    public event Func<Task> OnAuthenticationStateChangedEvent; 
+    public event Func<Task>? OnAuthenticationStateChangedEvent; 
 
     public void BeginSignIn()
         => _navManager.NavigateToLogin("/authentication/login");

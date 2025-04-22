@@ -106,18 +106,14 @@
         </AuthorizeView>
     </MudAppBar>
     <MudMainContent Style="height: 100%;">
-        <CascadingValue Value="_theme">
-            <CascadingValue Value="_isDarkMode">
-                <MudContainer MaxWidth="MaxWidth.Large" Style="height: 100%">
-                    @Body
-                </MudContainer>
-            </CascadingValue>
-        </CascadingValue>
+        <MudContainer MaxWidth="MaxWidth.Large" Style="height: 100%">
+            @Body
+        </MudContainer>
     </MudMainContent>
 </MudLayout>
 
 @code {
-    private MudThemeProvider _mudThemeProvider;
+    private MudThemeProvider _mudThemeProvider = null!;
     private bool _isDarkMode;
     private bool systemIsDarkMode;
     private bool isDrawerOpen = true;
@@ -177,7 +173,7 @@
         {
             await SignalRClient.StartAsync(DataState.CancellationTokenSource.Token);
         }
-        catch (HttpRequestException e)
+        catch (HttpRequestException)
         {
     // Display error message
             Snackbar.Add("Unable to connect to SSW RulesGPT", Severity.Error);
@@ -238,11 +234,12 @@
         }
     }
 
-    private async Task OnSystemPreferenceChanged(bool newValue)
+    private Task OnSystemPreferenceChanged(bool newValue)
     {
         systemIsDarkMode = newValue;
         SetThemePreference(themePreference);
         StateHasChanged();
+        return Task.CompletedTask;
     }
 
     private async Task OpenApiKeyDialog()

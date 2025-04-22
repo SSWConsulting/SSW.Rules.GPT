@@ -11,8 +11,9 @@ public class SemanticKernelService : ISemanticKernelService
 
     public SemanticKernelService(IConfiguration configuration)
     {
+        var openAiApiKey = configuration.GetValue<string>("OpenAiApiKey") ?? throw new ArgumentNullException("OpenAiApiKey");;
         _kernel = Kernel.CreateBuilder()
-            .AddOpenAIChatCompletion("gpt-4", configuration.GetValue<string>("OpenAiApiKey"))
+            .AddOpenAIChatCompletion("gpt-4", openAiApiKey)
             .Build();
 
         _function = _kernel.CreateFunctionFromPrompt("Create a simple three word title for a conversation about '{{$input}}'. Return only plain text with no quotation marks. Use simple and short words.");

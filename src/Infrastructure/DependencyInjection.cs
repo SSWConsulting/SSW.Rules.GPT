@@ -29,7 +29,7 @@ public static class DependencyInjection
                 options.UseNpgsql(connectionString, x => x.UseVector()).EnableSensitiveDataLogging()
         );
 
-        var openAiApiKey = config["OpenAiApiKey"];
+        var openAiApiKey = config.GetValue<string>("OpenAiApiKey") ?? throw new ArgumentNullException("OpenAiApiKey");
         var maxRequestsPerMinute = int.TryParse(config["MaxRequestsPerMinute"], out var result)
             ? result
             : 50;

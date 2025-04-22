@@ -40,10 +40,13 @@ public class SignalRClient
 
         RegisterHandlers();
 
-        _connection.Closed += async exception =>
+        _connection.Closed += exception =>
         {
             if (exception != null)
+            {
                 logger.LogInformation("Connection closed due to an error: {Exception}", exception);
+            }
+            return Task.CompletedTask;
         };
     }
 
@@ -79,9 +82,9 @@ public class SignalRClient
         OpenAI.ObjectModels.Models.Model gptModel,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        var mappedList = messageList.Select(s => new OpenAI.ObjectModels.RequestModels.ChatMessage(s.Role, s.Content, s.Name));
+        var mappedList = messageList.Select(s => new ChatMessage(s.Role, s.Content, s.Name));
         
-        var completionResult = _connection.StreamAsync<OpenAI.ObjectModels.RequestModels.ChatMessage?>(
+        var completionResult = _connection.StreamAsync<ChatMessage?>(
             "RequestNewCompletionMessage",
             mappedList,
             apiKey,
@@ -90,7 +93,7 @@ public class SignalRClient
         );
 
         await foreach (var message in completionResult)
-            yield return new ChatMessage(message);
+            yield return message;
     }
 
     //Methods that the client listens for from the server

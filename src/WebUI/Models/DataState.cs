@@ -31,7 +31,7 @@ public class DataState
 
     public async Task CancelStreamingResponse()
     {
-        CancellationTokenSource.Cancel();
+        await CancellationTokenSource.CancelAsync();
         CancellationTokenSource.Dispose();
 
         var lastAssistantMessage = Conversation.CurrentThread.LastOrDefault(s => s.Message.Role == "assistant");

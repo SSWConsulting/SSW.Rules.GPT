@@ -4,9 +4,6 @@ namespace SharedClasses;
 
 public class ChatLinkedListItem
 {
-    //Required for deserialization
-    public ChatLinkedListItem() { }
-
     public ChatLinkedListItem(ChatMessage message, AvailableGptModels gptModel)
     {
         Message = message;

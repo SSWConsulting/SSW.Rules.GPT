@@ -36,9 +36,9 @@ public class RelevantRulesService
             .ToList();
 
         // Replicate NextJS behaviour, whether intended or not
-        if (lastThreeUserMessagesContent.Count == 1)
+        if (lastThreeUserMessagesContent.Count is 1)
         {
-            lastThreeUserMessagesContent.Add(lastThreeUserMessagesContent.FirstOrDefault());
+            lastThreeUserMessagesContent.Add(lastThreeUserMessagesContent.Single());
         }
         var concatenatedUserMessages = string.Join("\n", lastThreeUserMessagesContent);
 
@@ -46,9 +46,10 @@ public class RelevantRulesService
             concatenatedUserMessages,
             apiKey
         );
+        ArgumentNullException.ThrowIfNull(embeddingVector);
 
         var relevantRulesList = await _embeddingNeighboursService.CalculateNearestNeighbours(
-            new List<Vector> { embeddingVector }
+            [embeddingVector]
         );
         relevantRulesList = _pruningService.PruneRelevantRules(relevantRulesList, gptModel);
 
