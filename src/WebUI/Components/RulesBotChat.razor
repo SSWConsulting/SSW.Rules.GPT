@@ -11,7 +11,7 @@
 
 
 <div style="display: grid; grid-template-rows: 1fr auto; height: 100%; padding: 24px 0;">
-    <MudPaper Elevation="0" Style=@($"background: {(!isDarkMode ? Theme.PaletteLight.BackgroundGray : Theme.PaletteDark.BackgroundGray)}; border: 1px solid #e6e6e6; overflow-y: auto; height: 100%")>
+    <MudPaper Elevation="0" Style="background: var(--mud-palette-background-gray); border: 1px solid #e6e6e6; overflow-y: auto; height: 100%">
         <MudContainer Class="pa-0" Style="height: 100%">
             @if (DataState.Conversation.ChatList.Count == 0)
             {
@@ -61,9 +61,6 @@
 </div>
 
 @code {
-    [CascadingParameter] protected MudTheme Theme { get; set; }
-    [CascadingParameter] protected bool isDarkMode { get; set; }
-    
     protected override async Task OnInitializedAsync()
     {
         NotifierService.Notify += OnNotify;

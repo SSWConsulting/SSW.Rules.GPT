@@ -106,13 +106,9 @@
         </AuthorizeView>
     </MudAppBar>
     <MudMainContent Style="height: 100%;">
-        <CascadingValue Value="_theme">
-            <CascadingValue Value="_isDarkMode">
-                <MudContainer MaxWidth="MaxWidth.Large" Style="height: 100%">
-                    @Body
-                </MudContainer>
-            </CascadingValue>
-        </CascadingValue>
+        <MudContainer MaxWidth="MaxWidth.Large" Style="height: 100%">
+            @Body
+        </MudContainer>
     </MudMainContent>
 </MudLayout>
 
