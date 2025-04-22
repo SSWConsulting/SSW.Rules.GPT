@@ -70,31 +70,31 @@
         </div>
         <div class="d-sm-flex d-md-none">
             <MudMenu Icon="@Icons.Material.Filled.KeyboardArrowDown" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
-                <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Refresh" OnClick="ResetApplicationState">New Chat</MudMenuItem>
-                <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Leaderboard" OnClick="@(() => NavigationManager.NavigateTo("/leaderboard"))">Leaderboard</MudMenuItem>
+                <MudMenuItem Icon="@Icons.Material.Filled.Refresh" OnClick="ResetApplicationState">New Chat</MudMenuItem>
+                <MudMenuItem Icon="@Icons.Material.Filled.Leaderboard" OnClick="@(() => NavigationManager.NavigateTo("/leaderboard"))">Leaderboard</MudMenuItem>
                 @switch (themePreference)
                 {
                     case ThemePreference.Light:
-                        <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.DarkMode" OnClick="@(() => SetThemePreference(ThemePreference.Dark))">Use Dark Theme</MudMenuItem>
+                        <MudMenuItem Icon="@Icons.Material.Filled.DarkMode" OnClick="@(() => SetThemePreference(ThemePreference.Dark))">Use Dark Theme</MudMenuItem>
                         break;
 
                     case ThemePreference.Dark:
-                        <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.DarkMode" OnClick="@(() => SetThemePreference(ThemePreference.System))">Use System Theme</MudMenuItem>
+                        <MudMenuItem Icon="@Icons.Material.Filled.DarkMode" OnClick="@(() => SetThemePreference(ThemePreference.System))">Use System Theme</MudMenuItem>
                         break;
 
                     default:
                     case ThemePreference.System:
-                        <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.DarkMode" OnClick="@(() => SetThemePreference(ThemePreference.Light))">Use Light Theme</MudMenuItem>
+                        <MudMenuItem Icon="@Icons.Material.Filled.DarkMode" OnClick="@(() => SetThemePreference(ThemePreference.Light))">Use Light Theme</MudMenuItem>
                         break;
                 }
 
             </MudMenu>
         </div>
         <MudMenu Icon="@Icons.Material.Filled.Settings" Dense="false" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
-            <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Edit" OnClick="OpenApiKeyDialog">API Key</MudMenuItem>
-            <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.SettingsSuggest" Target="_blank" Href="https://github.com/SSWConsulting/SSW.Rules.GPT.Blazor/issues">Suggestions</MudMenuItem>
-            <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Download" OnClick="OpenInstallInstructionsDialog">Installation Instructions</MudMenuItem>
-            <MudMenuItem IconSize="Size.Small" Icon="@Icons.Material.Filled.Info" OnClick="OpenAboutRulesGptDialog">About</MudMenuItem>
+            <MudMenuItem Icon="@Icons.Material.Filled.Edit" OnClick="OpenApiKeyDialog">API Key</MudMenuItem>
+            <MudMenuItem Icon="@Icons.Material.Filled.SettingsSuggest" Target="_blank" Href="https://github.com/SSWConsulting/SSW.Rules.GPT.Blazor/issues">Suggestions</MudMenuItem>
+            <MudMenuItem Icon="@Icons.Material.Filled.Download" OnClick="OpenInstallInstructionsDialog">Installation Instructions</MudMenuItem>
+            <MudMenuItem Icon="@Icons.Material.Filled.Info" OnClick="OpenAboutRulesGptDialog">About</MudMenuItem>
         </MudMenu>
         <AuthorizeView>
             <Authorized>

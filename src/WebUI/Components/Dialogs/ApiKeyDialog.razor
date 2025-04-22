@@ -58,10 +58,10 @@
 </MudDialog>
 
 @code {
-
+    
     [CascadingParameter]
-    MudDialogInstance MudDialog { get; set; } = default!;
-
+    private IMudDialogInstance MudDialog { get; set; } = null!;
+    
     private bool UsingByoApiKey { get; set; }
     private bool Validating { get; set; }
     private string? ApiKeyString { get; set; }
