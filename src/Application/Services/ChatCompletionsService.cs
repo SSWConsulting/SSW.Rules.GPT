@@ -70,8 +70,12 @@ public class ChatCompletionsService
                     _logger.LogInformation("{FinishReason}", finishReason);
                 }
 
-                var message = completion.Choices.FirstOrDefault()?.Message;
-                yield return new SharedClasses.ChatMessage(message);
+                var message = completion.Choices.First().Message;
+                if (message.Content is not null)
+                {
+                    yield return new SharedClasses.ChatMessage(message.Role, message.Content, message.Name);
+
+                }
             }
             else
             {
