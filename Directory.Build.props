@@ -1,0 +1,7 @@
+<Project>
+    <PropertyGroup>
+        <TreatWarningsAsErrors Condition="'$(Configuration)' == 'Release'">true</TreatWarningsAsErrors>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UseArtifactsOutput>true</UseArtifactsOutput>
+    </PropertyGroup>
+</Project>
