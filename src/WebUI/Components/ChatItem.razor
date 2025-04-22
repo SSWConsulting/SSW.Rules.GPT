@@ -45,6 +45,7 @@
                             @if (isEditing)
                             {
                                 <MudStack>
+                                    <div>test</div>
                                     <MultilineInput @ref="multilineInput" Data="@MessageThreadItem.Message.Content" OnSubmitted="SubmitEdit"/>
                                     <MudStack Row="true" Spacing="1">
                                         <MudIconButton Size="Size.Small" Color="Color.Success" Icon="@Icons.Material.Filled.Done" OnClick="OnEditDoneClicked"/>
@@ -130,7 +131,7 @@
     private bool isUser;
     private bool isEditing;
     
-    private MultilineInput multilineInput;
+    private MultilineInput multilineInput = null!;
 
     protected override void OnInitialized()
     {
