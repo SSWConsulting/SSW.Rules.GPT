@@ -9,8 +9,7 @@ public class OpenAiServiceFactory
 {
     private readonly IConfiguration _config;
 
-    private IOpenAIService _gpt3Service;
-    private IOpenAIService _gpt4Service;
+    private IOpenAIService? _gpt3Service;
 
     public OpenAiServiceFactory(IConfiguration config)
     {
@@ -22,9 +21,9 @@ public class OpenAiServiceFactory
         //TODO: Detect whether user is authenticated
         if (_gpt3Service is null)
         {
-            var openAiApiKey = _config["OpenAiApiKey"];
-            var azureOpenAiApiKey = _config["AzureOpenAiApiKey"];
-            var azureOpenAiEndpoint = _config["AzureOpenAiEndpoint"];
+            var openAiApiKey = _config.GetValue<string>("OpenAiApiKey");
+            var azureOpenAiApiKey = _config.GetValue<string>("AzureOpenAiApiKey");
+            var azureOpenAiEndpoint = _config.GetValue<string>("AzureOpenAiEndpoint");
             var useAzureOpenAi = _config.GetValue<bool>("UseAzureOpenAiBool");
 
             OpenAIService openAiService;
@@ -43,6 +42,7 @@ public class OpenAiServiceFactory
             }
             else
             {
+                ArgumentException.ThrowIfNullOrWhiteSpace(openAiApiKey);
                 openAiService = new OpenAIService(new OpenAiOptions()
                 {
                     ApiKey = openAiApiKey
@@ -57,6 +57,6 @@ public class OpenAiServiceFactory
 
     public IOpenAIService GetOpenAiService(string apiKey)
     {
-        return new OpenAIService(new OpenAiOptions() { ApiKey = apiKey });
+        return new OpenAIService(new OpenAiOptions { ApiKey = apiKey });
     }
 }

@@ -13,7 +13,6 @@ public class OpenAiChatCompletionsService : IOpenAiChatCompletionsService
 {
     private readonly OpenAiServiceFactory _openAiServiceFactory;
     private readonly IConfiguration _config;
-    public Func<RateLimitRejectedException, Task> OnRateLimited { get; set; }
 
     public OpenAiChatCompletionsService(OpenAiServiceFactory openAiServiceFactory, IConfiguration config)
     {
@@ -43,19 +42,11 @@ public class OpenAiChatCompletionsService : IOpenAiChatCompletionsService
             gptModelStr = gptModel.EnumToString();
         }
 
-        try
-        {
-            return openAiService.ChatCompletion.CreateCompletionAsStream(
-                chatCompletionCreateRequest,
-                gptModelStr, 
-                true,
-                cancellationToken
-            );
-        }
-        catch (RateLimitRejectedException e)
-        {
-            OnRateLimited?.Invoke(e);
-            return null;
-        }
+        return openAiService.ChatCompletion.CreateCompletionAsStream(
+            chatCompletionCreateRequest,
+            gptModelStr, 
+            true,
+            cancellationToken
+        );
     }
 }

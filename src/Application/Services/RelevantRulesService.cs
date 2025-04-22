@@ -36,9 +36,9 @@ public class RelevantRulesService
             .ToList();
 
         // Replicate NextJS behaviour, whether intended or not
-        if (lastThreeUserMessagesContent.Count == 1)
+        if (lastThreeUserMessagesContent.Count is 1)
         {
-            lastThreeUserMessagesContent.Add(lastThreeUserMessagesContent.FirstOrDefault());
+            lastThreeUserMessagesContent.Add(lastThreeUserMessagesContent.Single());
         }
         var concatenatedUserMessages = string.Join("\n", lastThreeUserMessagesContent);
 
