@@ -42,7 +42,7 @@ public partial class RulesContext : DbContext, IRulesContext
 
     public virtual DbSet<LeaderboardModel> UserStats { get; set; } = null!;
     
-    public virtual DbSet<ConversationHistoryModel> ConversationHistories { get; set; }
+    public virtual DbSet<ConversationHistoryModel> ConversationHistories { get; set; } = null!;
     
     public virtual DbSet<SamlProvider> SamlProviders { get; set; } = null!;
 

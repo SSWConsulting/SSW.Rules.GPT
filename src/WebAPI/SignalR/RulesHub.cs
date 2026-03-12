@@ -39,7 +39,7 @@ public class RulesHub : Hub<IRulesClient>
         if (exception is null)
         {
             _logger.LogInformation("User disconnected: {User}", Context.ConnectionId);
-            return base.OnConnectedAsync();
+            return base.OnDisconnectedAsync(exception);
         }
 
         _logger.LogInformation(
@@ -47,7 +47,7 @@ public class RulesHub : Hub<IRulesClient>
             Context.ConnectionId,
             exception.Message
         );
-        return base.OnConnectedAsync();
+        return base.OnDisconnectedAsync(exception);
     }
 
     public async Task OnRateLimited(RateLimitRejectedException e)
