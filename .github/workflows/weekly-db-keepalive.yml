@@ -1,0 +1,32 @@
+name: Weekly DB Keepalive
+
+on:
+  schedule:
+    - cron: '0 3 */6 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping-stage-db:
+    name: Ping Staging DB
+    runs-on: ubuntu-latest
+    environment: Staging
+
+    steps:
+      - name: Ping staging health endpoint
+        run: |
+          curl --fail --show-error --silent --retry 3 --retry-all-errors \
+            "${{ vars.API_BASE_URL }}/health"
+
+  ping-prod-db:
+    name: Ping Production DB
+    runs-on: ubuntu-latest
+    environment: Production
+
+    steps:
+      - name: Ping production health endpoint
+        run: |
+          curl --fail --show-error --silent --retry 3 --retry-all-errors \
+            "${{ vars.API_BASE_URL }}/health"

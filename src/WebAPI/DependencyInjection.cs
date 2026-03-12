@@ -2,7 +2,6 @@
 using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Logging.ApplicationInsights;
 using WebAPI.Services;
 using WebAPI.SignalR;
 
@@ -37,12 +36,7 @@ public static class DependencyInjection
         else
         {
             services.AddApplicationInsightsTelemetry();
-            services.AddLogging(
-                options =>
-                    options
-                        .AddApplicationInsights()
-                        .AddFilter<ApplicationInsightsLoggerProvider>("", LogLevel.Information)
-            );
+            services.AddLogging();
         }
         
         var allowedCors = configuration.GetValue<string>("AllowedCORSOrigins");

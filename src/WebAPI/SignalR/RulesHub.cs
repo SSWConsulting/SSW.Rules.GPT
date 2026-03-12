@@ -1,7 +1,6 @@
 using Application.Contracts;
 using Application.Services;
 using Domain.Entities;
-using Duende.IdentityServer.Extensions;
 using Microsoft.AspNetCore.SignalR;
 using OpenAI.ObjectModels;
 using Polly.RateLimit;
@@ -67,7 +66,7 @@ public class RulesHub : Hub<IRulesClient>
     )
     {
         
-        var isAuthenticated = Context.User.IsAuthenticated();
+        var isAuthenticated = Context.User?.Identity?.IsAuthenticated == true;
         if (isAuthenticated)
         {
             var claims = Context.User?.Claims.ToList();

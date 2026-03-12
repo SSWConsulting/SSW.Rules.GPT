@@ -1,31 +1,48 @@
 ﻿using Application.Contracts;
+using Application.Services;
 using Microsoft.Extensions.Configuration;
-using Microsoft.SemanticKernel;
+using OpenAI.ObjectModels;
+using OpenAI.ObjectModels.RequestModels;
+using ChatMessage = OpenAI.ObjectModels.RequestModels.ChatMessage;
 
 namespace Infrastructure.Services;
 
 public class SemanticKernelService : ISemanticKernelService
 {
-    private readonly Kernel _kernel;
-    private readonly KernelFunction _function;
+    private readonly OpenAiServiceFactory _openAiServiceFactory;
+    private readonly string? _azureDeploymentName;
 
-    public SemanticKernelService(IConfiguration configuration)
+    public SemanticKernelService(OpenAiServiceFactory openAiServiceFactory, IConfiguration configuration)
     {
-        var openAiApiKey = configuration.GetValue<string>("OpenAiApiKey") ?? throw new ArgumentNullException("OpenAiApiKey");;
-        _kernel = Kernel.CreateBuilder()
-            .AddOpenAIChatCompletion("gpt-4", openAiApiKey)
-            .Build();
-
-        _function = _kernel.CreateFunctionFromPrompt("Create a simple three word title for a conversation about '{{$input}}'. Return only plain text with no quotation marks. Use simple and short words.");
+        _openAiServiceFactory = openAiServiceFactory;
+        _azureDeploymentName = configuration["Azure_Deployment_Chat"];
     }
     
     public async Task<string> GetConversationTitle(string question)
     {
-        var result = await _kernel.InvokeAsync(_function, new KernelArguments
+        var openAiService = _openAiServiceFactory.Create(_azureDeploymentName);
+        var result = await openAiService.ChatCompletion.CreateCompletion(
+            new ChatCompletionCreateRequest
+            {
+                Messages =
+                [
+                    ChatMessage.FromSystem(
+                        "Create a simple three word title for the user's conversation. Return only plain text with no quotation marks. Use simple and short words."
+                    ),
+                    ChatMessage.FromUser(question)
+                ],
+                MaxTokens = 12,
+                Temperature = 0.2f
+            },
+            Models.Model.Gpt_4.EnumToString()
+        );
+
+        if (!result.Successful)
         {
-            { "input", question }
-        });
-        
-        return result.ToString();
+            throw new InvalidOperationException(result.Error?.Message ?? "Failed to generate conversation title.");
+        }
+
+        return result.Choices.FirstOrDefault()?.Message?.Content?.Trim()
+            ?? throw new InvalidOperationException("OpenAI returned an empty conversation title.");
     }
 }

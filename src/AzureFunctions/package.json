@@ -10,10 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "dotenv": "^16.4.5",
-    "gpt-3-encoder": "^1.1.4",
-    "gray-matter": "^4.0.3",
-    "node-fetch": "^2.7.0",
-    "@supabase/supabase-js": "^2.x.x"
-  }
+		"dotenv": "^17.3.1",
+		"gpt-3-encoder": "^1.1.4",
+		"gray-matter": "^4.0.3",
+		"@supabase/supabase-js": "^2.99.1"
+	}
 }
