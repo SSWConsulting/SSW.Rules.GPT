@@ -1,6 +1,7 @@
 ﻿using Application.Contracts;
 using Application.Services;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using OpenAI.ObjectModels;
 using OpenAI.ObjectModels.RequestModels;
 using ChatMessage = OpenAI.ObjectModels.RequestModels.ChatMessage;
@@ -12,12 +13,17 @@ public class SemanticKernelService : ISemanticKernelService
     private readonly OpenAiServiceFactory _openAiServiceFactory;
     private readonly string? _azureDeploymentName;
     private readonly string _gptModel;
+    private readonly ILogger<SemanticKernelService> _logger;
 
-    public SemanticKernelService(OpenAiServiceFactory openAiServiceFactory, IConfiguration configuration)
+    public SemanticKernelService(
+        OpenAiServiceFactory openAiServiceFactory,
+        IConfiguration configuration,
+        ILogger<SemanticKernelService> logger)
     {
         _openAiServiceFactory = openAiServiceFactory;
         _azureDeploymentName = configuration["Azure_Deployment_Chat"];
         _gptModel = configuration["GPT_Model"] ?? Models.Model.Gpt_4.EnumToString();
+        _logger = logger;
     }
 
     public async Task<string> GetConversationTitle(string question)
@@ -43,13 +49,15 @@ public class SemanticKernelService : ISemanticKernelService
 
             if (!result.Successful)
             {
+                _logger.LogWarning("Failed to generate conversation title: {Error}", result.Error?.Message);
                 return string.Empty;
             }
 
             return result.Choices.FirstOrDefault()?.Message?.Content?.Trim() ?? string.Empty;
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogWarning(ex, "Exception generating conversation title");
             return string.Empty;
         }
     }
