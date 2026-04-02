@@ -36,7 +36,6 @@ public static class DependencyInjection
         else
         {
             services.AddApplicationInsightsTelemetry();
-            services.AddLogging();
         }
         
         var allowedCors = configuration.GetValue<string>("AllowedCORSOrigins");
