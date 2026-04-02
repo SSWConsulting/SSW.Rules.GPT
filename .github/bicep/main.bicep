@@ -116,7 +116,7 @@ resource backendAppService 'Microsoft.Web/sites@2020-12-01' = {
     reserved: true
     siteConfig: {
       numberOfWorkers: 1
-      linuxFxVersion: 'DOTNETCORE|9.0'
+      linuxFxVersion: 'DOTNETCORE|10.0'
       alwaysOn: false
       http20Enabled: false
       cors: {
@@ -163,7 +163,7 @@ resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
   properties: {
     serverFarmId: hostingPlan.id
     siteConfig: {
-      linuxFxVersion: 'NODE|18'
+      linuxFxVersion: 'NODE|20'
       appSettings: [
         {
           name: 'AzureWebJobsStorage'
@@ -179,7 +179,7 @@ resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
         }
         {
           name: 'WEBSITE_NODE_DEFAULT_VERSION'
-          value: '~18'
+          value: '~20'
         }
         {
           name: 'GITHUB_TOKEN'
