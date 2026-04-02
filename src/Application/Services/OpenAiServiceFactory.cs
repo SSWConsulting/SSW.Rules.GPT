@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Collections.Concurrent;
+using Microsoft.Extensions.Configuration;
 using OpenAI;
 using OpenAI.Interfaces;
 using OpenAI.Managers;
@@ -9,7 +10,7 @@ public class OpenAiServiceFactory
 {
     private readonly IConfiguration _config;
 
-    private readonly Dictionary<string, IOpenAIService> _serviceCache = new();
+    private readonly ConcurrentDictionary<string, IOpenAIService> _serviceCache = new();
 
     public OpenAiServiceFactory(IConfiguration config)
     {
@@ -20,42 +21,32 @@ public class OpenAiServiceFactory
     {
         var cacheKey = azureOpenAiResourceName ?? "";
 
-        if (_serviceCache.TryGetValue(cacheKey, out var cached))
+        return _serviceCache.GetOrAdd(cacheKey, _ =>
         {
-            return cached;
-        }
+            var openAiApiKey = _config.GetValue<string>("OpenAiApiKey");
+            var azureOpenAiApiKey = _config.GetValue<string>("AzureOpenAiApiKey");
+            var azureOpenAiEndpoint = _config.GetValue<string>("AzureOpenAiEndpoint");
+            var useAzureOpenAi = _config.GetValue<bool>("UseAzureOpenAiBool");
 
-        var openAiApiKey = _config.GetValue<string>("OpenAiApiKey");
-        var azureOpenAiApiKey = _config.GetValue<string>("AzureOpenAiApiKey");
-        var azureOpenAiEndpoint = _config.GetValue<string>("AzureOpenAiEndpoint");
-        var useAzureOpenAi = _config.GetValue<bool>("UseAzureOpenAiBool");
-
-        OpenAIService openAiService;
-
-        if (useAzureOpenAi && azureOpenAiApiKey is not null
-                           && azureOpenAiEndpoint is not null
-                           && azureOpenAiResourceName is not null)
-        {
-            openAiService = new OpenAIService(new OpenAiOptions()
+            if (useAzureOpenAi && azureOpenAiApiKey is not null
+                               && azureOpenAiEndpoint is not null
+                               && azureOpenAiResourceName is not null)
             {
-                ApiKey = azureOpenAiApiKey,
-                ResourceName = azureOpenAiEndpoint,
-                DeploymentId = azureOpenAiResourceName,
-                ProviderType = ProviderType.Azure,
-            });
-        }
-        else
-        {
+                return new OpenAIService(new OpenAiOptions()
+                {
+                    ApiKey = azureOpenAiApiKey,
+                    ResourceName = azureOpenAiEndpoint,
+                    DeploymentId = azureOpenAiResourceName,
+                    ProviderType = ProviderType.Azure,
+                });
+            }
+
             ArgumentException.ThrowIfNullOrWhiteSpace(openAiApiKey);
-            openAiService = new OpenAIService(new OpenAiOptions()
+            return new OpenAIService(new OpenAiOptions()
             {
                 ApiKey = openAiApiKey
             });
-        }
-
-        _serviceCache[cacheKey] = openAiService;
-
-        return openAiService;
+        });
     }
 
     public IOpenAIService GetOpenAiService(string apiKey)
