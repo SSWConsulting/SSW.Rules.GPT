@@ -9,7 +9,7 @@ public class OpenAiServiceFactory
 {
     private readonly IConfiguration _config;
 
-    private IOpenAIService? _gpt3Service;
+    private readonly Dictionary<string, IOpenAIService> _serviceCache = new();
 
     public OpenAiServiceFactory(IConfiguration config)
     {
@@ -18,41 +18,44 @@ public class OpenAiServiceFactory
 
     public IOpenAIService Create(string? azureOpenAiResourceName)
     {
-        //TODO: Detect whether user is authenticated
-        if (_gpt3Service is null)
+        var cacheKey = azureOpenAiResourceName ?? "";
+
+        if (_serviceCache.TryGetValue(cacheKey, out var cached))
         {
-            var openAiApiKey = _config.GetValue<string>("OpenAiApiKey");
-            var azureOpenAiApiKey = _config.GetValue<string>("AzureOpenAiApiKey");
-            var azureOpenAiEndpoint = _config.GetValue<string>("AzureOpenAiEndpoint");
-            var useAzureOpenAi = _config.GetValue<bool>("UseAzureOpenAiBool");
-
-            OpenAIService openAiService;
-
-            if (useAzureOpenAi && azureOpenAiApiKey is not null
-                               && azureOpenAiEndpoint is not null
-                               && azureOpenAiResourceName is not null)
-            {
-                openAiService = new OpenAIService(new OpenAiOptions()
-                {
-                    ApiKey = azureOpenAiApiKey,
-                    ResourceName = azureOpenAiEndpoint,
-                    DeploymentId = azureOpenAiResourceName,
-                    ProviderType = ProviderType.Azure,
-                });
-            }
-            else
-            {
-                ArgumentException.ThrowIfNullOrWhiteSpace(openAiApiKey);
-                openAiService = new OpenAIService(new OpenAiOptions()
-                {
-                    ApiKey = openAiApiKey
-                });
-            }
-
-            _gpt3Service = openAiService;
+            return cached;
         }
-        
-        return _gpt3Service;
+
+        var openAiApiKey = _config.GetValue<string>("OpenAiApiKey");
+        var azureOpenAiApiKey = _config.GetValue<string>("AzureOpenAiApiKey");
+        var azureOpenAiEndpoint = _config.GetValue<string>("AzureOpenAiEndpoint");
+        var useAzureOpenAi = _config.GetValue<bool>("UseAzureOpenAiBool");
+
+        OpenAIService openAiService;
+
+        if (useAzureOpenAi && azureOpenAiApiKey is not null
+                           && azureOpenAiEndpoint is not null
+                           && azureOpenAiResourceName is not null)
+        {
+            openAiService = new OpenAIService(new OpenAiOptions()
+            {
+                ApiKey = azureOpenAiApiKey,
+                ResourceName = azureOpenAiEndpoint,
+                DeploymentId = azureOpenAiResourceName,
+                ProviderType = ProviderType.Azure,
+            });
+        }
+        else
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(openAiApiKey);
+            openAiService = new OpenAIService(new OpenAiOptions()
+            {
+                ApiKey = openAiApiKey
+            });
+        }
+
+        _serviceCache[cacheKey] = openAiService;
+
+        return openAiService;
     }
 
     public IOpenAIService GetOpenAiService(string apiKey)
