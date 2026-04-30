@@ -87,7 +87,7 @@ public class MessagingService
         var resultStream = _signalRClient.RequestNewCompletionMessage(
             _dataState.Conversation.CurrentThread.Select(s => s.Message).ToList(),
             _dataState.ApiKeyString,
-            (OpenAI.ObjectModels.Models.Model)_dataState.SelectedGptModel,
+            _dataState.SelectedGptModel,
             _dataState.CancellationTokenSource.Token);
 
         await foreach (var result in resultStream)

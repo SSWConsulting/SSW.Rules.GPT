@@ -1,7 +1,5 @@
-﻿using Application.Contracts;
+using Application.Contracts;
 using Domain.DTOs;
-using OpenAI.ObjectModels;
-using Pgvector;
 using SharedClasses;
 
 namespace Application.Services;
@@ -26,7 +24,7 @@ public class RelevantRulesService
     public async Task<List<RuleDto>> GetRelevantRules(
         List<ChatMessage> messageList,
         string? apiKey,
-        Models.Model gptModel
+        AvailableGptModels gptModel
     )
     {
         var lastThreeUserMessagesContent = messageList

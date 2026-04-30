@@ -1,28 +1,21 @@
-﻿using Application.Contracts;
-using Application.Services;
-using Microsoft.Extensions.Configuration;
+using Application.Contracts;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
-using OpenAI.ObjectModels;
-using OpenAI.ObjectModels.RequestModels;
-using ChatMessage = OpenAI.ObjectModels.RequestModels.ChatMessage;
+using SharedClasses;
+using ChatMessage = Microsoft.Extensions.AI.ChatMessage;
 
 namespace Infrastructure.Services;
 
 public class SemanticKernelService : ISemanticKernelService
 {
-    private readonly OpenAiServiceFactory _openAiServiceFactory;
-    private readonly string? _azureDeploymentName;
-    private readonly string _gptModel;
+    private readonly IOpenAiClientFactory _clientFactory;
     private readonly ILogger<SemanticKernelService> _logger;
 
     public SemanticKernelService(
-        OpenAiServiceFactory openAiServiceFactory,
-        IConfiguration configuration,
+        IOpenAiClientFactory clientFactory,
         ILogger<SemanticKernelService> logger)
     {
-        _openAiServiceFactory = openAiServiceFactory;
-        _azureDeploymentName = configuration["Azure_Deployment_Chat"];
-        _gptModel = configuration["GPT_Model"] ?? Models.Model.Gpt_4.EnumToString();
+        _clientFactory = clientFactory;
         _logger = logger;
     }
 
@@ -30,30 +23,21 @@ public class SemanticKernelService : ISemanticKernelService
     {
         try
         {
-            var openAiService = _openAiServiceFactory.Create(_azureDeploymentName);
-            var result = await openAiService.ChatCompletion.CreateCompletion(
-                new ChatCompletionCreateRequest
-                {
-                    Messages =
-                    [
-                        ChatMessage.FromSystem(
-                            "Create a simple three word title for the user's conversation. Return only plain text with no quotation marks. Use simple and short words."
-                        ),
-                        ChatMessage.FromUser(question)
-                    ],
-                    MaxTokens = 12,
-                    Temperature = 0.2f
-                },
-                _gptModel
-            );
-
-            if (!result.Successful)
+            var chatClient = _clientFactory.GetChatClient(apiKey: null, AvailableGptModels.Gpt54Nano);
+            var messages = new List<ChatMessage>
             {
-                _logger.LogWarning("Failed to generate conversation title: {Error}", result.Error?.Message);
-                return string.Empty;
-            }
+                new(ChatRole.System,
+                    "Create a simple three word title for the user's conversation. Return only plain text with no quotation marks. Use simple and short words."),
+                new(ChatRole.User, question)
+            };
 
-            return result.Choices.FirstOrDefault()?.Message?.Content?.Trim() ?? string.Empty;
+            var response = await chatClient.GetResponseAsync(messages, new ChatOptions
+            {
+                MaxOutputTokens = 12,
+                Temperature = 0.2f
+            });
+
+            return response.Text?.Trim() ?? string.Empty;
         }
         catch (Exception ex)
         {

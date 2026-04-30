@@ -5,7 +5,4 @@
 		<Nullable>enable</Nullable>
 		<RootNamespace>Shared</RootNamespace>
 	</PropertyGroup>
-	<ItemGroup>
-		<PackageReference Include="Betalgo.OpenAI" Version="8.7.2" />
-	</ItemGroup>
 </Project>

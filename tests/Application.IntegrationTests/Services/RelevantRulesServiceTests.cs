@@ -1,9 +1,9 @@
-﻿using Application.Services;
+using Application.Services;
 using Infrastructure;
 using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using OpenAI.ObjectModels;
+using Microsoft.Extensions.DependencyInjection;
 using Pgvector.EntityFrameworkCore;
 using SharedClasses;
 
@@ -25,7 +25,6 @@ public class RelevantRulesServiceTests
             .Build();
 
         var connectionString = mockConfig.GetConnectionString("DefaultConnection");
-        var openAiApiKey = mockConfig["OpenAiApiKey"];
 
         var dbContextOptions = new DbContextOptionsBuilder<RulesContext>()
             .UseNpgsql(connectionString, x => x.UseVector())
@@ -35,8 +34,13 @@ public class RelevantRulesServiceTests
 
         var tokenService = new TokenService();
         var pruningService = new PruningService(tokenService);
-        var openAiFactory = new OpenAiServiceFactory(mockConfig);
-        var openAiEmbeddingService = new OpenAiEmbeddingService(openAiFactory, mockConfig);
+
+        var services = new ServiceCollection();
+        services.AddHttpClient(OpenAiClientFactory.HttpClientName);
+        var httpClientFactory = services.BuildServiceProvider().GetRequiredService<IHttpClientFactory>();
+
+        var clientFactory = new OpenAiClientFactory(mockConfig, httpClientFactory);
+        var openAiEmbeddingService = new OpenAiEmbeddingService(clientFactory);
 
         // SUT
         var relevantRulesService = new RelevantRulesService(
@@ -55,7 +59,7 @@ public class RelevantRulesServiceTests
         var relevantRules = await relevantRulesService.GetRelevantRules(
             messageList,
             apiKey: null,
-            gptModel: Models.Model.Gpt_3_5_Turbo
+            gptModel: AvailableGptModels.Gpt54Nano
         );
 
         //Assert

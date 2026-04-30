@@ -1,10 +1,8 @@
-﻿using OpenAI;
-using OpenAI.Managers;
-using OpenAI.ObjectModels;
-using OpenAI.ObjectModels.RequestModels;
+using System.ClientModel;
+using OpenAI;
+using OpenAI.Chat;
 using SharedClasses;
 using WebUI.Classes;
-using ChatMessage = OpenAI.ObjectModels.RequestModels.ChatMessage;
 
 namespace WebUI.Services;
 
@@ -12,21 +10,17 @@ public class ApiKeyValidationService
 {
     public async Task<ApiValidationResult> ValidateApiKey(string apiKey, AvailableGptModels gptModel)
     {
-        var model = (OpenAI.ObjectModels.Models.Model)gptModel;
-        var customAiService = new OpenAIService(new OpenAiOptions { ApiKey = apiKey });
-        var completionResult = await customAiService.ChatCompletion.CreateCompletion(
-            new ChatCompletionCreateRequest
-            {
-                Messages = new List<ChatMessage> { new("user", "a") },
-                MaxTokens = 1,
-                Temperature = 0.5f
-            },
-            model.EnumToString()
-        );
+        try
+        {
+            var client = new OpenAIClient(new ApiKeyCredential(apiKey)).GetChatClient(gptModel.ToModelId());
+            var options = new ChatCompletionOptions { MaxOutputTokenCount = 1, Temperature = 0.5f };
+            await client.CompleteChatAsync([new UserChatMessage("a")], options);
 
-        return new ApiValidationResult(
-            completionResult.Successful,
-            completionResult.Error?.Message ?? "Unknown error occurred."
-        );
+            return new ApiValidationResult(true, string.Empty);
+        }
+        catch (Exception ex)
+        {
+            return new ApiValidationResult(false, ex.Message);
+        }
     }
 }

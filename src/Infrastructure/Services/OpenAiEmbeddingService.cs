@@ -1,9 +1,5 @@
 using Application.Contracts;
-using Microsoft.Extensions.Configuration;
-using Application.Services;
-using OpenAI.Interfaces;
-using OpenAI.ObjectModels;
-using OpenAI.ObjectModels.RequestModels;
+using Microsoft.Extensions.AI;
 using Pgvector;
 using Polly.RateLimit;
 
@@ -11,58 +7,52 @@ namespace Infrastructure.Services;
 
 public class OpenAiEmbeddingService : IOpenAiEmbeddingService
 {
-    private readonly OpenAiServiceFactory _openAiServiceFactory;
-    private readonly string? _azureDeploymentName;
+    private readonly IOpenAiClientFactory _clientFactory;
 
     public Func<RateLimitRejectedException, Task>? OnRateLimited { get; set; }
 
-    public OpenAiEmbeddingService(OpenAiServiceFactory openAiServiceFactory, IConfiguration config)
+    public OpenAiEmbeddingService(IOpenAiClientFactory clientFactory)
     {
-        _openAiServiceFactory = openAiServiceFactory;
-        _azureDeploymentName = config.GetValue<string>("Azure_Deployment_Embedding");
+        _clientFactory = clientFactory;
     }
 
     public async Task<Vector?> GetEmbedding(string inputString, string? apiKey)
     {
-        IOpenAIService openAiService;
-        
-        if (string.IsNullOrEmpty(apiKey))
-        {
-            openAiService = _openAiServiceFactory.Create(_azureDeploymentName);
-        }
-        else
-        {
-            openAiService = _openAiServiceFactory.GetOpenAiService(apiKey);
-        }
+        var generator = _clientFactory.GetEmbeddingGenerator(apiKey);
 
         try
         {
-            var result = await openAiService.Embeddings.CreateEmbedding(
-                new EmbeddingCreateRequest { Input = inputString, Model = Models.TextEmbeddingAdaV2 }
-            );
-
-            if (result.Successful)
+            var result = await generator.GenerateAsync([inputString]);
+            var embedding = result.FirstOrDefault();
+            if (embedding is null)
             {
-                var embeddingResponse = result.Data.First();
-                var vector = new Vector(
-                    embeddingResponse.Embedding.ToArray().Select(s => (float)s).ToArray()
-                );
-
-                return vector;
+                return null;
             }
 
-            if (result.Error == null)
-            {
-                throw new Exception("Unknown Error");
-            }
-
-            Console.WriteLine($"{result.Error.Code}: {result.Error.Message}");
-            return null;
+            return new Vector(embedding.Vector.ToArray());
         }
-        catch (RateLimitRejectedException e)
+        catch (Exception ex) when (UnwrapRateLimit(ex) is { } rateLimit)
         {
-            OnRateLimited?.Invoke(e);
+            if (OnRateLimited is not null)
+            {
+                await OnRateLimited.Invoke(rateLimit);
+            }
             return null;
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Embedding request failed: {ex.Message}");
+            return null;
+        }
+    }
+
+    private static RateLimitRejectedException? UnwrapRateLimit(Exception? ex)
+    {
+        while (ex is not null)
+        {
+            if (ex is RateLimitRejectedException r) return r;
+            ex = ex.InnerException;
+        }
+        return null;
     }
 }

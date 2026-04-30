@@ -1,53 +1,49 @@
-﻿using SharpToken;
+using SharpToken;
 using Domain;
 using Domain.DTOs;
-using OpenAI.ObjectModels;
 using SharedClasses;
 
 namespace Application.Services;
 
 public class TokenService
 {
-    public const int Gpt3AllowedTokens = 4000;
-    public const int Gpt4AllowedTokens = 8000;
+    public const int Gpt54NanoAllowedTokens = 16000;
+    public const int Gpt55AllowedTokens = 32000;
 
-    public int GetTokenCount(ChatMessage message, Models.Model model)
-        => GptEncoding.GetEncodingForModel(model.EnumToString()).Encode(message.Content).Count;
+    public int GetTokenCount(ChatMessage message, AvailableGptModels model)
+        => GetEncoding(model).Encode(message.Content).Count;
 
-    public int GetTokenCount(RuleDto message, Models.Model model)
-        => GptEncoding.GetEncodingForModel(model.EnumToString()).Encode(message.Content).Count;
+    public int GetTokenCount(RuleDto message, AvailableGptModels model)
+        => GetEncoding(model).Encode(message.Content).Count;
 
-    public TokenResult GetTokenCount(List<ChatMessage> messageList, Models.Model model)
+    public TokenResult GetTokenCount(List<ChatMessage> messageList, AvailableGptModels model)
         => GetTokenCount(messageList.Select(m => m.Content).ToList(), model);
 
-    public TokenResult GetTokenCount(List<RuleDto> messageList, Models.Model model)
+    public TokenResult GetTokenCount(List<RuleDto> messageList, AvailableGptModels model)
         => GetTokenCount(messageList.Select(m => m.Content).Cast<string>().ToList(), model);
 
-    private TokenResult GetTokenCount(List<string> messageList, Models.Model model)
+    private TokenResult GetTokenCount(List<string> messageList, AvailableGptModels model)
     {
         var tokenResult = new TokenResult();
-        var allowedTokens = model switch
-        {
-            Models.Model.Gpt_4 => Gpt4AllowedTokens,
-            Models.Model.Gpt_3_5_Turbo => Gpt3AllowedTokens,
-            _ => throw new ArgumentOutOfRangeException()
-        };
+        var allowedTokens = GetMaxAllowedTokens(model);
+        var encoding = GetEncoding(model);
 
-        var encodingModel = GptEncoding.GetEncodingForModel(model.EnumToString());
-
-        messageList.ForEach(s => tokenResult.TokenCount += encodingModel.Encode(s).Count);
+        messageList.ForEach(s => tokenResult.TokenCount += encoding.Encode(s).Count);
         tokenResult.RemainingCount = allowedTokens - tokenResult.TokenCount;
 
         return tokenResult;
     }
 
-    public int GetMaxAllowedTokens(Models.Model gptModel)
+    public int GetMaxAllowedTokens(AvailableGptModels gptModel)
     {
         return gptModel switch
         {
-            Models.Model.Gpt_3_5_Turbo => Gpt3AllowedTokens,
-            Models.Model.Gpt_4 => Gpt4AllowedTokens,
-            _ => throw new ArgumentOutOfRangeException(),
+            AvailableGptModels.Gpt54Nano => Gpt54NanoAllowedTokens,
+            AvailableGptModels.Gpt55 => Gpt55AllowedTokens,
+            _ => throw new ArgumentOutOfRangeException(nameof(gptModel), gptModel, null)
         };
     }
+
+    private static GptEncoding GetEncoding(AvailableGptModels model)
+        => GptEncoding.GetEncoding("o200k_base");
 }

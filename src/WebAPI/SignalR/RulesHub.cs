@@ -2,7 +2,6 @@ using Application.Contracts;
 using Application.Services;
 using Domain.Entities;
 using Microsoft.AspNetCore.SignalR;
-using OpenAI.ObjectModels;
 using Polly.RateLimit;
 using SharedClasses;
 
@@ -17,7 +16,7 @@ public class RulesHub : Hub<IRulesClient>
     public RulesHub(
         MessageHandler messageHandler,
         ILogger<RulesHub> logger,
-        IOpenAiEmbeddingService embeddingService, 
+        IOpenAiEmbeddingService embeddingService,
         IRulesContext rulesContext)
     {
         _messageHandler = messageHandler;
@@ -61,11 +60,11 @@ public class RulesHub : Hub<IRulesClient>
     public IAsyncEnumerable<ChatMessage?> RequestNewCompletionMessage(
         List<ChatMessage> messageList,
         string? apiKey,
-        Models.Model gptModel,
+        AvailableGptModels gptModel,
         CancellationToken cancellationToken
     )
     {
-        
+
         var isAuthenticated = Context.User?.Identity?.IsAuthenticated == true;
         if (isAuthenticated)
         {
@@ -74,7 +73,7 @@ public class RulesHub : Hub<IRulesClient>
             {
                 _logger.LogError("Failed to read claims on an authenticated user.");
             }
-            
+
             else
             {
                 var email = claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")?.Value;
@@ -85,7 +84,7 @@ public class RulesHub : Hub<IRulesClient>
                 {
                     _logger.LogError("Failed to read claims on an authenticated user.");
                 }
-                
+
                 else
                 {
                     _ = TrackUserMessage(email, $"{name} {surname}");
@@ -93,11 +92,11 @@ public class RulesHub : Hub<IRulesClient>
             }
         }
 
-        //Check user has a key if they are not signed in and are trying to access GPT-4
-        else if (!isAuthenticated && string.IsNullOrWhiteSpace(apiKey) && gptModel == Models.Model.Gpt_4)
+        //Check user has a key if they are not signed in and are trying to access the premium model
+        else if (!isAuthenticated && string.IsNullOrWhiteSpace(apiKey) && gptModel == AvailableGptModels.Gpt55)
         {
             Clients.Caller.ReceiveInvalidModelWarning();
-            gptModel = Models.Model.Gpt_3_5_Turbo;
+            gptModel = AvailableGptModels.Gpt54Nano;
         }
 
         return _messageHandler.Handle(messageList, apiKey, gptModel, cancellationToken);

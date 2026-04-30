@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.SignalR.Client;
 using SharedClasses;
@@ -79,11 +79,11 @@ public class SignalRClient
     public async IAsyncEnumerable<ChatMessage?> RequestNewCompletionMessage(
         List<ChatMessage> messageList,
         string? apiKey,
-        OpenAI.ObjectModels.Models.Model gptModel,
+        AvailableGptModels gptModel,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var mappedList = messageList.Select(s => new ChatMessage(s.Role, s.Content, s.Name));
-        
+
         var completionResult = _connection.StreamAsync<ChatMessage?>(
             "RequestNewCompletionMessage",
             mappedList,
