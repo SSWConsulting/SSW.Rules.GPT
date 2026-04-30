@@ -14,8 +14,8 @@
                 <MudSwitch Class="mb-2" @bind-Value="@SaveAPIKeyToLocalStorage" Label="Save to LocalStorage" Color="Color.Error"></MudSwitch>
             }
             <MudSelect Disabled="@(!UsingByoApiKey && !UserService.IsUserAuthenticated)" T="AvailableGptModels" @bind-Value="@SelectedGptModel" ToStringFunc="s => s.AvailableModelEnumToString()" Label="GPT Model" AnchorOrigin="Origin.BottomCenter">
-                <MudSelectItem Value="AvailableGptModels.Gpt35Turbo"/>
-                <MudSelectItem Value="AvailableGptModels.Gpt4"/>
+                <MudSelectItem Value="AvailableGptModels.Gpt54Nano"/>
+                <MudSelectItem Value="AvailableGptModels.Gpt55"/>
             </MudSelect>
             @if (UsingByoApiKey)
             {
@@ -68,7 +68,7 @@
     private bool SaveAPIKeyToLocalStorage { get; set; }
     private bool HelpIsVisible { get; set; }
 
-    private AvailableGptModels SelectedGptModel { get; set; } = AvailableGptModels.Gpt35Turbo;
+    private AvailableGptModels SelectedGptModel { get; set; } = AvailableGptModels.Gpt54Nano;
     private ValidationState ValidationState { get; set; } = ValidationState.Initial;
 
     public string KeyValidationErrorMessage { get; set; } = string.Empty;
@@ -106,7 +106,7 @@
             DataState.ApiKeyString = null;
             DataState.SelectedGptModel = UserService.IsUserAuthenticated 
                 ? SelectedGptModel
-                : AvailableGptModels.Gpt35Turbo;
+                : AvailableGptModels.Gpt54Nano;
 
             await Storage.SetItemAsync("userAPIKeyEnabled", DataState.UsingByoApiKey.ToString());
         }

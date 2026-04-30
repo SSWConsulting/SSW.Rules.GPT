@@ -216,10 +216,10 @@
 
     private Task OnInvalidModel()
     {
-        Snackbar.Add("You do not have access to GPT-4! Ensure you are signed in or have provided your own key.", Severity.Error);
-        Snackbar.Add("Falling back to GPT-3.5.");
+        Snackbar.Add("You do not have access to GPT-5.5! Ensure you are signed in or have provided your own key.", Severity.Error);
+        Snackbar.Add("Falling back to GPT-5.4 nano.");
 
-        DataState.SelectedGptModel = AvailableGptModels.Gpt35Turbo;
+        DataState.SelectedGptModel = AvailableGptModels.Gpt54Nano;
 
         return Task.CompletedTask;
     }
@@ -228,8 +228,8 @@
     {
         if (firstRender)
         {
-            systemIsDarkMode = await _mudThemeProvider.GetSystemPreference();
-            await _mudThemeProvider.WatchSystemPreference(OnSystemPreferenceChanged);
+            systemIsDarkMode = await _mudThemeProvider.GetSystemDarkModeAsync();
+            await _mudThemeProvider.WatchSystemDarkModeAsync(OnSystemPreferenceChanged);
             StateHasChanged();
         }
     }

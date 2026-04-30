@@ -1,6 +1,5 @@
-﻿using Domain;
+using Domain;
 using Domain.DTOs;
-using OpenAI.ObjectModels;
 using SharedClasses;
 
 namespace Application.Services;
@@ -18,7 +17,7 @@ public class PruningService
         _tokenService = tokenService;
     }
 
-    public List<RuleDto> PruneRelevantRules(List<RuleDto> rules, Models.Model gptModel)
+    public List<RuleDto> PruneRelevantRules(List<RuleDto> rules, AvailableGptModels gptModel)
     {
         List<RuleDto> newRules = rules.Where(r => r.Similarity > 0.5 && r.Content != null)
             .OrderByDescending(r => r.Similarity)
@@ -37,7 +36,7 @@ public class PruningService
         return newRules;
     }
 
-    public TrimResult PruneMessageHistory(List<ChatMessage> messageList, Models.Model gptModel)
+    public TrimResult PruneMessageHistory(List<ChatMessage> messageList, AvailableGptModels gptModel)
     {
         //Store the system message
         var systemMessage =

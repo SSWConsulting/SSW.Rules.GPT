@@ -2,6 +2,9 @@
   "name": "embeddingrefresher",
   "version": "1.0.0",
   "description": "Azure Function to refresh GitHub embeddings",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "start": "func start",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,10 +13,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "dotenv": "^16.4.5",
+    "dotenv": "^17.3.1",
     "gpt-3-encoder": "^1.1.4",
     "gray-matter": "^4.0.3",
-    "node-fetch": "^2.7.0",
-    "@supabase/supabase-js": "^2.x.x"
+    "@supabase/supabase-js": "^2.99.1"
   }
 }

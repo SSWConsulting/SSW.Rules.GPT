@@ -1,4 +1,3 @@
-const fetch = require('node-fetch');
 const { encode } = require('gpt-3-encoder');
 const matter = require('gray-matter');
 const { createClient } = require('@supabase/supabase-js');

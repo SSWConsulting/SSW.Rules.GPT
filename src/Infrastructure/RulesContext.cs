@@ -1,4 +1,4 @@
-﻿using Application.Contracts;
+using Application.Contracts;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Object = Domain.Entities.Object;
@@ -38,12 +38,12 @@ public partial class RulesContext : DbContext, IRulesContext
 
     public virtual DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
 
-    public virtual DbSet<LeaderboardModel> UserStats { get; set; } = null!;
-    
-    public virtual DbSet<ConversationHistoryModel> ConversationHistories { get; set; }
-    
     public virtual DbSet<Rule> Rules { get; set; } = null!;
 
+    public virtual DbSet<LeaderboardModel> UserStats { get; set; } = null!;
+    
+    public virtual DbSet<ConversationHistoryModel> ConversationHistories { get; set; } = null!;
+    
     public virtual DbSet<SamlProvider> SamlProviders { get; set; } = null!;
 
     public virtual DbSet<SamlRelayState> SamlRelayStates { get; set; } = null!;
