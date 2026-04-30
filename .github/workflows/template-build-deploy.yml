@@ -42,11 +42,11 @@ jobs:
     environment: ${{ inputs.githubEnvironment }}
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # Log in to Azure
       - name: Azure Login
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT }}
@@ -75,7 +75,7 @@ jobs:
           SigningAuthority: ${{ vars.SIGNING_AUTHORITY }}
 
       - name: Set up .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
 
@@ -91,13 +91,13 @@ jobs:
 
       - name: Upload API artifact for deployment job
         if: ${{ vars.TAKE_APP_OFFLINE != 'TRUE' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: .net-app-api
           path: ./publish/api
 
       - name: Upload WebUI artifact for deployment job
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: .net-app-webui
           path: ./publish/ui
@@ -113,14 +113,14 @@ jobs:
     steps:
       - name: Download artifact from build job
         if: ${{ vars.TAKE_APP_OFFLINE != 'TRUE' }}
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: .net-app-api
 
       # Log in to Azure
       - name: Azure Login
         if: ${{ vars.TAKE_APP_OFFLINE != 'TRUE' }}
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT }}
@@ -144,7 +144,7 @@ jobs:
       
     steps:
       - name: Download artifact from build job
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: .net-app-webui
     
@@ -168,7 +168,7 @@ jobs:
 
       # Log in to Azure
       - name: Azure Login
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT }}
@@ -177,14 +177,14 @@ jobs:
       # TODO: Move to federated auth
           
       - name: Mask Deployment Token
-        uses: azure/CLI@v2
+        uses: azure/CLI@v3
         with:
           azcliversion: latest
           inlineScript: |
             echo "::add-mask::$(az staticwebapp secrets list -n ${{ vars.AZURE_STATIC_WEB_APP_NAME }} | jq -r '.properties.apiKey')"  
 
       - name: Retrieve Deployment Token
-        uses: azure/CLI@v2
+        uses: azure/CLI@v3
         with:
           azcliversion: latest
           inlineScript: |
