@@ -7,7 +7,7 @@ public static class ConversationHistoryRoutes
 {
     public static void MapConversationRoutes(this RouteGroupBuilder app)
     {
-        var routeGroup = app.MapGroup("").WithTags("ConversationHistory").WithOpenApi();
+        var routeGroup = app.MapGroup("").WithTags("ConversationHistory");
 
         routeGroup
             .MapGet(
