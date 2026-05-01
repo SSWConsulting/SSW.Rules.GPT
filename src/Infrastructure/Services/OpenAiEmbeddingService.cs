@@ -1,5 +1,6 @@
 using Application.Contracts;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.Logging;
 using Pgvector;
 using Polly.RateLimit;
 
@@ -8,12 +9,14 @@ namespace Infrastructure.Services;
 public class OpenAiEmbeddingService : IOpenAiEmbeddingService
 {
     private readonly IOpenAiClientFactory _clientFactory;
+    private readonly ILogger<OpenAiEmbeddingService> _logger;
 
     public Func<RateLimitRejectedException, Task>? OnRateLimited { get; set; }
 
-    public OpenAiEmbeddingService(IOpenAiClientFactory clientFactory)
+    public OpenAiEmbeddingService(IOpenAiClientFactory clientFactory, ILogger<OpenAiEmbeddingService> logger)
     {
         _clientFactory = clientFactory;
+        _logger = logger;
     }
 
     public async Task<Vector?> GetEmbedding(string inputString, string? apiKey)
@@ -26,6 +29,7 @@ public class OpenAiEmbeddingService : IOpenAiEmbeddingService
             var embedding = result.FirstOrDefault();
             if (embedding is null)
             {
+                _logger.LogError("Embedding response contained no vector.");
                 return null;
             }
 
@@ -41,8 +45,8 @@ public class OpenAiEmbeddingService : IOpenAiEmbeddingService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Embedding request failed: {ex.Message}");
-            return null;
+            _logger.LogError(ex, "Embedding request failed");
+            throw;
         }
     }
 
