@@ -4,6 +4,7 @@ using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 using Pgvector.EntityFrameworkCore;
 using SharedClasses;
 
@@ -40,7 +41,7 @@ public class RelevantRulesServiceTests
         var httpClientFactory = services.BuildServiceProvider().GetRequiredService<IHttpClientFactory>();
 
         var clientFactory = new OpenAiClientFactory(mockConfig, httpClientFactory);
-        var openAiEmbeddingService = new OpenAiEmbeddingService(clientFactory);
+        var openAiEmbeddingService = new OpenAiEmbeddingService(clientFactory, NullLogger<OpenAiEmbeddingService>.Instance);
 
         // SUT
         var relevantRulesService = new RelevantRulesService(
