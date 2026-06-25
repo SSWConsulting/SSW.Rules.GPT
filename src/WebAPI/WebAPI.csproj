@@ -14,6 +14,7 @@
 		<PackageReference Include="Duende.BFF" Version="4.1.1" />
 		<PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="8.5.0" />
 		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="10.0.4" />
+		<PackageReference Include="ModelContextProtocol.AspNetCore" Version="1.4.0" />
 		<PackageReference Include="NSwag.AspNetCore" Version="14.6.3" />
 		<PackageReference Include="OpenTelemetry.Api" Version="1.15.3" />
 		<PackageReference Include="NSwag.MSBuild" Version="14.6.3">
@@ -29,6 +30,15 @@
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Remove="WebSocketsMiddleware.cs" />
+	</ItemGroup>
+	<ItemGroup>
+		<!-- Publish the repo's agent skills at /skills/<name> (see SkillsRoutes.cs). Single source.
+		     Condition guards the build if the (committed) skill file is ever absent — a missing skill
+		     degrades to an empty /skills index rather than failing the build (MSB3030). -->
+		<Content Include="..\..\.claude\skills\ssw-rules-audit\SKILL.md" Link="Skills\ssw-rules-audit.md"
+		         Condition="Exists('..\..\.claude\skills\ssw-rules-audit\SKILL.md')">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
 	</ItemGroup>
 	<PropertyGroup>
 		<RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
