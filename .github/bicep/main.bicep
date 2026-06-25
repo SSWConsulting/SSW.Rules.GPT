@@ -63,7 +63,6 @@ resource kv 'Microsoft.KeyVault/vaults@2023-07-01' = {
   name: keyVaultName
   location: location
   properties: {
-    accessPolicies: []
     enabledForDeployment: false
     enabledForDiskEncryption: false
     enabledForTemplateDeployment: true
@@ -105,7 +104,7 @@ resource githubTokenSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   }
 }
 
-resource backendAppService 'Microsoft.Web/sites@2020-12-01' = {
+resource backendAppService 'Microsoft.Web/sites@2024-04-01' = {
   name: apiAppName
   location: location
   kind: 'app,linux'
@@ -123,38 +122,28 @@ resource backendAppService 'Microsoft.Web/sites@2020-12-01' = {
       cors: {
         allowedOrigins: [ allowedCors ]
       }
-      appSettings: [
-        {
-          name: 'AllowedCORSOrigins'
-          value: allowedCors
-        }
-        {
-          name: 'MaxRequestsPerMinute'
-          value: maxRequests
-        }
-        {
-          name: 'SigningAuthority'
-          value: signingAuthority
-        }
-        {
-          name: 'ConnectionStrings__DefaultConnection'
-          value: '@Microsoft.KeyVault(SecretUri=${dbSecret.properties.secretUri})'
-        }
-        {
-          name: 'OpenAiApiKey'
-          value: '@Microsoft.KeyVault(SecretUri=${openaiApiKeySecret.properties.secretUri})'
-        }
-        {
-          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
-          value: applicationInsights.properties.InstrumentationKey
-        }
-        {
-          name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
-          value: applicationInsights.properties.ConnectionString
-        }
-      ]
     }
   }
+}
+
+// appSettings are split into a child resource so we can dependsOn the KV access
+// policy. If they were inlined on backendAppService, the App Service would try to
+// resolve the KV references before the policy exists and cache the failure.
+resource backendAppSettings 'Microsoft.Web/sites/config@2024-04-01' = {
+  parent: backendAppService
+  name: 'appsettings'
+  properties: {
+    AllowedCORSOrigins: allowedCors
+    MaxRequestsPerMinute: maxRequests
+    SigningAuthority: signingAuthority
+    ConnectionStrings__DefaultConnection: '@Microsoft.KeyVault(SecretUri=${dbSecret.properties.secretUri})'
+    OpenAiApiKey: '@Microsoft.KeyVault(SecretUri=${openaiApiKeySecret.properties.secretUri})'
+    APPINSIGHTS_INSTRUMENTATIONKEY: applicationInsights.properties.InstrumentationKey
+    APPLICATIONINSIGHTS_CONNECTION_STRING: applicationInsights.properties.ConnectionString
+  }
+  dependsOn: [
+    keyVaultAccessPolicy
+  ]
 }
 
 resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
