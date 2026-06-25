@@ -29,10 +29,13 @@ builder.Services.AddRateLimiter(options =>
         SkillsRoutes.PublicRateLimitPolicy,
         httpContext =>
         {
-            var forwardedFor = httpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
-            var clientKey = !string.IsNullOrWhiteSpace(forwardedFor)
-                ? forwardedFor.Split(',')[0].Trim()
-                : httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            // Key on the real connection IP only. X-Forwarded-For is deliberately NOT trusted here:
+            // no validated proxy chain (UseForwardedHeaders + KnownProxies/KnownNetworks) is
+            // configured, so trusting a raw, caller-supplied XFF would let an attacker rotate the
+            // header to mint a fresh bucket per request and bypass the limit entirely. To get true
+            // per-client limiting behind Azure Front Door / App Service, configure forwarded headers
+            // for that topology; RemoteIpAddress will then reflect the validated client IP.
+            var clientKey = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 
             return RateLimitPartition.GetFixedWindowLimiter(
                 clientKey,
