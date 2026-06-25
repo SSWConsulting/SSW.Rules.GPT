@@ -63,6 +63,10 @@ resource kv 'Microsoft.KeyVault/vaults@2023-07-01' = {
   name: keyVaultName
   location: location
   properties: {
+    // Required base property for the vault. The actual policies are owned by the
+    // separate keyVaultAccessPolicy 'add' resource; an empty array here keeps the
+    // vault's own definition from clobbering them on redeploy.
+    accessPolicies: []
     enabledForDeployment: false
     enabledForDiskEncryption: false
     enabledForTemplateDeployment: true
