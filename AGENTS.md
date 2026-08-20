@@ -146,6 +146,15 @@ dotnet user-secrets set "ConnectionStrings:DefaultConnection" "..." --project "s
 - Avoid leaking Web-specific types into Domain.
 - Register new services in the relevant `DependencyInjection.cs`.
 
+## SSW Rules MCP Server
+- The WebAPI hosts an MCP server (over streamable HTTP) that exposes the rules vector DB to coding agents. It is mapped at `/mcp` in `src/WebAPI/Program.cs` via `app.MapMcp("/mcp")` and is **anonymous/read-only** (rules are public) — keep it off the authorized `api` group.
+- Tools live in `src/WebAPI/Mcp/SswRulesTools.cs` (`[McpServerToolType]`): `search_ssw_rules` and `get_ssw_rule`. They depend on `RulesSearchService` (`src/Application`) and `IRuleContentService` (`src/Infrastructure`).
+- `RulesSearchService` embeds a plain query (server key via `GetEmbedding(query, null)`), runs `match_rules`, and collapses chunks to one result per rule slug. `RuleContentService` fetches full rule markdown from `raw.githubusercontent.com/SSWConsulting/SSW.Rules.Content/main/rules/{slug}/rule.md` (cached).
+- Slug identity: DB `name` == content-repo folder == `https://www.ssw.com.au/rules/{slug}`.
+- Package: `ModelContextProtocol.AspNetCore`. DI services are auto-injected into tools and excluded from the tool JSON schema — only real arguments must be schema params.
+- `/ssw-rules-audit` skill (`.claude/skills/ssw-rules-audit/`) consumes these tools to audit a diff/repo against the rules. The repo `.mcp.json` points Claude Code at the local API; change the URL for the deployed server.
+- Skills are also served by URL for one-line install: `GET /skills` (index + install command) and `GET /skills/{name}` (raw markdown), via `src/WebAPI/Routes/SkillsRoutes.cs`. The skill file is linked into the WebAPI build output (`Skills/`) from `.claude/skills/` so there's a single source.
+
 ## Data and Error Handling
 - This repo currently uses `Pgvector.EntityFrameworkCore`; do not replace it casually.
 - Preserve existing `RulesContext` mappings unless a schema change is intentional.
@@ -174,7 +183,7 @@ dotnet test "SSW.Rules.GPT.slnx"
 For targeted changes, run the narrowest relevant validation and report what you ran.
 
 ## Known Quirks
-- `tests/Application.UnitTests` currently has no discoverable tests.
+- `tests/Application.UnitTests` holds the DB-free unit tests (e.g. `RulesSearchServiceTests`); `Application.csproj` uses `InternalsVisibleTo` to expose internal helpers to it.
 - The package graph can emit a pgvector/EF Core compatibility warning during restore/build.
 - Generated warning suppressions in `src/WebUI/RulesGptApiClients.cs` should be left alone.
 - `.github/workflows/weekly-db-keepalive.yml` pings the API health endpoint.
