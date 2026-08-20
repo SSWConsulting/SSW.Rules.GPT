@@ -54,10 +54,9 @@ public class ChatCompletionsService
             MaxOutputTokens = trimResult.RemainingTokens
         };
 
-        // GPT-5.5 only accepts the default temperature (1); sending a custom value
-        // returns HTTP 400 (unsupported_value) and falls back to GPT-5.4 nano.
-        // GPT-5.4 nano still supports a custom temperature.
-        if (gptModel != AvailableGptModels.Gpt55)
+        // GPT-5.5 only accepts the API default temperature (1); sending a custom
+        // value returns HTTP 400 (unsupported_value). GPT-5.4 nano accepts one.
+        if (gptModel.SupportsCustomTemperature())
         {
             chatOptions.Temperature = 0.5f;
         }

@@ -13,7 +13,13 @@ public class ApiKeyValidationService
         try
         {
             var client = new OpenAIClient(new ApiKeyCredential(apiKey)).GetChatClient(gptModel.ToModelId());
-            var options = new ChatCompletionOptions { MaxOutputTokenCount = 1, Temperature = 0.5f };
+            var options = new ChatCompletionOptions { MaxOutputTokenCount = 1 };
+            // GPT-5.5 rejects a custom temperature (HTTP 400), which would make key
+            // validation wrongly report a valid key as invalid. See SupportsCustomTemperature.
+            if (gptModel.SupportsCustomTemperature())
+            {
+                options.Temperature = 0.5f;
+            }
             await client.CompleteChatAsync([new UserChatMessage("a")], options);
 
             return new ApiValidationResult(true, string.Empty);
