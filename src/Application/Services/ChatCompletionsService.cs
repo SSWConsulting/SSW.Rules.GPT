@@ -51,9 +51,15 @@ public class ChatCompletionsService
         var aiMessages = trimResult.Messages.Select(ToAiMessage).ToList();
         var chatOptions = new ChatOptions
         {
-            Temperature = 0.5f,
             MaxOutputTokens = trimResult.RemainingTokens
         };
+
+        // GPT-5.5 only accepts the API default temperature (1); sending a custom
+        // value returns HTTP 400 (unsupported_value). GPT-5.4 nano accepts one.
+        if (gptModel.SupportsCustomTemperature())
+        {
+            chatOptions.Temperature = 0.5f;
+        }
 
         var enumerator = chatClient
             .GetStreamingResponseAsync(aiMessages, chatOptions, cancellationToken)
