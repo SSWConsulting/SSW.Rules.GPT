@@ -3,7 +3,7 @@ namespace SharedClasses;
 public enum AvailableGptModels
 {
     Gpt54Nano = 1,
-    Gpt55 = 2
+    Gpt56 = 2
 }
 
 public static class AvailableGptModelsExtensions
@@ -13,7 +13,7 @@ public static class AvailableGptModelsExtensions
         return gptModel switch
         {
             AvailableGptModels.Gpt54Nano => "GPT-5.4 nano",
-            AvailableGptModels.Gpt55 => "GPT-5.5",
+            AvailableGptModels.Gpt56 => "GPT-5.6",
             _ => throw new ArgumentOutOfRangeException(nameof(gptModel), gptModel, null)
         };
     }
@@ -23,13 +23,13 @@ public static class AvailableGptModelsExtensions
         return gptModel switch
         {
             AvailableGptModels.Gpt54Nano => "gpt-5.4-nano",
-            AvailableGptModels.Gpt55 => "gpt-5.5",
+            AvailableGptModels.Gpt56 => "gpt-5.6",
             _ => throw new ArgumentOutOfRangeException(nameof(gptModel), gptModel, null)
         };
     }
 
     /// <summary>
-    /// Whether the model accepts a custom sampling temperature. GPT-5.5 only
+    /// Whether the model accepts a custom sampling temperature. GPT-5.6 only
     /// supports the API default (1) and returns HTTP 400 (unsupported_value) for
     /// any other value; GPT-5.4 nano accepts a custom temperature. Exhaustive by
     /// design (allowlist), so a new model forces a decision here rather than
@@ -42,7 +42,7 @@ public static class AvailableGptModelsExtensions
         return gptModel switch
         {
             AvailableGptModels.Gpt54Nano => true,
-            AvailableGptModels.Gpt55 => false,
+            AvailableGptModels.Gpt56 => false,
             _ => throw new ArgumentOutOfRangeException(nameof(gptModel), gptModel, null)
         };
     }

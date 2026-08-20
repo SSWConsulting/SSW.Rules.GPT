@@ -54,7 +54,7 @@ public class ChatCompletionsService
             MaxOutputTokens = trimResult.RemainingTokens
         };
 
-        // GPT-5.5 only accepts the API default temperature (1); sending a custom
+        // GPT-5.6 only accepts the API default temperature (1); sending a custom
         // value returns HTTP 400 (unsupported_value). GPT-5.4 nano accepts one.
         if (gptModel.SupportsCustomTemperature())
         {
@@ -114,11 +114,11 @@ public class ChatCompletionsService
         AvailableGptModels gptModel,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        if (gptModel == AvailableGptModels.Gpt55)
+        if (gptModel == AvailableGptModels.Gpt56)
         {
             yield return new ChatMessage(
                 "assistant",
-                "⚠️ *GPT-5.5 Request failed, reverting to GPT-5.4 nano.*" + Environment.NewLine);
+                "⚠️ *GPT-5.6 Request failed, reverting to GPT-5.4 nano.*" + Environment.NewLine);
 
             await foreach (var chatMessage in RequestNewCompletionMessage(
                 messageList, apiKey, AvailableGptModels.Gpt54Nano, cancellationToken))

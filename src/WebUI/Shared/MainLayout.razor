@@ -216,7 +216,7 @@
 
     private Task OnInvalidModel()
     {
-        Snackbar.Add("You do not have access to GPT-5.5! Ensure you are signed in or have provided your own key.", Severity.Error);
+        Snackbar.Add("You do not have access to GPT-5.6! Ensure you are signed in or have provided your own key.", Severity.Error);
         Snackbar.Add("Falling back to GPT-5.4 nano.");
 
         DataState.SelectedGptModel = AvailableGptModels.Gpt54Nano;
