@@ -93,7 +93,7 @@ public class RulesHub : Hub<IRulesClient>
         }
 
         //Check user has a key if they are not signed in and are trying to access the premium model
-        else if (!isAuthenticated && string.IsNullOrWhiteSpace(apiKey) && gptModel == AvailableGptModels.Gpt55)
+        else if (!isAuthenticated && string.IsNullOrWhiteSpace(apiKey) && gptModel == AvailableGptModels.Gpt56)
         {
             Clients.Caller.ReceiveInvalidModelWarning();
             gptModel = AvailableGptModels.Gpt54Nano;

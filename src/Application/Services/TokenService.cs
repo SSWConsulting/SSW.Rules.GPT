@@ -8,7 +8,7 @@ namespace Application.Services;
 public class TokenService
 {
     public const int Gpt54NanoAllowedTokens = 16000;
-    public const int Gpt55AllowedTokens = 32000;
+    public const int Gpt56AllowedTokens = 32000;
 
     public int GetTokenCount(ChatMessage message, AvailableGptModels model)
         => GetEncoding(model).Encode(message.Content).Count;
@@ -39,7 +39,7 @@ public class TokenService
         return gptModel switch
         {
             AvailableGptModels.Gpt54Nano => Gpt54NanoAllowedTokens,
-            AvailableGptModels.Gpt55 => Gpt55AllowedTokens,
+            AvailableGptModels.Gpt56 => Gpt56AllowedTokens,
             _ => throw new ArgumentOutOfRangeException(nameof(gptModel), gptModel, null)
         };
     }
