@@ -10,10 +10,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.4" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.4" />
 		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="3.0.0" />
-		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.4" />
-		<!-- Pin above the transitive 2.0.0 pulled in by Microsoft.AspNetCore.OpenApi:
-		     2.0.0 has advisory GHSA-v5pm-xwqc-g5wc (NU1903), patched in 2.7.5. -->
-		<PackageReference Include="Microsoft.OpenApi" Version="2.7.5" />
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.11" />
 		<PackageReference Include="Duende.BFF" Version="4.1.1" />
 		<PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="8.5.0" />
 		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="10.0.4" />
