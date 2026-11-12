@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "ssw-rules": {
+      "type": "http",
+      "url": "https://localhost:7104/mcp"
+    }
+  }
+}

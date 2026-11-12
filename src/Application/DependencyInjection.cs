@@ -10,6 +10,7 @@ public static class DependencyInjection
         services.AddScoped<EmbeddingNeighboursService>();
         services.AddScoped<MessageHandler>();
         services.AddScoped<RelevantRulesService>();
+        services.AddScoped<RulesSearchService>();
         services.AddScoped<LeaderboardService>();
         services.AddScoped<ChatHistoryService>();
 

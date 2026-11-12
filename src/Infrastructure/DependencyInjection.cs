@@ -20,6 +20,12 @@ public static class DependencyInjection
         services.AddSingleton<IOpenAiClientFactory, OpenAiClientFactory>();
         services.AddSingleton<IOpenAiEmbeddingService, OpenAiEmbeddingService>();
         services.AddSingleton<ISemanticKernelService, SemanticKernelService>();
+        services.AddSingleton<IRuleContentService, RuleContentService>();
+
+        services.AddHttpClient(
+            RuleContentService.HttpClientName,
+            client => client.DefaultRequestHeaders.UserAgent.ParseAdd("SSW.Rules.GPT-MCP")
+        );
 
         var connectionString = config.GetConnectionString("DefaultConnection");
 
