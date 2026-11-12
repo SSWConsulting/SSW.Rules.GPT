@@ -19,16 +19,16 @@ public class ChatLinkedListSerializationTests
         var list = new ChatLinkedList();
         var question = list.Add(
             new ChatMessage("user", "How do I write a good commit message?"),
-            AvailableGptModels.Gpt55);
+            AvailableGptModels.Gpt56);
         var answer = list.AddAfter(
             new ChatMessage("assistant", "Use the imperative mood 🙂"),
             question,
-            AvailableGptModels.Gpt55);
+            AvailableGptModels.Gpt56);
         // Exercises the Left/Right/Previous/Next reference cycle that requires $ref handling.
         list.AddRight(
             new ChatMessage("assistant", "Or describe the why, not the what"),
             answer,
-            AvailableGptModels.Gpt55);
+            AvailableGptModels.Gpt56);
         return list;
     }
 
@@ -53,7 +53,7 @@ public class ChatLinkedListSerializationTests
         result!.Should().HaveCount(3);
         result[0].Message.Role.Should().Be("user");
         result[0].Message.Content.Should().Be("How do I write a good commit message?");
-        result[0].GptModel.Should().Be(AvailableGptModels.Gpt55);
+        result[0].GptModel.Should().Be(AvailableGptModels.Gpt56);
         result[0].Next.Should().NotBeNull();
     }
 }

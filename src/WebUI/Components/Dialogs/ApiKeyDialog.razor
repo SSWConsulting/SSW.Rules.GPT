@@ -15,7 +15,7 @@
             }
             <MudSelect Disabled="@(!UsingByoApiKey && !UserService.IsUserAuthenticated)" T="AvailableGptModels" @bind-Value="@SelectedGptModel" ToStringFunc="s => s.AvailableModelEnumToString()" Label="GPT Model" AnchorOrigin="Origin.BottomCenter">
                 <MudSelectItem Value="AvailableGptModels.Gpt54Nano"/>
-                <MudSelectItem Value="AvailableGptModels.Gpt55"/>
+                <MudSelectItem Value="AvailableGptModels.Gpt56"/>
             </MudSelect>
             @if (UsingByoApiKey)
             {
