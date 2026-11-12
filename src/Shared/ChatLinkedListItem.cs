@@ -4,6 +4,12 @@ namespace SharedClasses;
 
 public class ChatLinkedListItem
 {
+    // Parameterless ctor so a serializer can materialise this type when reading
+    // persisted conversations. With three parameterized ctors and no [JsonConstructor],
+    // Newtonsoft can't pick one and throws "Unable to find a constructor to use" —
+    // which breaks conversation-history save/load for signed-in users.
+    public ChatLinkedListItem() { }
+
     public ChatLinkedListItem(ChatMessage message, AvailableGptModels gptModel)
     {
         Message = message;
@@ -59,7 +65,7 @@ public class ChatLinkedListItem
         }
     }
 
-    public ChatMessage Message { get; set; }
+    public ChatMessage Message { get; set; } = null!;
     public AvailableGptModels GptModel { get; set; }
     public ChatLinkedListItem? Previous { get; set; }
     public ChatLinkedListItem? Next { get; set; }

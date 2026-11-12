@@ -25,7 +25,7 @@ public class MessageHandler
         [EnumeratorCancellation] CancellationToken cancellationToken
     )
     {
-        var relevantRulesList = _relevantRulesService.GetRelevantRules(
+        var relevantRulesList = await _relevantRulesService.GetRelevantRules(
             messageList,
             apiKey,
             gptModel
